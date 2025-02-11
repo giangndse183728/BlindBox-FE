@@ -138,6 +138,17 @@ export default function ButtonAppBar() {
         anchor="left"
         open={isDrawerOpen}
         onClose={toggleDrawer(false)}
+        sx={{ 
+          '& .MuiDrawer-paper': {
+            marginTop: '90px',
+            marginLeft:'20px',
+            height:600,
+            borderRadius: 10,
+            bgcolor: 'rgba(10, 10, 10, 0.6)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+          }
+        }}
       >
         <Box
           sx={{ width: 300 }}
@@ -145,15 +156,15 @@ export default function ButtonAppBar() {
           onClick={toggleDrawer(false)}
           onKeyDown={toggleDrawer(false)}
         >
-          <Typography fontFamily="Metal Mania" color='red' variant="h5" component="div" sx={{ mt: 1, textAlign: 'center' }}>
-            + &nbsp; DnilbThrift &nbsp; +
+          <Typography fontFamily="'Jersey 15', sans-serif"  color='white' variant="h4" component="div" sx={{ mt: 1, textAlign: 'center' }}>
+              BlindB!ox  
           </Typography>
-          <Divider sx={{ m: 2 }} />
+          <Divider sx={{ m: 1, borderColor: 'rgba(255, 255, 255, 0.3)'}} />
           <List>
-            {['Home', 'About', 'Contact'].map((text) => (
+            {['Home', 'Collection', 'Trading', 'Custom Accessories', 'Inventory', 'Profile', 'Sales', 'Orders'].map((text) => (
               <ListItem key={text} disablePadding>
-                <ListItemButton>
-                  <ListItemText primary={text} />
+                <ListItemButton >
+                  <ListItemText  primary={text} sx={{ color: 'white' }}  />
                 </ListItemButton>
               </ListItem>
             ))}

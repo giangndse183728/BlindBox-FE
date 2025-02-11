@@ -1,4 +1,4 @@
-import React, { useState, useEffect,  lazy, Suspense } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -41,7 +41,7 @@ const tabItems = [
             <Grid container alignItems="center">
                 <Grid item xs={6}>
                     <FormControlLabel
-                        control={<Checkbox value="remember" sx={{ 
+                        control={<Checkbox value="remember" sx={{
                             color: 'rgba(255, 255, 255, 0.7)',
                             '&.Mui-checked': { color: 'white' }
                         }} />}
@@ -49,9 +49,9 @@ const tabItems = [
                     />
                 </Grid>
                 <Grid item xs={6} display="flex" justifyContent="flex-end">
-                    <Link href="#" variant="body2" sx={{ 
-                        color: 'rgba(255, 255, 255, 0.7)', 
-                        '&:hover': { color: 'white' } 
+                    <Link href="#" variant="body2" sx={{
+                        color: 'rgba(255, 255, 255, 0.7)',
+                        '&:hover': { color: 'white' }
                     }}>
                         Forgot password?
                     </Link>
@@ -116,7 +116,7 @@ export default function Login() {
             duration: 1000,
             once: true
         });
-        
+
         const timer = setTimeout(() => {
             setIsLoading(false);
         }, 2000);
@@ -173,14 +173,14 @@ export default function Login() {
             flexDirection: 'column',
             margin: 0,
             padding: 0
-            
+
         }}>
             <CssBaseline />
-    
-         
-        
-        <ThreeScene />
-  
+
+
+
+            <ThreeScene />
+
 
 
 
@@ -253,20 +253,22 @@ export default function Login() {
                         alignItems: 'center',
                     }}
                 >
-                    <img
-                        src="/assets/logoBB.png"
-                        width="80"
-                        height="80"
-                        alt="."
-                        data-aos="zoom-in"
-                        data-aos-delay="400"
-                    >
 
-                    </img>
-                    <Typography 
-                        fontFamily="Yusei Magic" 
-                        component="h1" 
-                        variant="h5" 
+                    {selectedTab === 'login' && (
+                        <img
+                            src="/assets/logoBB.png"
+                            width="80"
+                            height="80"
+                            alt="."
+                            data-aos="zoom-in"
+                            data-aos-delay="400"
+                        >
+                        </img>
+                    )}
+                    <Typography
+                        fontFamily="Yusei Magic"
+                        component="h1"
+                        variant="h5"
                         sx={{ mt: 1, mb: 2, color: 'white' }}
                         data-aos="fade-up"
                         data-aos-delay="600"
@@ -279,8 +281,8 @@ export default function Login() {
                             <React.Fragment key={tab.key}>
                                 <ToggleButton
                                     color="warning"
-                                    sx={{ 
-                                        border: "none", 
+                                    sx={{
+                                        border: "none",
                                         width: 200,
                                         color: 'white',
                                         '&.Mui-selected': {
@@ -301,16 +303,16 @@ export default function Login() {
                         ))}
                     </Box>
 
-                    <Box      
+                    <Box
                         component="form"
                         noValidate
                         data-aos="fade-up"
                         data-aos-delay="200"
                         key={tabAnimationKey}
-                        >
+                    >
 
                         {renderFields(currentTab.fields)}
-                        
+
                         {currentTab.extraContent}
 
                         <Button

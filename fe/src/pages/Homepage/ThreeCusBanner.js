@@ -100,10 +100,7 @@ const ThreeCus = () => {
     // Create spheres
     let currentIndex = 0;
     
-    
-    // Iterate through each group
     modelGroups.forEach(group => {
-      // Create the specified number of spheres for this group
       for (let i = 0; i < group.count; i++) {
         const geometry = new THREE.SphereGeometry(0.5, 64, 64);
      
@@ -112,8 +109,8 @@ const ThreeCus = () => {
         for (let i = 0; i < position.count; i++) {
           const v = new THREE.Vector3().fromBufferAttribute(position, i);
           
-          const originalLength = v.length(); // Store original distance from center
-          v.normalize().multiplyScalar(originalLength * (1 + Math.random() * 0.3)); // Scale relative to original size
+          const originalLength = v.length(); 
+          v.normalize().multiplyScalar(originalLength * (1 + Math.random() * 0.3)); 
           
           position.setXYZ(i, v.x, v.y, v.z);
         }

@@ -1,6 +1,6 @@
 // src/ThreeScene.js
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef} from "react";
 import * as THREE from "three";
 import { GLTFLoader } from 'three-stdlib';
 import { OrbitControls } from 'three-stdlib';
@@ -16,10 +16,8 @@ const ThreeScene = () => {
   useEffect(() => {
     if (!containerRef.current) return;
 
-    // Clear any existing content
     containerRef.current.innerHTML = '';
 
-    // Set dimensions to match container size instead of fixed values
     const width = containerRef.current.clientWidth;
     const height = containerRef.current.clientHeight;
 
@@ -35,52 +33,48 @@ const ThreeScene = () => {
     renderer.setPixelRatio(window.devicePixelRatio);
     containerRef.current.appendChild(renderer.domElement);
 
-    // Add a flag to track if model is already loaded
+
     let modelLoaded = false;
 
-    // Add texture loader setup
+
     const textureLoader = new THREE.TextureLoader();
     
-// Load all textures
+
 const baseColorMap = textureLoader.load('/assets/3d/SMO_MysteryBlock_SHD_D.png');
-const normalMap = textureLoader.load('/assets/3d/SMO_MysteryBlock_SHD_N.png'); // Provide correct file path
-const aoMap = textureLoader.load('/assets/3d/SMO_MysteryBlock_SHD_O.png'); // Provide correct file path
-const heightMap = textureLoader.load('/assets/3d/SMO_MysteryBlock_SHD_H.png'); // Provide correct file path
+const normalMap = textureLoader.load('/assets/3d/SMO_MysteryBlock_SHD_N.png'); 
+const aoMap = textureLoader.load('/assets/3d/SMO_MysteryBlock_SHD_O.png'); 
+const heightMap = textureLoader.load('/assets/3d/SMO_MysteryBlock_SHD_H.png'); 
 const metalnessMap = textureLoader.load('/assets/3d/SMO_MysteryBlock_SHD_M.png');
 
-// Create material with updated properties
+
 const material = new THREE.MeshStandardMaterial({
-  map: baseColorMap,  // Base color texture
-  normalMap: normalMap,  // Normal map for surface detail
-  aoMap: aoMap,  // Ambient occlusion map for shadow details
-  aoMapIntensity: 1.0,  // Control ambient occlusion intensity
-  displacementMap: heightMap,  // Height map for surface displacement
-  displacementScale: 0.1,  // Control displacement effect intensity
+  map: baseColorMap,  
+  normalMap: normalMap,  
+  aoMap: aoMap, 
+  aoMapIntensity: 1.0,  
+  displacementMap: heightMap,  
+  displacementScale: 0.1,  
   metalnessMap: metalnessMap, 
   metalness: 1.0,
 });
 
-// Assign material reference
 materialRef.current = material;
 
-
-    // Load 3D model of furniture
     const loader = new GLTFLoader();
     loader.load("/assets/3d/luckbox.glb", (gltf) => {
       if (!modelLoaded) {
-        // Create multiple instances
-        const numberOfModels = 6; // You can adjust this number
-        const radius = 2.0; // Distance from center
+       
+        const numberOfModels = 6; 
+        const radius = 2.0; 
         
         for (let i = 0; i < numberOfModels; i++) {
-          const furniture = gltf.scene.clone(); // Clone the loaded model
+          const furniture = gltf.scene.clone(); 
           
-          // Calculate position on the circle
           const angle = (i / numberOfModels) * Math.PI * 2;
           const x = radius * Math.cos(angle);
           const z = radius * Math.sin(angle);
           
-          // Apply material and transformations
+  
           furniture.traverse((child) => {
             if (child.isMesh) {
               child.material = material;
@@ -89,11 +83,10 @@ materialRef.current = material;
           
           furniture.scale.set(0.9, 0.9, 0.9);
           furniture.position.set(x, 0.3, z);
-          furniture.rotation.y = angle + Math.PI / 2; // Face outward
+          furniture.rotation.y = angle + Math.PI / 2; 
           
           scene.add(furniture);
           
-          // Store the first model reference for rotation
           if (i === 0) {
             modelRef.current = furniture;
           }
@@ -103,7 +96,7 @@ materialRef.current = material;
     });
 
     // Update lighting setup
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3); // Dim ambient light
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3); 
     scene.add(ambientLight);
 
     // Add point lights
@@ -119,11 +112,10 @@ materialRef.current = material;
     pointLight3.position.set(0, -2, 2);
     scene.add(pointLight3);
     
-    // Add orbit controls for camera interaction
+
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enabled = false; // Disable user camera movement
 
-    // Adjust camera position for better view
     camera.position.z = 7;
     camera.position.y = 2.8;
     camera.position.x = 1;
@@ -133,14 +125,14 @@ materialRef.current = material;
       requestAnimationFrame(animate);
 
       // Rotate all models
-      const radius = 2.0; // Distance from center
+      const radius = 2.0; 
       const time = Date.now() * 0.0001; // Use time for smooth movement
       scene.children.forEach((child, index) => {
-        if (child.type === 'Group') { // GLTF models are loaded as Groups
-          const angle = time + (index * Math.PI / 3); // Adjust angle for each model
+        if (child.type === 'Group') { 
+          const angle = time + (index * Math.PI / 3);
           const x = radius * Math.cos(angle);
           const z = radius * Math.sin(angle);
-          child.position.set(x, 0.3, z); // Update position in a circular path
+          child.position.set(x, 0.3, z); 
           child.rotation.y += 0.005; 
         }
       });
@@ -151,7 +143,7 @@ materialRef.current = material;
 
     animate();
 
-    // Add window resize handler
+ 
     const handleResize = () => {
       const width = containerRef.current.clientWidth;
       const height = containerRef.current.clientHeight;
@@ -202,7 +194,7 @@ materialRef.current = material;
       }
       scene.clear();
     };
-  }, []); // Make sure dependencies array is empty
+  }, []); 
 
   return (
     <>
@@ -212,7 +204,7 @@ materialRef.current = material;
         left: 0,
         width: '400px',
         height: '400px',
-        background: 'radial-gradient(circle, rgba(255,244,230,0.12) 0%, rgba(255,244,230,0) 70%)', // Warm sunlight
+        background: 'radial-gradient(circle, rgba(255,244,230,0.12) 0%, rgba(255,244,230,0) 70%)', 
         zIndex: -1,
       }} />
       <div style={{
@@ -221,7 +213,7 @@ materialRef.current = material;
         right: 0,
         width: '400px',
         height: '400px',
-        background: 'radial-gradient(circle, rgba(230,240,255,0.12) 0%, rgba(230,240,255,0) 70%)', // Cool daylight
+        background: 'radial-gradient(circle, rgba(230,240,255,0.12) 0%, rgba(230,240,255,0) 70%)', 
         zIndex: -1,
       }} />
       <div style={{
@@ -230,7 +222,7 @@ materialRef.current = material;
         left: 0,
         width: '400px',
         height: '400px',
-        background: 'radial-gradient(circle, rgba(255,250,245,0.10) 0%, rgba(255,250,245,0) 70%)', // Soft ambient
+        background: 'radial-gradient(circle, rgba(255,250,245,0.10) 0%, rgba(255,250,245,0) 70%)', 
         zIndex: -1,
       }} />
       <div style={{
@@ -239,7 +231,7 @@ materialRef.current = material;
         right: 0,
         width: '400px',
         height: '300px',
-        background: 'radial-gradient(circle, rgba(240,245,255,0.10) 0%, rgba(240,245,255,0) 70%)', // Cool ambient
+        background: 'radial-gradient(circle, rgba(240,245,255,0.10) 0%, rgba(240,245,255,0) 70%)', 
         zIndex: -1,
       }} />
 
@@ -249,7 +241,7 @@ materialRef.current = material;
         right: 550,
         width: '400px',
         height: '500px',
-        background: 'radial-gradient( rgba(240,245,255,0.10) 0%, rgba(240,245,255,0) 70%)', // Cool ambient
+        background: 'radial-gradient( rgba(240,245,255,0.10) 0%, rgba(240,245,255,0) 70%)', 
         zIndex: -1,
       }} />
       
