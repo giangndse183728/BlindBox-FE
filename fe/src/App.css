@@ -1,0 +1,21 @@
+/* Target the scrollbar */
+::-webkit-scrollbar {
+  width: 8px; /* Adjust width */
+}
+
+/* Track (background of scrollbar) */
+::-webkit-scrollbar-track {
+  background: #f1f1f1; 
+  border-radius: 10px;
+}
+
+/* Handle (draggable part) */
+::-webkit-scrollbar-thumb {
+  background: #888; 
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
