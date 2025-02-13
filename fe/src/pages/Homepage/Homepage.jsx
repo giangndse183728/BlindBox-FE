@@ -146,7 +146,25 @@ export default function Home() {
 
         <Grid container component="main" sx={{ mt: 4}}>
         <Grid item xs={6} >
-        <div class="sketchfab-embed-wrapper"> <iframe  frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share width="800" height="600" src="https://sketchfab.com/models/3764a2442eca43c7bbe64d8297d84905/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_animations=0&ui_infos=0&ui_stop=0&ui_inspector=0&ui_watermark_link=0&ui_watermark=0&ui_hint=0&ui_ar=0&ui_help=0&ui_settings=0&ui_vr=0&ui_fullscreen=0&ui_annotations=0&dnt=1"> </iframe> </div>
+        <div className="sketchfab-embed-wrapper"> 
+        <iframe
+    title="Sketchfab Model"
+    src="https://sketchfab.com/models/3764a2442eca43c7bbe64d8297d84905/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_animations=0&ui_infos=0&ui_stop=0&ui_inspector=0&ui_watermark_link=0&ui_watermark=0&ui_hint=0&ui_ar=0&ui_help=0&ui_settings=0&ui_vr=0&ui_fullscreen=0&ui_annotations=0&dnt=1"
+    width="800"
+    height="600"
+    allow="accelerometer; gyroscope; autoplay; fullscreen; xr-spatial-tracking"
+    allowFullScreen
+    mozallowfullscreen="true"
+    webkitallowfullscreen="true"
+    style={{ border: "none" }}
+    className="my-frame"
+    xr-spatial-tracking="true"
+    execution-while-out-of-viewport="true"
+    execution-while-not-rendered="true"
+    web-share="true"
+/>
+
+ </div>
           </Grid>
         <Grid item xs={5} data-aos="fade-up">
             <Typography  fontFamily="'Jersey 15', sans-serif" variant='h3' sx={{ mb: 4, ...yellowGlowAnimation}}>Discover the Thrill of Mystery <br/> Buy & Sell Blind Boxes!</Typography>
