@@ -18,7 +18,7 @@ import ButtonCus from '../components/Button/ButtonCus';
 export default function ButtonAppBar() {
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
   const [showNavbar, setShowNavbar] = React.useState(false);
-  const [scale, setScale] = React.useState(1); // State for the zoom effect
+  const [scale, setScale] = React.useState(1); 
 
   const toggleDrawer = (open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {

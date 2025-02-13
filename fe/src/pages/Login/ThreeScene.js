@@ -30,7 +30,7 @@ const ThreeScene = () => {
     });
     
     renderer.setSize(width, height);
-    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setPixelRatio(window.devicePixelRatio, 1.5);
     containerRef.current.appendChild(renderer.domElement);
 
 
@@ -104,15 +104,6 @@ materialRef.current = material;
     pointLight1.position.set(2, 3, 4);
     scene.add(pointLight1);
 
-    const pointLight2 = new THREE.PointLight(0xff9900, 1, 20); // Warm light
-    pointLight2.position.set(-2, 1, -4);
-    scene.add(pointLight2);
-
-    const pointLight3 = new THREE.PointLight(0x0066ff, 1, 20); // Cool light
-    pointLight3.position.set(0, -2, 2);
-    scene.add(pointLight3);
-    
-
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enabled = false; // Disable user camera movement
 
@@ -145,13 +136,13 @@ materialRef.current = material;
 
  
     const handleResize = () => {
-      const width = containerRef.current.clientWidth;
-      const height = containerRef.current.clientHeight;
-      
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-      renderer.setSize(width, height);
-    };
+      clearTimeout(window.resizeTimer);
+      window.resizeTimer = setTimeout(() => {
+          camera.aspect = window.innerWidth / window.innerHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(window.innerWidth, window.innerHeight);
+      }, 200);
+  };
 
     window.addEventListener('resize', handleResize);
 
