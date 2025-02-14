@@ -13,13 +13,47 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
+import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
+import HomeIcon from '@mui/icons-material/Home';
+import CollectionsOutlinedIcon from '@mui/icons-material/CollectionsOutlined';
+import CollectionsIcon from '@mui/icons-material/Collections';
+import ChangeCircleOutlinedIcon from '@mui/icons-material/ChangeCircleOutlined';
+import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
+import BackpackOutlinedIcon from '@mui/icons-material/BackpackOutlined';
+import BackpackIcon from '@mui/icons-material/Backpack';
+import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import DesignServicesOutlinedIcon from '@mui/icons-material/DesignServicesOutlined';
+import DesignServicesIcon from '@mui/icons-material/DesignServices';
+import MonetizationOnOutlinedIcon from '@mui/icons-material/MonetizationOnOutlined';
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import ReceiptOutlinedIcon from '@mui/icons-material/ReceiptOutlined';
+import ReceiptIcon from '@mui/icons-material/Receipt';
 import ButtonCus from '../components/Button/ButtonCus';
+
+const menuItems = [
+  { text: 'Home', path: '/', icon: HomeOutlinedIcon, activeIcon: HomeIcon },
+  { text: 'Collection', icon: CollectionsOutlinedIcon, activeIcon: CollectionsIcon },
+  { text: 'Trading', icon: ChangeCircleOutlinedIcon, activeIcon: ChangeCircleIcon },
+  { text: 'Custom Accessories', icon: DesignServicesOutlinedIcon, activeIcon: DesignServicesIcon },
+  { text: 'Inventory', icon: BackpackOutlinedIcon, activeIcon: BackpackIcon },
+  { text: 'Profile', icon: AccountCircleOutlinedIcon, activeIcon: AccountCircleIcon },
+  { text: 'Sales', icon: MonetizationOnOutlinedIcon, activeIcon: MonetizationOnIcon },
+  { text: 'Orders', icon: ReceiptOutlinedIcon, activeIcon: ReceiptIcon },
+];
+
 
 export default function ButtonAppBar() {
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
+  const [selectedItem, setSelectedItem] = React.useState('');
   const [showNavbar, setShowNavbar] = React.useState(false);
   const [scale, setScale] = React.useState(1);
+  const [hovered, setHovered] = React.useState(null);
   const location = useLocation();
+
+  React.useEffect(() => {
+    setSelectedItem(location.pathname);
+  }, [location.pathname]);
 
   const toggleDrawer = (open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -31,9 +65,9 @@ export default function ButtonAppBar() {
   React.useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.scrollY;
-      const newScale = Math.min(1 + scrollTop / 1000, 1.5); 
+      const newScale = Math.min(1 + scrollTop / 1000, 1.5);
       setScale(newScale);
-  
+
       // Only apply scroll effect if on the home route
       if (location.pathname === '/') {
 
@@ -44,17 +78,17 @@ export default function ButtonAppBar() {
         }
       }
     };
-  
+
     // Set showNavbar to true if not on the home route
     if (location.pathname !== '/') {
       setShowNavbar(true);
     }
-  
+
     window.addEventListener('scroll', handleScroll);
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [location.pathname]); 
+  }, [location.pathname]);
   return (
 
     <>
@@ -168,17 +202,21 @@ export default function ButtonAppBar() {
             </Typography>
             <Divider sx={{ m: 1, borderColor: 'rgba(255, 255, 255, 0.3)' }} />
             <List>
-              {['Home', 'Collection', 'Trading', 'Custom Accessories', 'Inventory', 'Profile', 'Sales', 'Orders'].map((text) => (
-                <ListItem key={text} disablePadding>
-                  <ListItemButton >
-                    <ListItemText primary={text} sx={{ color: 'white' }} />
-                  </ListItemButton>
-                </ListItem>
+              {menuItems.map(({ text, path, icon: Icon, activeIcon: ActiveIcon }) => (
+                <NavLink to={path} key={text} style={{ textDecoration: 'none', color: 'white' }}>
+                  <ListItem disablePadding>
+                    <ListItemButton
+                      onMouseEnter={() => setHovered(text)}
+                      onMouseLeave={() => setHovered(null)}
+                      sx={{ '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.1)' } }}
+                    >
+                      {hovered === text || location.pathname === path ? <ActiveIcon /> : <Icon />}
+
+                      <ListItemText primary={text} sx={{ ml: 2 }} />
+                    </ListItemButton>
+                  </ListItem>
+                </NavLink>
               ))}
-              <Divider sx={{ m: 1 }} />
-              <NavLink to="/Login" className="nav-link">
-                <ListItemButton> <ListItemText primary="Login" /> </ListItemButton>
-              </NavLink>
             </List>
           </Box>
         </Drawer>
