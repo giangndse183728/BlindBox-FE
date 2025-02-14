@@ -149,11 +149,10 @@ const CollectionPage = () => {
 
   return (
 
-    <Box sx={{ display: 'fixed', p: 2, bgcolor: 'black', minHeight: '100vh', paddingTop: 10, top:80 }}>
-
+    <Box sx={{ display: 'flex', p: 2, bgcolor: 'black', paddingTop: 10, minHeight: '100vh' }}>
       {/* Sidebar Filter */}
       <Box sx={{
-        width: 250,
+        width: { xs: '100%', sm: 250 }, // Responsive width
         p: 2,
         bgcolor: '#333',
         color: 'white',
@@ -163,7 +162,6 @@ const CollectionPage = () => {
         top: 80 // Adjust as needed
       }}>
         <Typography variant="h6">Product Filter</Typography>
-
         <Typography>Price</Typography>
         <Slider
           value={priceRange}
@@ -173,7 +171,6 @@ const CollectionPage = () => {
           max={4000}
           sx={{ color: 'white' }}
         />
-
         <Typography>Brand</Typography>
         {["Redbull", "McLaren", "Mercedes", "Audi", "Toyota", "Porsche"].map((brand) => (
           <FormControlLabel
@@ -185,19 +182,17 @@ const CollectionPage = () => {
       </Box>
 
       {/* Product Section */}
-      <Box sx={{ flexGrow: 1, ml: 2 }}>
+      <Box sx={{ flexGrow: 1, ml: { xs: 0, sm: 2 } }}>
         {/* Sorting Bar */}
         <Box sx={{
-          width: 1300,
           p: 2,
           bgcolor: '#333',
           color: 'white',
           borderRadius: 1,
-          height: 50,
           position: 'sticky',
           top: 80, // Adjust as needed
-          zIndex: 1, 
-          mb : 2
+          zIndex: 1,
+          mb: 2
         }}>
           <Select
             value={sortOption}
@@ -225,16 +220,16 @@ const CollectionPage = () => {
 
         {/* Product Grid */}
         <Grid container spacing={2}>
-            {products.map((product) => (
-              <Grid item xs={12} sm={6} md={4} key={product.id}>
-                <Box sx={{ bgcolor: '#222', borderRadius: 1, p: 2, textAlign: 'center', color: 'white', position: 'relative'}}>
-                  <img src={product.img} alt={product.name} style={{ width: '100%', borderRadius: '10px' }} />
-                  <Typography variant="h6">{product.name}</Typography>
-                  <Typography variant="body1">${product.price.toFixed(2)}</Typography>
-                </Box>
-              </Grid>
-            ))}
-          </Grid>
+          {products.map((product) => (
+            <Grid item xs={12} sm={6} md={4} key={product.id}>
+              <Box sx={{ bgcolor: '#222', borderRadius: 1, p: 2, textAlign: 'center', color: 'white', position: 'relative' }}>
+                <img src={product.img} alt={product.name} style={{ width: '100%', borderRadius: '10px' }} />
+                <Typography variant="h6">{product.name}</Typography>
+                <Typography variant="body1">${product.price.toFixed(2)}</Typography>
+              </Box>
+            </Grid>
+          ))}
+        </Grid>
       </Box>
     </Box>
   );
