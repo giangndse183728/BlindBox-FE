@@ -11,12 +11,35 @@ import { yellowGlowAnimation } from '../../components/Text/YellowEffect';
 import LoadingScreen from '../../components/Loading/LoadingScreen';
 import ButtonCus from '../../components/Button/ButtonCus';
 import GlassCard from '../../components/Decor/GlassCard';
+import { ArrowBack, ArrowForward } from '@mui/icons-material';
+import { IconButton } from '@mui/material';
+import Blindbox from "../../assets/blindbox.webp";
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation } from 'swiper/modules';
+import ArrowCircleLeftOutlinedIcon from '@mui/icons-material/ArrowCircleLeftOutlined';
+import ArrowCircleRightOutlinedIcon from '@mui/icons-material/ArrowCircleRightOutlined';
+import 'swiper/css';
+import 'swiper/css/navigation';
 const ThreeCus = lazy(() => import('./ThreeCusBanner'));
+
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [fontsLoaded, setFontsLoaded] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const products = [
+    { name: 'Crybaby × Powerpuff', brand: 'Popmart', price: '$4999.99' },
+    { name: 'Crybaby × Powerpuff', brand: 'Popmart', price: '$4999.99' },
+    { name: 'Crybaby × Powerpuff', brand: 'Popmart', price: '$4999.99' },
+    { name: 'Crybaby × Powerpuff', brand: 'Popmart', price: '$4999.99' },
+    { name: 'Crybaby × Powerpuff', brand: 'Popmart', price: '$4999.99' },
+    { name: 'Crybaby × Powerpuff', brand: 'Popmart', price: '$4999.99' },
+    { name: 'Crybaby × Powerpuff', brand: 'Popmart', price: '$4999.99' },
+    { name: 'Crybaby × Powerpuff', brand: 'Popmart', price: '$4999.99' },
+  ];
+  
 
   useEffect(() => {
     // Initialize AOS
@@ -24,6 +47,8 @@ export default function Home() {
       duration: 800,
       once: true
     });
+
+    
 
     // Load fonts using Web Font Loader
     window.WebFontConfig = {
@@ -57,6 +82,15 @@ export default function Home() {
     }
   }, [videoLoaded, fontsLoaded]);
 
+  const nextSlide = () => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % products.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentIndex((prevIndex) => (prevIndex - 1 + products.length) % products.length);
+  };
+
+
   // Add new state and effect for scroll handling
   const [scale, setScale] = React.useState(1);
 
@@ -84,6 +118,8 @@ export default function Home() {
       />
     );
   };
+
+  
 
   return (
     <>
@@ -234,14 +270,6 @@ export default function Home() {
           </Grid>
         </Grid>
 
-        
-
-
-
-
-
-
-
         <Grid item xs={12} data-aos="fade-up" >
           <Typography fontFamily="'Jersey 15', sans-serif" variant='h3' sx={{ mt: 5, textAlign: "center", color: "white" }}>  🕹 Collection  </Typography>
 
@@ -289,9 +317,114 @@ export default function Home() {
         </Grid>
 
       </Grid>
+      
 
+      <Grid container component="main" sx={{ mt: 4 }}>
+        <Grid item xs={12} data-aos="fade-up">
+          <Typography fontFamily="'Jersey 15', sans-serif" variant='h3' sx={{ mt: 5, textAlign: 'center', color: 'white' }}>
+            🔥 Trending
+          </Typography>
 
+          <Box sx={{ position: 'relative',mt: 3, ml: 7 }}>
+            {/* Swiper Carousel */}
+            
+            <Swiper
+              slidesPerView={4}
+              spaceBetween={0}
+              navigation={{
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+                
+              }}
+              
+              modules={[Navigation]}
+              
+            >
+              {products.map((product, index) => (
+                <SwiperSlide key={index}>
+                  <GlassCard sx={{ width: 250, textAlign: 'center' }}>
+                    <CardMedia component="img" height="200" image={Blindbox} alt="Blindbox" />
+                    <CardContent>
+                      <Typography variant="h6" sx={{ color: 'white' }}>
+                        {product.name}
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: 'gray' }}>
+                        {product.brand}
+                      </Typography>
+                      <Typography variant="h6" sx={{ color: 'gray' }}>
+                        {product.price}
+                      </Typography>
+                    </CardContent>
+                  </GlassCard>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+
+            {/* Navigation Buttons */}
+            <IconButton className="swiper-button-prev" sx={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', zIndex: 100, left: '-45px !important' }}>
+            </IconButton>
+            <IconButton className="swiper-button-next" sx={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', zIndex: 100 }}>
+       </IconButton>
+          </Box>
+
+          {/* 🆕 New Launch Section */}
+          <Typography fontFamily="'Jersey 15', sans-serif" variant="h3" sx={{ mt: 15, textAlign: 'center', color: 'white' }}>
+            🆕 New Launch
+          </Typography>
+
+          <Box sx={{ position: 'relative', mt: 3, ml: 7 }}>
+            {/* Swiper Carousel */}
+            <Swiper
+              slidesPerView={4}
+              spaceBetween={0}
+              navigation={{
+                nextEl: ".swiper-button-next-launch",
+                prevEl: ".swiper-button-prev-launch",
+              }}
+              modules={[Navigation]}
+              observer={true}
+              observeParents={true}
+              onSwiper={(swiper) => {
+                setTimeout(() => {
+                  swiper.navigation.init(); 
+                  swiper.navigation.update();
+                }, 100);
+              }}
+            >
+              {products.map((product, index) => (
+                <SwiperSlide key={index}>
+                  <GlassCard sx={{ width: 250, textAlign: 'center' }}>
+                    <CardMedia component="img" height="200" image={Blindbox} alt="Blindbox" />
+                    <CardContent>
+                      <Typography variant="h6" sx={{ color: 'white' }}>
+                        {product.name}
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: 'gray' }}>
+                        {product.brand}
+                      </Typography>
+                      <Typography variant="h6" sx={{ color: 'gray' }}>
+                        {product.price}
+                      </Typography>
+                    </CardContent>
+                  </GlassCard>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+
+            {/* Navigation Buttons (New Launch) */}
+            <IconButton className="swiper-button-prev-launch" sx={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', zIndex: 100, left: '-45px' }}>
+            </IconButton>
+            <IconButton className="swiper-button-next-launch" sx={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', zIndex: 100 }}>
+            </IconButton>
+          </Box>
+        </Grid>
+      </Grid>
     </>
+
+    
   )
+  
 }
+
+
 
