@@ -6,6 +6,7 @@ const ListingPage = () => {
   const [priceRange, setPriceRange] = useState([0, 24200]);
   const [selectedBrand, setSelectedBrand] = useState([]);
   const [sortOption, setSortOption] = useState("");
+ 
 
   const handlePriceChange = (event, newValue) => {
     setPriceRange(newValue);
@@ -22,7 +23,7 @@ const ListingPage = () => {
     setSortOption(event.target.value);
   };
 
-  // Mock product data
+
   const products = [
     {
       id: 1,
@@ -42,13 +43,32 @@ const ListingPage = () => {
       img: "https://via.placeholder.com/150",
       price: 4999.99,
     },
+    {
+      id: 4,
+      name: "Crybaby × Powerpuff",
+      img: "https://via.placeholder.com/150",
+      price: 4999.99,
+    },
+    {
+      id: 5,
+      name: "Crybaby × Powerpuff",
+      img: "https://via.placeholder.com/150",
+      price: 4999.99,
+    },
+    {
+      id: 6,
+      name: "Crybaby × Powerpuff",
+      img: "https://via.placeholder.com/150",
+      price: 4999.99,
+    },
   ];
 
   return (
-    
-    <Box sx={{ display: 'flex', p: 2, bgcolor: 'black', minHeight: '100vh' }}>
+
+    <Box sx={{ display: 'fixed', p: 2, bgcolor: 'black', minHeight: '100vh' }}>
+
       {/* Sidebar Filter */}
-      <Box sx={{ width: 250, p: 2, bgcolor: '#333', color: 'white', borderRadius: 1 }}>
+      <Box sx={{ width: 250,  p: 2, bgcolor: '#333', color: 'white', borderRadius: 1, height:250, }}>
         <Typography variant="h6">Product Filter</Typography>
 
         <Typography>Price</Typography>
@@ -62,7 +82,7 @@ const ListingPage = () => {
         />
 
         <Typography>Brand</Typography>
-        {["Redbull", "McLaren", "Mercedes","Audi","Toyota","Posrche"].map((brand) => (
+        {["Redbull", "McLaren", "Mercedes", "Audi", "Toyota", "Posrche"].map((brand) => (
           <FormControlLabel
             key={brand}
             control={<Checkbox checked={selectedBrand.includes(brand)} onChange={handleBrandChange} value={brand} />}
@@ -74,7 +94,7 @@ const ListingPage = () => {
       {/* Product Section */}
       <Box sx={{ flexGrow: 1, ml: 2 }}>
         {/* Sorting Bar */}
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+        <Box sx={{ width: 1300,  p: 2, bgcolor: '#333', color: 'white', borderRadius: 1, height:50, }}>
           <Select
             value={sortOption}
             onChange={handleSortChange}
@@ -82,9 +102,19 @@ const ListingPage = () => {
             inputProps={{ "aria-label": "Sort Options" }}
             sx={{ bgcolor: '#666', color: 'white', borderRadius: 1 }}
           >
-            <MenuItem value="" disabled>Sort By</MenuItem>
+            <MenuItem value="" disabled>Alphabet</MenuItem>
             <MenuItem value="az">A-Z</MenuItem>
             <MenuItem value="za">Z-A</MenuItem>
+           
+          </Select>
+          <Select
+            value={sortOption}
+            onChange={handleSortChange}
+            displayEmpty
+            inputProps={{ "aria-label": "Sort Options" }}
+            sx={{ bgcolor: '#666', color: 'white', borderRadius: 1 }}
+          >
+            <MenuItem value="" disabled>Price</MenuItem>
             <MenuItem value="low-high">Lowest Price</MenuItem>
             <MenuItem value="high-low">Highest Price</MenuItem>
           </Select>
