@@ -152,7 +152,7 @@ const CollectionPage = () => {
     <Box sx={{ display: 'flex', p: 2, bgcolor: 'black', paddingTop: 10, minHeight: '100vh' }}>
       {/* Sidebar Filter */}
       <Box sx={{
-        width: { xs: '100%', sm: 250 }, // Responsive width
+        width: { xs: '100%', sm: 800 }, // Responsive width
         p: 2,
         bgcolor: '#333',
         color: 'white',
