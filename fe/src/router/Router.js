@@ -1,3 +1,5 @@
+
+
 import { createBrowserRouter } from 'react-router-dom';
 import Login from '../pages/Login/Login';
 import Home from '../pages/Homepage/Homepage';
@@ -5,7 +7,7 @@ import Dashboard from '../pages/Admin/Dashboard';
 import ButtonAppBar from '../layouts/Navbar';
 import Footer from '../layouts/Footer';
 import ProtectedRoute from './ProtectedRoute';  
-
+import CollectionPage from '../pages/Collectionpage/CollectionPage'
 const Layout = ({ children, showHeader = true, showFooter = true }) => {
   return (
     <div>
@@ -42,6 +44,14 @@ export const routes = createBrowserRouter([
         <ProtectedRoute requiredRole={0}>
           <Dashboard />
         </ProtectedRoute>
+      </Layout>
+    ),
+  },
+  {       
+    path: '/Collection-page',
+    element: (
+      <Layout showHeader={true} showFooter={false}>
+       <CollectionPage/>
       </Layout>
     ),
   },
