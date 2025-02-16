@@ -1,15 +1,34 @@
-
 import React, { useState } from "react";
-import { Slider, Checkbox, FormControlLabel, MenuItem, Select, Box, Grid, Typography } from "@mui/material";
+import { Slider, Checkbox, FormControlLabel, Box, Grid, Typography, Button } from "@mui/material";
 
 const CollectionPage = () => {
-  const [priceRange, setPriceRange] = useState([0, 24200]);
+  const [priceRange, setPriceRange] = useState([0, 5000]);
   const [selectedBrand, setSelectedBrand] = useState([]);
-  const [sortOption, setSortOption] = useState("");
+  const [appliedPriceRange, setAppliedPriceRange] = useState([0, 5000]);
+
+  const [products, setProducts] = useState([
+    { id: 1, name: "Anime Blind Box", img: "https://via.placeholder.com/150", price: 2999.99, brand: "Pop Mart" },
+    { id: 2, name: "Superhero Surprise Pack", img: "https://via.placeholder.com/150", price: 2500, brand: "My Kingdom" },
+    { id: 3, name: "Kawaii Collectibles", img: "https://via.placeholder.com/150", price: 3200, brand: "Tokidoki" },
+    { id: 4, name: "Gaming Loot Crate", img: "https://via.placeholder.com/150", price: 1999.99, brand: "Funko" },
+    { id: 5, name: "Sci-Fi Mystery Box", img: "https://via.placeholder.com/150", price: 4500, brand: "Mighty Jaxx" },
+    { id: 6, name: "Cartoon Nostalgia Box", img: "https://via.placeholder.com/150", price: 2800, brand: "Kidrobot" },
+    { id: 7, name: "Fantasy Adventure Pack", img: "https://via.placeholder.com/150", price: 3500, brand: "Pop Mart" },
+    { id: 8, name: "Retro Game Blind Box", img: "https://via.placeholder.com/150", price: 4000, brand: "My Kingdom" },
+    { id: 9, name: "Limited Edition Blind Box", img: "https://via.placeholder.com/150", price: 4999.99, brand: "Tokidoki" },
+    { id: 10, name: "Horror Themed Surprise", img: "https://via.placeholder.com/150", price: 2700, brand: "Funko" },
+    { id: 11, name: "Marvel Blind Box", img: "https://via.placeholder.com/150", price: 3300, brand: "Mighty Jaxx" },
+    { id: 12, name: "DC Comics Mystery Pack", img: "https://via.placeholder.com/150", price: 3100, brand: "Kidrobot" },
+    { id: 13, name: "Anime Limited Edition Box", img: "https://via.placeholder.com/150", price: 3799.99, brand: "Pop Mart" },
+  ]);
 
 
   const handlePriceChange = (event, newValue) => {
     setPriceRange(newValue);
+  };
+
+  const handleApplyPriceFilter = () => {
+    setAppliedPriceRange(priceRange);
   };
 
   const handleBrandChange = (event) => {
@@ -19,160 +38,78 @@ const CollectionPage = () => {
     );
   };
 
-  const handleSortChange = (event) => {
-    setSortOption(event.target.value);
+  const sortProducts = (order) => {
+    let sortedProducts = [...products];
+    if (order === "az") {
+      sortedProducts.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (order === "za") {
+      sortedProducts.sort((a, b) => b.name.localeCompare(a.name));
+    } else if (order === "low-high") {
+      sortedProducts.sort((a, b) => a.price - b.price);
+    } else if (order === "high-low") {
+      sortedProducts.sort((a, b) => b.price - a.price);
+    }
+    setProducts(sortedProducts);
   };
 
-
-  const products = [
-    {
-      id: 1,
-      name: "Crybaby × Powerpuff",
-      img: "https://via.placeholder.com/150",
-      price: 4999.99,
-    },
-    {
-      id: 2,
-      name: "Crybaby × Powerpuff",
-      img: "https://via.placeholder.com/150",
-      price: 4999.99,
-    },
-    {
-      id: 3,
-      name: "Crybaby × Powerpuff",
-      img: "https://via.placeholder.com/150",
-      price: 4999.99,
-    },
-    {
-      id: 4,
-      name: "Crybaby × Powerpuff",
-      img: "https://via.placeholder.com/150",
-      price: 4999.99,
-    },
-    {
-      id: 5,
-      name: "Crybaby × Powerpuff",
-      img: "https://via.placeholder.com/150",
-      price: 4999.99,
-    },
-    {
-      id: 6,
-      name: "Crybaby × Powerpuff",
-      img: "https://via.placeholder.com/150",
-      price: 4999.99,
-    },
-    {
-      id: 7,
-      name: "Crybaby × Powerpuff",
-      img: "https://via.placeholder.com/150",
-      price: 4999.99,
-    },
-    {
-      id: 8,
-      name: "Crybaby × Powerpuff",
-      img: "https://via.placeholder.com/150",
-      price: 4999.99,
-    },
-    {
-      id: 9,
-      name: "Crybaby × Powerpuff",
-      img: "https://via.placeholder.com/150",
-      price: 4999.99,
-    },
-    {
-      id: 10,
-      name: "Crybaby × Powerpuff",
-      img: "https://via.placeholder.com/150",
-      price: 4999.99,
-    },
-    {
-      id: 11,
-      name: "Crybaby × Powerpuff",
-      img: "https://via.placeholder.com/150",
-      price: 4999.99,
-    },
-    {
-      id: 12,
-      name: "Crybaby × Powerpuff",
-      img: "https://via.placeholder.com/150",
-      price: 4999.99,
-    },
-    {
-      id: 13,
-      name: "Crybaby × Powerpuff",
-      img: "https://via.placeholder.com/150",
-      price: 4999.99,
-    },
-    {
-      id: 13,
-      name: "Crybaby × Powerpuff",
-      img: "https://via.placeholder.com/150",
-      price: 4999.99,
-    },
-    {
-      id: 13,
-      name: "Crybaby × Powerpuff",
-      img: "https://via.placeholder.com/150",
-      price: 4999.99,
-    },
-    {
-      id: 13,
-      name: "Crybaby × Powerpuff",
-      img: "https://via.placeholder.com/150",
-      price: 4999.99,
-    },
-    {
-      id: 13,
-      name: "Crybaby × Powerpuff",
-      img: "https://via.placeholder.com/150",
-      price: 4999.99,
-    },
-    {
-      id: 13,
-      name: "Crybaby × Powerpuff",
-      img: "https://via.placeholder.com/150",
-      price: 4999.99,
-    },
-    {
-      id: 13,
-      name: "Crybaby × Powerpuff",
-      img: "https://via.placeholder.com/150",
-      price: 4999.99,
-    },
-    {
-      id: 13,
-      name: "Crybaby × Powerpuff",
-      img: "https://via.placeholder.com/150",
-      price: 4999.99,
-    },
-  ];
-
   return (
-
-    <Box sx={{ display: 'flex', p: 2, bgcolor: 'black', paddingTop: 10, minHeight: '100vh' }}>
+    <Box sx={{ display: "flex", p: 2, bgcolor: "black", paddingTop: 10, minHeight: "100vh" }}>
       {/* Sidebar Filter */}
-      <Box sx={{
-        width: { xs: '100%', sm: 800 }, // Responsive width
-        p: 2,
-        bgcolor: '#333',
-        color: 'white',
-        borderRadius: 1,
-        height: 'fit-content',
-        position: 'sticky',
-        top: 80 // Adjust as needed
-      }}>
-        <Typography variant="h6">Product Filter</Typography>
+      <Box
+        sx={{
+          width: 300,
+          p: 2,
+          bgcolor: "#333",
+          color: "white",
+          borderRadius: 1,
+          height: "fit-content",
+          position: "sticky",
+          flexShrink: 0,
+        }}
+      >
+        <Typography
+          variant="h6"
+          fontFamily="'Jersey 15', sans-serif"
+          sx={{
+            textAlign: "center",
+            width: "100%",
+            fontWeight: "bold",
+            fontSize: "1.8rem"
+          }}>
+          Product Filter
+        </Typography>
+
+        {/* Price Range Filter */}
         <Typography>Price</Typography>
         <Slider
           value={priceRange}
           onChange={handlePriceChange}
           valueLabelDisplay="auto"
           min={0}
-          max={4000}
-          sx={{ color: 'white' }}
+          max={5000}
+          sx={{ color: "white" }}
         />
-        <Typography>Brand</Typography>
-        {["Redbull", "McLaren", "Mercedes", "Audi", "Toyota", "Porsche"].map((brand) => (
+
+        {/* Apply Price Filter Button */}
+        <Button
+          variant="contained"
+          sx={{
+            bgcolor: "#666",
+            color: "white",
+            borderRadius: 1,
+            mt: 2,
+            width: "100%",
+            display: "block",
+            textAlign: "center",
+          }}
+          onClick={handleApplyPriceFilter}
+        >
+          Apply
+        </Button>
+
+        {/* Brand Filter */}
+        <Typography sx={{ mt: 2 }}>Brand</Typography>
+        {["Pop Mart", "My Kingdom", "Tokidoki", "Funko", "Mighty Jaxx", "Kidrobot"].map((brand) => (
           <FormControlLabel
             key={brand}
             control={<Checkbox checked={selectedBrand.includes(brand)} onChange={handleBrandChange} value={brand} />}
@@ -182,53 +119,67 @@ const CollectionPage = () => {
       </Box>
 
       {/* Product Section */}
-      <Box sx={{ flexGrow: 1, ml: { xs: 0, sm: 2 } }}>
+      <Box sx={{ flexGrow: 1, ml: 2 }}>
         {/* Sorting Bar */}
-        <Box sx={{
-          p: 2,
-          bgcolor: '#333',
-          color: 'white',
-          borderRadius: 1,
-          position: 'sticky',
-          top: 80, // Adjust as needed
-          zIndex: 1,
-          mb: 2
-        }}>
-          <Select
-            value={sortOption}
-            onChange={handleSortChange}
-            displayEmpty
-            inputProps={{ "aria-label": "Sort Options" }}
-            sx={{ bgcolor: '#666', color: 'white', borderRadius: 1 }}
+        <Box
+          sx={{
+            p: 2,
+            bgcolor: "#333",
+            color: "white",
+            borderRadius: 1,
+            position: "sticky",
+            zIndex: 100,
+            mb: 2,
+          }}
+        >
+          {/* Sorting Buttons */}
+          <Button
+            variant="contained"
+            sx={{ bgcolor: "#666", color: "white", borderRadius: 1, width: 120, height: 40, "&:hover": { bgcolor: "#888" }, "&:focus": { outline: "2px solid white" } }}
+            onClick={() => sortProducts("az")}
           >
-            <MenuItem value="" disabled>Alphabet</MenuItem>
-            <MenuItem value="az">A-Z</MenuItem>
-            <MenuItem value="za">Z-A</MenuItem>
-          </Select>
-          <Select
-            value={sortOption}
-            onChange={handleSortChange}
-            displayEmpty
-            inputProps={{ "aria-label": "Sort Options" }}
-            sx={{ bgcolor: '#666', color: 'white', borderRadius: 1 }}
+            A-Z
+          </Button>
+
+          <Button
+            variant="contained"
+            sx={{ bgcolor: "#666", color: "white", borderRadius: 1, width: 120, height: 40, ml: 1, "&:hover": { bgcolor: "#888" }, "&:focus": { outline: "2px solid white" } }}
+            onClick={() => sortProducts("za")}
           >
-            <MenuItem value="" disabled>Price</MenuItem>
-            <MenuItem value="low-high">Lowest Price</MenuItem>
-            <MenuItem value="high-low">Highest Price</MenuItem>
-          </Select>
+            Z-A
+          </Button>
+
+          <Button
+            variant="contained"
+            sx={{ bgcolor: "#666", color: "white", borderRadius: 1, width: 200, height: 40, ml: 1, "&:hover": { bgcolor: "#888" }, "&:focus": { outline: "2px solid white" } }}
+            onClick={() => sortProducts("low-high")}
+          >
+            Lowest to Highest
+          </Button>
+
+          <Button
+            variant="contained"
+            sx={{ bgcolor: "#666", color: "white", borderRadius: 1, width: 200, height: 40, ml: 1, "&:hover": { bgcolor: "#888" }, "&:focus": { outline: "2px solid white" } }}
+            onClick={() => sortProducts("high-low")}
+          >
+            Highest to Lowest
+          </Button>
         </Box>
 
         {/* Product Grid */}
         <Grid container spacing={2}>
-          {products.map((product) => (
-            <Grid item xs={12} sm={6} md={4} key={product.id}>
-              <Box sx={{ bgcolor: '#222', borderRadius: 1, p: 2, textAlign: 'center', color: 'white', position: 'relative' }}>
-                <img src={product.img} alt={product.name} style={{ width: '100%', borderRadius: '10px' }} />
-                <Typography variant="h6">{product.name}</Typography>
-                <Typography variant="body1">${product.price.toFixed(2)}</Typography>
-              </Box>
-            </Grid>
-          ))}
+          {products
+            .filter((product) => product.price >= appliedPriceRange[0] && product.price <= appliedPriceRange[1])
+            .filter((product) => selectedBrand.length === 0 || selectedBrand.includes(product.brand))
+            .map((product) => (
+              <Grid item xs={12} sm={6} md={4} key={product.id}>
+                <Box sx={{ bgcolor: "#222", borderRadius: 1, p: 2, textAlign: "center", color: "white" }}>
+                  <img src={product.img} alt={product.name} style={{ width: "100%", borderRadius: "10px" }} />
+                  <Typography variant="h6">{product.name}</Typography>
+                  <Typography variant="body1">${product.price.toFixed(2)}</Typography>
+                </Box>
+              </Grid>
+            ))}
         </Grid>
       </Box>
     </Box>
