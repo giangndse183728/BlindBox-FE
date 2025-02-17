@@ -173,14 +173,48 @@ const CollectionPage = () => {
             .filter((product) => selectedBrand.length === 0 || selectedBrand.includes(product.brand))
             .map((product) => (
               <Grid item xs={12} sm={6} md={4} key={product.id}>
-                <Box sx={{ bgcolor: "#222", borderRadius: 1, p: 2, textAlign: "center", color: "white" }}>
+                <Box
+                  sx={{
+                    bgcolor: "#222",
+                    borderRadius: 1,
+                    p: 9,
+                    textAlign: "center",
+                    color: "white",
+                    position: "relative",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    height: "150px", 
+                    width: "180px", 
+                    border: "2px solid white",
+                  }}
+                >
                   <img src={product.img} alt={product.name} style={{ width: "100%", borderRadius: "10px" }} />
-                  <Typography variant="h6">{product.name}</Typography>
-                  <Typography variant="body1">${product.price.toFixed(2)}</Typography>
+                  <Typography variant="h6" sx={{ mt: 1 }}>{product.name}</Typography>
+
+                  {/* Brand & Price in Bottom Left Corner */}
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      bottom: 10,
+                      left: 10,
+                      color: "white",
+                      px: 1,
+                      py: 0.5,
+                      borderRadius: 1,
+                      textAlign: "left",
+                    }}
+                  >
+                    <Typography variant="body2" sx={{ fontWeight: "bold", fontSize: "0.9rem" }}>
+                      {product.brand}
+                    </Typography>
+                    <Typography variant="body1">${product.price.toFixed(2)}</Typography>
+                  </Box>
                 </Box>
               </Grid>
             ))}
         </Grid>
+
       </Box>
     </Box>
   );
