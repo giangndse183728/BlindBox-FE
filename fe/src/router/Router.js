@@ -1,5 +1,5 @@
 import { createBrowserRouter } from 'react-router-dom';
-import ProtectedRoute from './ProtectedRoute';  
+import ProtectedRoute from './ProtectedRoute';
 //Layout
 import ButtonAppBar from '../layouts/Navbar';
 import Footer from '../layouts/Footer';
@@ -8,11 +8,14 @@ import Login from '../pages/Login/Login';
 import ForgotPassword from '../pages/Login/ForgotPassword';
 //General
 import Home from '../pages/Homepage/Homepage';
-import CollectionPage from '../pages/Collectionpage/CollectionPage'
+import Collectionpage from '../pages/Collectionpage/Collectionpage';
+import Detailpage from '../pages/Detailpage/Detailpage';
+import NotFoundPage from '../pages/Error404/NotFoundPage';
 //Admin
 import Dashboard from '../pages/Admin/Dashboard';
 
-const Layout = ({ children, showHeader = true}) => {
+
+const Layout = ({ children, showHeader = true }) => {
   return (
     <div>
       {showHeader && <ButtonAppBar />}
@@ -47,7 +50,7 @@ export const routes = createBrowserRouter([
       </Layout>
     ),
   },
-  
+
 
   {
     path: '/Dashboard',
@@ -59,11 +62,27 @@ export const routes = createBrowserRouter([
       </Layout>
     ),
   },
-  {       
+  {
     path: '/Collection-page',
     element: (
-      <Layout showHeader={true} >
-       <CollectionPage/>
+      <Layout showHeader={true} showFooter={false}>
+        <Collectionpage />
+      </Layout>
+    ),
+  },
+  {
+    path: '/product/:id',
+    element: (
+      <Layout showHeader={true} showFooter={false}>
+        <Detailpage />
+      </Layout>
+    ),
+  },
+  {
+    path: "*",
+    element: (
+      <Layout showHeader={false} showFooter={false}>
+        <NotFoundPage />
       </Layout>
     ),
   },
