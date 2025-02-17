@@ -1,22 +1,25 @@
-
-
 import { createBrowserRouter } from 'react-router-dom';
-import Login from '../pages/Login/Login';
-import Home from '../pages/Homepage/Homepage';
-import Dashboard from '../pages/Admin/Dashboard';
+import ProtectedRoute from './ProtectedRoute';
+//Layout
 import ButtonAppBar from '../layouts/Navbar';
 import Footer from '../layouts/Footer';
-import ProtectedRoute from './ProtectedRoute';
+//Login
+import Login from '../pages/Login/Login';
+import ForgotPassword from '../pages/Login/ForgotPassword';
+//General
+import Home from '../pages/Homepage/Homepage';
 import Collectionpage from '../pages/Collectionpage/Collectionpage';
 import Detailpage from '../pages/Detailpage/Detailpage';
 import NotFoundPage from '../pages/Error404/NotFoundPage';
+//Admin
+import Dashboard from '../pages/Admin/Dashboard';
 
-const Layout = ({ children, showHeader = true, showFooter = true }) => {
+
+const Layout = ({ children, showHeader = true }) => {
   return (
     <div>
       {showHeader && <ButtonAppBar />}
       {children}
-      {showFooter && <Footer />}
     </div>
   );
 };
@@ -32,18 +35,27 @@ export const routes = createBrowserRouter([
   },
 
   {
-    path: '/Login',
+    path: '/login',
     element: (
-      <Layout showHeader={false} showFooter={false}>
+      <Layout showHeader={false} >
         <Login />
       </Layout>
     ),
   },
+  {
+    path: '/login/reset-password',
+    element: (
+      <Layout showHeader={false}>
+        <ForgotPassword />
+      </Layout>
+    ),
+  },
+
 
   {
     path: '/Dashboard',
     element: (
-      <Layout showHeader={true} showFooter={false}>
+      <Layout showHeader={true} >
         <ProtectedRoute requiredRole={0}>
           <Dashboard />
         </ProtectedRoute>
@@ -54,7 +66,7 @@ export const routes = createBrowserRouter([
     path: '/Collection-page',
     element: (
       <Layout showHeader={true} showFooter={false}>
-        <Collectionpage/>
+        <Collectionpage />
       </Layout>
     ),
   },
@@ -62,15 +74,15 @@ export const routes = createBrowserRouter([
     path: '/product/:id',
     element: (
       <Layout showHeader={true} showFooter={false}>
-        <Detailpage/>
+        <Detailpage />
       </Layout>
     ),
   },
   {
-    path: "*",  
+    path: "*",
     element: (
       <Layout showHeader={false} showFooter={false}>
-        <NotFoundPage/>
+        <NotFoundPage />
       </Layout>
     ),
   },
