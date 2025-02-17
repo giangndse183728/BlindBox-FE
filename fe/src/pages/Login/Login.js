@@ -1,4 +1,5 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
+import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
@@ -14,12 +15,7 @@ import AOS from 'aos';
 import 'aos/dist/aos.css';
 import Copyright from '../../components/Text/Copyright';
 import LoadingScreen from '../../components/Loading/LoadingScreen';
-import { Formik, Form } from 'formik';
-import * as Yup from 'yup';
-import { login, signup, fetchUserData } from '../../api/loginApi';
-import { useNavigate } from 'react-router-dom';
-
-const LazyThreeScene = lazy(() => import('./ThreeScene'));
+import ThreeScene from './ThreeScene';
 
 const tabItems = [
     {
@@ -108,50 +104,10 @@ const tabItems = [
     }
 ];
 
-const validationSchemas = {
-  login: Yup.object({
-    email: Yup.string()
-      .email('Invalid email address')
-      .required('Required'),
-    password: Yup.string()
-      .min(8, 'Password must be at least 8 characters')
-      .required('Required'),
-  }),
-  sign: Yup.object({
-    username: Yup.string()
-      .min(1, 'Username must be at least 1 character')
-      .max(50, 'Username must be at most 50 characters')
-      .matches(
-        /^[a-zA-Z0-9]+$/, 
-        'Username can only contain letters and numbers '
-      )
-      .required('Required'),
-    email: Yup.string()
-      .email('Invalid email address')
-      .required('Required'),
-    password: Yup.string()
-      .min(6, 'Password must be at least 6 characters')
-      .max(50, 'Password must be at most 50 characters')
-      .matches(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z\d!@#$%^&*(),.?":{}|<>]{6,}$/,
-        'Password must contain at least 1 lowercase letter, 1 uppercase letter, 1 number, and 1 symbol'
-      )
-      .required('Required'),
-    'confirm-password': Yup.string()
-      .oneOf([Yup.ref('password'), null], 'Passwords must match')
-      .required('Required'),
-    phone: Yup.string()
-      .matches(/^[0-9]+$/, 'Phone number is invalid')
-      .min(10, 'Phone number length must be from 10 to 15')
-      .max(15, 'Phone number length must be from 10 to 15')
-      .required('Required'),
-  }),
-};
-
 export default function Login() {
     const [selectedTab, setSelectedTab] = useState('login');
+    const [isLoading, setIsLoading] = useState(true);
     const [tabAnimationKey, setTabAnimationKey] = useState(0);
-    const navigate = useNavigate();
 
     const currentTab = tabItems.find(tab => tab.key === selectedTab);
 
@@ -161,218 +117,24 @@ export default function Login() {
             once: true
         });
 
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 2000);
+
+        return () => clearTimeout(timer);
     }, []);
-  
+
+    if (isLoading) {
+        return <LoadingScreen />;
+    }
+
     const handleTabChange = (tabKey) => {
         setSelectedTab(tabKey);
         setTabAnimationKey(prevKey => prevKey + 1); // Trigger re-animation
     };
 
-    const handleSubmit = async (values, { setSubmitting, setFieldError }) => {
-        try {
-            if (selectedTab === 'login') {
-                await login(values.email, values.password);
-                const userData = await fetchUserData();
-                if (userData.role === 0) {
-                    navigate('/Dashboard');
-                } else {
-                    navigate('/');
-                }
-            } else {
-                // Handle signup
-                const userData = {
-                    userName: values.username,
-                    email: values.email,
-                    password: values.password,
-                    confirmPassword: values['confirm-password'],
-                    phoneNumber: values.phone
-                };
-                try {
-                    await signup(userData);
-                    await fetchUserData();
-                    navigate('/');
-                } catch (signupError) {
-                    if (signupError.response?.data) {
-                        const errorData = signupError.response.data;
-                       
-                        if (errorData.errors) {
-                            if (errorData.errors.email) {
-                                setFieldError('email', errorData.errors.email.msg); 
-                            }
-                            if (errorData.errors.userName) {
-                                setFieldError('username', errorData.errors.userName.msg);
-                            }
-                        } else if (errorData.message) {
-                            setFieldError('email', errorData.message); // use toastify here
-                        }
-                    } else {
-                        setFieldError('email', signupError.message || 'Failed to sign up. Please try again.'); // use toastify here
-                    }
-                    return;
-                }
-            }
-        } catch (error) {
-          
-            if (selectedTab === 'login') {
-                setFieldError('password', 'Invalid email or password'); // use toastify here
-            } else {
-                setFieldError('email', 'Registration failed. Please try again.'); // use toastify here
-            }
-        } finally {
-            setSubmitting(false);
-        }
-    };
-
-    const renderFields = (fields, formikProps) => {
-        if (selectedTab === 'sign') {
-            return (
-                <>
-                    <Grid container spacing={2}>
-                    <Grid item xs={6}>
-                            <TextField
-                                margin="normal"
-                                required
-                                fullWidth
-                                id="email"
-                                label="Email"
-                                name="email"
-                                autoComplete="email"
-                                error={Boolean(formikProps.touched.email && formikProps.errors.email)}
-                                helperText={formikProps.touched.email && formikProps.errors.email}
-                                {...formikProps.getFieldProps('email')}
-                                sx={{
-                                    input: { color: 'white' },
-                                    '& label': { color: 'rgba(255, 255, 255, 0.7)' },
-                                    '& label.Mui-focused': { color: 'white' },
-                                    '& .MuiOutlinedInput-root': {
-                                        '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.3)' },
-                                        '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.5)' },
-                                        '&.Mui-focused fieldset': { borderColor: 'white' },
-                                    },
-                                    '& .MuiFormHelperText-root': {
-                                        color: '#ff3d00'
-                                    }
-                                }}
-                            />
-                        </Grid>
-
-                        <Grid item xs={6}>
-                            <TextField
-                                margin="normal"
-                                required
-                                fullWidth
-                                id="username"
-                                label="Username"
-                                name="username"
-                                autoComplete="new-username"
-                                error={Boolean(formikProps.touched.username && formikProps.errors.username)}
-                                helperText={formikProps.touched.username && formikProps.errors.username}
-                                {...formikProps.getFieldProps('username')}
-                                sx={{
-                                    input: { color: 'white' },
-                                    '& label': { color: 'rgba(255, 255, 255, 0.7)' },
-                                    '& label.Mui-focused': { color: 'white' },
-                                    '& .MuiOutlinedInput-root': {
-                                        '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.3)' },
-                                        '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.5)' },
-                                        '&.Mui-focused fieldset': { borderColor: 'white' },
-                                    },
-                                    '& .MuiFormHelperText-root': {
-                                        color: '#ff3d00'
-                                    }
-                                }}
-                            />
-                        </Grid>
-
-                        <Grid item xs={6}>
-                            <TextField
-                                margin="normal"
-                                required
-                                fullWidth
-                                id="password"
-                                label="Password"
-                                name="password"
-                                type="password"
-                                autoComplete="new-password"
-                                error={Boolean(formikProps.touched.password && formikProps.errors.password)}
-                                helperText={formikProps.touched.password && formikProps.errors.password}
-                                {...formikProps.getFieldProps('password')}
-                                sx={{
-                                    input: { color: 'white' },
-                                    '& label': { color: 'rgba(255, 255, 255, 0.7)' },
-                                    '& label.Mui-focused': { color: 'white' },
-                                    '& .MuiOutlinedInput-root': {
-                                        '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.3)' },
-                                        '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.5)' },
-                                        '&.Mui-focused fieldset': { borderColor: 'white' },
-                                    },
-                                    '& .MuiFormHelperText-root': {
-                                        color: '#ff3d00'
-                                    }
-                                }}
-                            />
-                        </Grid>
-                        <Grid item xs={6}>
-                            <TextField
-                                margin="normal"
-                                required
-                                fullWidth
-                                id="confirm-password"
-                                label="Confirm Password"
-                                name="confirm-password"
-                                type="password"
-                                autoComplete="new-password"
-                                error={Boolean(formikProps.touched['confirm-password'] && formikProps.errors['confirm-password'])}
-                                helperText={formikProps.touched['confirm-password'] && formikProps.errors['confirm-password']}
-                                {...formikProps.getFieldProps('confirm-password')}
-                                sx={{
-                                    input: { color: 'white' },
-                                    '& label': { color: 'rgba(255, 255, 255, 0.7)' },
-                                    '& label.Mui-focused': { color: 'white' },
-                                    '& .MuiOutlinedInput-root': {
-                                        '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.3)' },
-                                        '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.5)' },
-                                        '&.Mui-focused fieldset': { borderColor: 'white' },
-                                    },
-                                    '& .MuiFormHelperText-root': {
-                                        color: '#ff3d00'
-                                    }
-                                }}
-                            />
-                        </Grid>
-                    </Grid>
-                    
-                    <TextField
-                        margin="normal"
-                        required
-                        fullWidth
-                        id="phone"
-                        label="Phone"
-                        name="phone"
-                        type="tel"
-                        autoComplete="tel"
-                        error={Boolean(formikProps.touched.phone && formikProps.errors.phone)}
-                        helperText={formikProps.touched.phone && formikProps.errors.phone}
-                        {...formikProps.getFieldProps('phone')}
-                        sx={{
-                            input: { color: 'white' },
-                            '& label': { color: 'rgba(255, 255, 255, 0.7)' },
-                            '& label.Mui-focused': { color: 'white' },
-                            '& .MuiOutlinedInput-root': {
-                                '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.3)' },
-                                '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.5)' },
-                                '&.Mui-focused fieldset': { borderColor: 'white' },
-                            },
-                            '& .MuiFormHelperText-root': {
-                                color: '#ff3d00'
-                            }
-                        }}
-                    />
-                </>
-            );
-        }
-
-        return fields.map((field) => (
+    const renderFields = (fields) => {
+        return fields.map((field, index) => (
             <TextField
                 key={field.name}
                 margin="normal"
@@ -383,9 +145,7 @@ export default function Login() {
                 name={field.name}
                 type={field.type}
                 autoComplete={field.autoComplete}
-                error={Boolean(formikProps.touched[field.name] && formikProps.errors[field.name])}
-                helperText={formikProps.touched[field.name] && formikProps.errors[field.name]}
-                {...formikProps.getFieldProps(field.name)}
+                autoFocus={index === 0}
                 sx={{
                     input: { color: 'white' },
                     '& label': { color: 'rgba(255, 255, 255, 0.7)' },
@@ -394,59 +154,11 @@ export default function Login() {
                         '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.3)' },
                         '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.5)' },
                         '&.Mui-focused fieldset': { borderColor: 'white' },
-                    },
-                    '& .MuiFormHelperText-root': {
-                        color: '#ff3d00'
                     }
                 }}
             />
         ));
     };
-
-    const formSection = (
-        <Formik
-            initialValues={
-                currentTab.fields.reduce((acc, field) => {
-                    acc[field.name] = '';
-                    return acc;
-                }, {})
-            }
-            validationSchema={validationSchemas[selectedTab]}
-            onSubmit={handleSubmit}
-        >
-            {(formik) => (
-                <Form noValidate>
-                    {renderFields(currentTab.fields, formik)}
-                    {currentTab.extraContent}
-
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        disabled={formik.isSubmitting}
-                        startIcon={<img src="/images/iconcross.png" alt="" style={{ width: '25px', marginRight: '1px' }} />}
-                        sx={{
-                            mt: 3,
-                            mb: 1,
-                            backgroundColor: '#d9a002',
-                            color: 'white',
-                            '&:hover': {
-                                backgroundColor: '#fcba03',
-                            },
-                        }}
-                    >
-                        {selectedTab === 'login' ? 'Sign In' : 'Sign Up'}
-                    </Button>
-
-                    {currentTab.showGoogleButton && <GoogleSignInButton />}
-
-                    <Box mt={1} mb={2}>
-                        <Copyright />
-                    </Box>
-                </Form>
-            )}
-        </Formik>
-    );
 
     return (
         <Grid container data-aos="fade" data-aos-delay="200" sx={{
@@ -467,11 +179,14 @@ export default function Login() {
 
 
 
-            <Suspense fallback={<LoadingScreen />}>
-                    <LazyThreeScene />
-                </Suspense>
+            <ThreeScene />
+
+
+
 
             {/* Login Form */}
+
+
             <Grid
                 item
                 xs={12}
@@ -491,8 +206,8 @@ export default function Login() {
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    bgcolor: 'rgba(0, 0, 0, 0.3)',
-                    backdropFilter: 'blur(10px)',
+                    bgcolor: 'rgba(255, 255, 255, 0.1)',
+                    backdropFilter: 'blur(8px)',
                     borderRadius: 2,
                     px: 6,
                     border: '1px solid rgba(128, 115, 1, 0.2)',
@@ -539,7 +254,7 @@ export default function Login() {
                     }}
                 >
 
-                  
+                    {selectedTab === 'login' && (
                         <img
                             src="/assets/logoBB.png"
                             width="80"
@@ -549,7 +264,7 @@ export default function Login() {
                             data-aos-delay="400"
                         >
                         </img>
-                   
+                    )}
                     <Typography
                         fontFamily="Yusei Magic"
                         component="h1"
@@ -588,7 +303,42 @@ export default function Login() {
                         ))}
                     </Box>
 
-                    {formSection}
+                    <Box
+                        component="form"
+                        noValidate
+                        data-aos="fade-up"
+                        data-aos-delay="200"
+                        key={tabAnimationKey}
+                    >
+
+                        {renderFields(currentTab.fields)}
+
+                        {currentTab.extraContent}
+
+                        <Button
+                            type="submit"
+                            fullWidth
+                            variant="contained"
+                            startIcon={<img src="/images/iconcross.png" alt="" style={{ width: '25px', marginRight: '1px' }} />}
+                            sx={{
+                                mt: 3,
+                                mb: 1,
+                                backgroundColor: '#d9a002',
+                                color: 'white',
+                                '&:hover': {
+                                    backgroundColor: '#fcba03',
+                                },
+                            }}
+                        >
+                            {selectedTab === 'login' ? 'Sign In' : 'Sign Up'}
+                        </Button>
+
+                        {currentTab.showGoogleButton && <GoogleSignInButton />}
+
+                        <Box mt={1} mb={2}>
+                            <Copyright />
+                        </Box>
+                    </Box>
                 </Box>
             </Grid>
 
