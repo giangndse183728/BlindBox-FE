@@ -17,7 +17,7 @@ import LoadingScreen from '../../components/Loading/LoadingScreen';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { login, signup, fetchUserData } from '../../api/loginApi';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, NavLink } from 'react-router-dom';
 
 const LazyThreeScene = lazy(() => import('./ThreeScene'));
 
@@ -53,12 +53,15 @@ const tabItems = [
                     />
                 </Grid>
                 <Grid item xs={6} display="flex" justifyContent="flex-end">
-                    <Link href="#" variant="body2" sx={{
-                        color: 'rgba(255, 255, 255, 0.7)',
-                        '&:hover': { color: 'white' }
-                    }}>
+                    <NavLink
+                        to="/Login/reset-password"
+                        style={({ isActive }) => ({
+                            color: isActive ? 'white' : 'rgba(255, 255, 255, 0.7)',
+                            textDecoration: 'none',
+                        })}
+                    >
                         Forgot password?
-                    </Link>
+                    </NavLink>
                 </Grid>
             </Grid>
         ),
@@ -109,43 +112,43 @@ const tabItems = [
 ];
 
 const validationSchemas = {
-  login: Yup.object({
-    email: Yup.string()
-      .email('Invalid email address')
-      .required('Required'),
-    password: Yup.string()
-      .min(8, 'Password must be at least 8 characters')
-      .required('Required'),
-  }),
-  sign: Yup.object({
-    username: Yup.string()
-      .min(1, 'Username must be at least 1 character')
-      .max(50, 'Username must be at most 50 characters')
-      .matches(
-        /^[a-zA-Z0-9]+$/, 
-        'Username can only contain letters and numbers '
-      )
-      .required('Required'),
-    email: Yup.string()
-      .email('Invalid email address')
-      .required('Required'),
-    password: Yup.string()
-      .min(6, 'Password must be at least 6 characters')
-      .max(50, 'Password must be at most 50 characters')
-      .matches(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z\d!@#$%^&*(),.?":{}|<>]{6,}$/,
-        'Password must contain at least 1 lowercase letter, 1 uppercase letter, 1 number, and 1 symbol'
-      )
-      .required('Required'),
-    'confirm-password': Yup.string()
-      .oneOf([Yup.ref('password'), null], 'Passwords must match')
-      .required('Required'),
-    phone: Yup.string()
-      .matches(/^[0-9]+$/, 'Phone number is invalid')
-      .min(10, 'Phone number length must be from 10 to 15')
-      .max(15, 'Phone number length must be from 10 to 15')
-      .required('Required'),
-  }),
+    login: Yup.object({
+        email: Yup.string()
+            .email('Invalid email address')
+            .required('Required'),
+        password: Yup.string()
+            .min(8, 'Password must be at least 8 characters')
+            .required('Required'),
+    }),
+    sign: Yup.object({
+        username: Yup.string()
+            .min(1, 'Username must be at least 1 character')
+            .max(50, 'Username must be at most 50 characters')
+            .matches(
+                /^[a-zA-Z0-9]+$/,
+                'Username can only contain letters and numbers '
+            )
+            .required('Required'),
+        email: Yup.string()
+            .email('Invalid email address')
+            .required('Required'),
+        password: Yup.string()
+            .min(6, 'Password must be at least 6 characters')
+            .max(50, 'Password must be at most 50 characters')
+            .matches(
+                /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z\d!@#$%^&*(),.?":{}|<>]{6,}$/,
+                'Password must contain at least 1 lowercase letter, 1 uppercase letter, 1 number, and 1 symbol'
+            )
+            .required('Required'),
+        'confirm-password': Yup.string()
+            .oneOf([Yup.ref('password'), null], 'Passwords must match')
+            .required('Required'),
+        phone: Yup.string()
+            .matches(/^[0-9]+$/, 'Phone number is invalid')
+            .min(10, 'Phone number length must be from 10 to 15')
+            .max(15, 'Phone number length must be from 10 to 15')
+            .required('Required'),
+    }),
 };
 
 export default function Login() {
@@ -162,7 +165,7 @@ export default function Login() {
         });
 
     }, []);
-  
+
     const handleTabChange = (tabKey) => {
         setSelectedTab(tabKey);
         setTabAnimationKey(prevKey => prevKey + 1); // Trigger re-animation
@@ -194,10 +197,10 @@ export default function Login() {
                 } catch (signupError) {
                     if (signupError.response?.data) {
                         const errorData = signupError.response.data;
-                       
+
                         if (errorData.errors) {
                             if (errorData.errors.email) {
-                                setFieldError('email', errorData.errors.email.msg); 
+                                setFieldError('email', errorData.errors.email.msg);
                             }
                             if (errorData.errors.userName) {
                                 setFieldError('username', errorData.errors.userName.msg);
@@ -212,7 +215,7 @@ export default function Login() {
                 }
             }
         } catch (error) {
-          
+
             if (selectedTab === 'login') {
                 setFieldError('password', 'Invalid email or password'); // use toastify here
             } else {
@@ -228,7 +231,7 @@ export default function Login() {
             return (
                 <>
                     <Grid container spacing={2}>
-                    <Grid item xs={6}>
+                        <Grid item xs={6}>
                             <TextField
                                 margin="normal"
                                 required
@@ -341,7 +344,7 @@ export default function Login() {
                             />
                         </Grid>
                     </Grid>
-                    
+
                     <TextField
                         margin="normal"
                         required
@@ -466,10 +469,9 @@ export default function Login() {
             <CssBaseline />
 
 
-
             <Suspense fallback={<LoadingScreen />}>
-                    <LazyThreeScene />
-                </Suspense>
+                <LazyThreeScene />
+            </Suspense>
 
             {/* Login Form */}
             <Grid
@@ -539,17 +541,17 @@ export default function Login() {
                     }}
                 >
 
-                  
-                        <img
-                            src="/assets/logoBB.png"
-                            width="80"
-                            height="80"
-                            alt="."
-                            data-aos="zoom-in"
-                            data-aos-delay="400"
-                        >
-                        </img>
-                   
+
+                    <img
+                        src="/assets/logoBB.png"
+                        width="80"
+                        height="80"
+                        alt="."
+                        data-aos="zoom-in"
+                        data-aos-delay="400"
+                    >
+                    </img>
+
                     <Typography
                         fontFamily="Yusei Magic"
                         component="h1"

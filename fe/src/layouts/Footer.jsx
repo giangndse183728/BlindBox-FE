@@ -9,7 +9,7 @@ const Footer = () => {
       sx={{
         bgcolor: 'rgba(10, 10, 10, 0.6)',
         padding: '30px 0',
-        marginTop: '50px',
+        marginTop: '5px',
         textAlign: 'center',
         color: '#ffffff',
         borderTop: '1px solid rgba(255, 255, 255, 0.3)',
@@ -24,7 +24,7 @@ const Footer = () => {
           <Grid container spacing={1} alignItems={"center"}>
           <Grid item xs={12} md={2}>
           <img
-                        src="/model3d/logoBB.png"
+                        src="/assets/logoBB.png"
                         width="50"
                         height="50"
                         alt="."
@@ -75,10 +75,6 @@ const Footer = () => {
             </IconButton>
           </Grid>
         </Grid>
-
-        {/* Bottom section with legal links */}
-       
-        {/* Copyright info */}
         
       </Container>
     </Box>

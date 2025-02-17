@@ -1,19 +1,22 @@
-
-
 import { createBrowserRouter } from 'react-router-dom';
-import Login from '../pages/Login/Login';
-import Home from '../pages/Homepage/Homepage';
-import Dashboard from '../pages/Admin/Dashboard';
+import ProtectedRoute from './ProtectedRoute';  
+//Layout
 import ButtonAppBar from '../layouts/Navbar';
 import Footer from '../layouts/Footer';
-import ProtectedRoute from './ProtectedRoute';  
+//Login
+import Login from '../pages/Login/Login';
+import ForgotPassword from '../pages/Login/ForgotPassword';
+//General
+import Home from '../pages/Homepage/Homepage';
 import CollectionPage from '../pages/Collectionpage/CollectionPage'
-const Layout = ({ children, showHeader = true, showFooter = true }) => {
+//Admin
+import Dashboard from '../pages/Admin/Dashboard';
+
+const Layout = ({ children, showHeader = true}) => {
   return (
     <div>
       {showHeader && <ButtonAppBar />}
       {children}
-      {showFooter && <Footer />}
     </div>
   );
 };
@@ -29,18 +32,27 @@ export const routes = createBrowserRouter([
   },
 
   {
-    path: '/Login',
+    path: '/login',
     element: (
-      <Layout showHeader={false} showFooter={false}>
+      <Layout showHeader={false} >
         <Login />
       </Layout>
     ),
   },
+  {
+    path: '/login/reset-password',
+    element: (
+      <Layout showHeader={false}>
+        <ForgotPassword />
+      </Layout>
+    ),
+  },
+  
 
   {
     path: '/Dashboard',
     element: (
-      <Layout showHeader={true} showFooter={false}>
+      <Layout showHeader={true} >
         <ProtectedRoute requiredRole={0}>
           <Dashboard />
         </ProtectedRoute>
@@ -50,7 +62,7 @@ export const routes = createBrowserRouter([
   {       
     path: '/Collection-page',
     element: (
-      <Layout showHeader={true} showFooter={false}>
+      <Layout showHeader={true} >
        <CollectionPage/>
       </Layout>
     ),
