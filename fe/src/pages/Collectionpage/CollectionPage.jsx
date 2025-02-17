@@ -54,7 +54,7 @@ const Collectionpage = () => {
   };
 
   return (
-    <Box sx={{ display: "flex", p: 2, bgcolor: "black", paddingTop: 10, minHeight: "100vh" }}>
+    <Box sx={{ display: "flex", p: 2, bgcolor: "black", paddingTop: 10, minHeight: "100vh", width: "100%", overflowX: "hidden" }}>
       {/* Sidebar Filter */}
       <Box
         sx={{
@@ -187,7 +187,7 @@ const Collectionpage = () => {
                       flexDirection: "column",
                       alignItems: "center",
                       height: "150px",
-                      width: "180px",
+                      width: "250px",
                       border: "2px solid white",
                     }}
                   >
