@@ -8,14 +8,21 @@
     "@mui/icons-material": "^6.4.3",
     "@mui/material": "^6.4.3",
     "aos": "^2.3.4",
+    "axios": "^1.7.9",
     "cra-template": "1.2.0",
+    "dotenv": "^16.4.7",
+    "formik": "^2.4.6",
+    "jwt-decode": "^4.0.0",
     "react": "^19.0.0",
     "react-color": "^2.19.3",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.1.5",
     "react-scripts": "5.0.1",
+    "react-toastify": "^11.0.3",
+    "swiper": "^11.2.3",
     "three": "^0.173.0",
-    "three-stdlib": "^2.35.13"
+    "three-stdlib": "^2.35.13",
+    "yup": "^1.6.1"
   },
   "scripts": {
     "start": "react-scripts start",

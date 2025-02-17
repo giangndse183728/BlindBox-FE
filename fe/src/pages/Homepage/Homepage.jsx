@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, Suspense, lazy } from 'react'
 import { Button, Grid, Typography, Card, CardMedia, CardContent, Box } from '@mui/material';
 import Divider from '@mui/material/Divider';
 import Avatar from '@mui/material/Avatar';
@@ -7,16 +7,39 @@ import './HomepageStyle.css'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import BigText from '../../components/Text/BigText';
-import ThreeCus from './ThreeCusBanner';
 import { yellowGlowAnimation } from '../../components/Text/YellowEffect';
 import LoadingScreen from '../../components/Loading/LoadingScreen';
 import ButtonCus from '../../components/Button/ButtonCus';
 import GlassCard from '../../components/Decor/GlassCard';
+import { ArrowBack, ArrowForward } from '@mui/icons-material';
+import { IconButton } from '@mui/material';
+import Blindbox from "../../assets/blindbox.webp";
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation } from 'swiper/modules';
+import ArrowCircleLeftOutlinedIcon from '@mui/icons-material/ArrowCircleLeftOutlined';
+import ArrowCircleRightOutlinedIcon from '@mui/icons-material/ArrowCircleRightOutlined';
+import 'swiper/css';
+import 'swiper/css/navigation';
+const ThreeCus = lazy(() => import('./ThreeCusBanner'));
+
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [fontsLoaded, setFontsLoaded] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const products = [
+    { name: 'Crybaby × Powerpuff', brand: 'Popmart', price: '$4999.99' },
+    { name: 'Crybaby × Powerpuff', brand: 'Popmart', price: '$4999.99' },
+    { name: 'Crybaby × Powerpuff', brand: 'Popmart', price: '$4999.99' },
+    { name: 'Crybaby × Powerpuff', brand: 'Popmart', price: '$4999.99' },
+    { name: 'Crybaby × Powerpuff', brand: 'Popmart', price: '$4999.99' },
+    { name: 'Crybaby × Powerpuff', brand: 'Popmart', price: '$4999.99' },
+    { name: 'Crybaby × Powerpuff', brand: 'Popmart', price: '$4999.99' },
+    { name: 'Crybaby × Powerpuff', brand: 'Popmart', price: '$4999.99' },
+  ];
+  
 
   useEffect(() => {
     // Initialize AOS
@@ -24,6 +47,8 @@ export default function Home() {
       duration: 800,
       once: true
     });
+
+    
 
     // Load fonts using Web Font Loader
     window.WebFontConfig = {
@@ -57,6 +82,15 @@ export default function Home() {
     }
   }, [videoLoaded, fontsLoaded]);
 
+  const nextSlide = () => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % products.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentIndex((prevIndex) => (prevIndex - 1 + products.length) % products.length);
+  };
+
+
   // Add new state and effect for scroll handling
   const [scale, setScale] = React.useState(1);
 
@@ -72,17 +106,33 @@ export default function Home() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const LazyImage = ({ src, alt, ...props }) => {
+    return (
+      <img 
+        src={src} 
+        alt={alt} 
+        width={90}
+        height={90}
+        loading="lazy" 
+        {...props} 
+      />
+    );
+  };
+
+  
+
   return (
     <>
       {isLoading && <LoadingScreen />}
       <Box sx={{ position: 'relative', overflow: 'hidden', width: '100%', height: '100vh' }}>
         <video 
-          src="/assets/BannerVid.mp4"
+          src="/assets/BannerVid.webm"
           autoPlay
           muted
           loop
           playsInline
           width="100%"
+          preload="metadata"
           onLoadedData={() => setVideoLoaded(true)}
           style={{
             position: 'absolute',
@@ -103,7 +153,7 @@ export default function Home() {
             left: 0,
             width: '100%',
             height: '100%',
-            backgroundImage: 'url(https://masterbundles.com/wp-content/uploads/2023/03/the-shop-black-noise-textures-prvs-09--544.jpg)',
+            backgroundImage: 'url(/assets/background.jpeg)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             overflow: 'hidden',
@@ -140,13 +190,34 @@ export default function Home() {
           </div>
         </Grid>
 
-        <ThreeCus />
+        <Suspense fallback={<LoadingScreen />}>
+  <ThreeCus />
+</Suspense>
 
 
 
         <Grid container component="main" sx={{ mt: 4}}>
         <Grid item xs={6} >
-        <div class="sketchfab-embed-wrapper"> <iframe  frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share width="800" height="600" src="https://sketchfab.com/models/3764a2442eca43c7bbe64d8297d84905/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_animations=0&ui_infos=0&ui_stop=0&ui_inspector=0&ui_watermark_link=0&ui_watermark=0&ui_hint=0&ui_ar=0&ui_help=0&ui_settings=0&ui_vr=0&ui_fullscreen=0&ui_annotations=0&dnt=1"> </iframe> </div>
+        <div className="sketchfab-embed-wrapper"> 
+        <iframe
+    title="Sketchfab Model"
+    src="https://sketchfab.com/models/3764a2442eca43c7bbe64d8297d84905/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_animations=0&ui_infos=0&ui_stop=0&ui_inspector=0&ui_watermark_link=0&ui_watermark=0&ui_hint=0&ui_ar=0&ui_help=0&ui_settings=0&ui_vr=0&ui_fullscreen=0&ui_annotations=0&dnt=1"
+    width="800"
+    height="600"
+    loading="lazy"
+    allow="accelerometer; gyroscope; autoplay; fullscreen; xr-spatial-tracking"
+    allowFullScreen
+    mozallowfullscreen="true"
+    webkitallowfullscreen="true"
+    style={{ border: "none" }}
+    className="my-frame"
+    xr-spatial-tracking="true"
+    execution-while-out-of-viewport="true"
+    execution-while-not-rendered="true"
+    web-share="true"
+/>
+
+ </div>
           </Grid>
         <Grid item xs={5} data-aos="fade-up">
             <Typography  fontFamily="'Jersey 15', sans-serif" variant='h3' sx={{ mb: 4, ...yellowGlowAnimation}}>Discover the Thrill of Mystery <br/> Buy & Sell Blind Boxes!</Typography>
@@ -199,34 +270,161 @@ export default function Home() {
           </Grid>
         </Grid>
 
-        
-
-
-
-
-
-
-
         <Grid item xs={12} data-aos="fade-up" >
           <Typography fontFamily="'Jersey 15', sans-serif" variant='h3' sx={{ mt: 5, textAlign: "center", color: "white" }}>  🕹 Collection  </Typography>
 
           <Typography variant='subtitle1' sx={{ mt: 2, mb: 3, mx: 20, textAlign: "center", color: "white" }} data-aos="fade-up" data-aos-delay="200">  Explore Our Exclusive Blind Box Collection: Discover limited-edition and rare collectibles from top brands like Pop Mart, Tokidoki, BE@RBRICK, and more. Each blind box is offered by trusted sellers at great prices, bringing you the thrill of surprise and exceptional value. Start your collection today! </Typography>
 
           <Stack direction="row" spacing={10} justifyContent="center" sx={{ mb: 3 }} data-aos="fade-up" data-aos-delay="400">
-            <Avatar src='https://i.ebayimg.com/images/g/6bsAAOSwFlVhJpnu/s-l400.jpg' sx={{ width: 90, height: 90 }} />
-            <Avatar src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHT7EIqHbuwCvGxYZpWf6M43MNxDxp3OpARg&s' sx={{ width: 90, height: 90 }} />
-            <Avatar src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxkuZjIic131BsGapQEt-YWOKUX3WodyFr_A&s' sx={{ width: 90, height: 90 }} />
-            <Avatar src='https://www.tokidoki.it/cdn/shop/files/tokidoki_logo_pumpkin_carving_thumbnail.jpg?v=1634074134' sx={{ width: 90, height: 90 }} />
-            <Avatar src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdv_Xuqk4HLZ0IJVmMJk1yUxqmtMssH0XNcA&s' sx={{ width: 90, height: 90 }} />
-            <Avatar src='https://firmatodesign.com/cdn/shop/collections/MMC-KAWS_1200x1200_png.webp?v=1677510790' sx={{ width: 90, height: 90 }} />
+          <Avatar sx={{ width: 90, height: 90 }}>
+        <LazyImage 
+          src='https://i.ebayimg.com/images/g/6bsAAOSwFlVhJpnu/s-l400.jpg' 
+          alt="Avatar 1" 
+        />
+      </Avatar>
+      <Avatar sx={{ width: 90, height: 90 }}>
+        <LazyImage 
+          src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHT7EIqHbuwCvGxYZpWf6M43MNxDxp3OpARg&s' 
+          alt="Avatar 2" 
+        />
+      </Avatar>
+      <Avatar sx={{ width: 90, height: 90 }}>
+        <LazyImage 
+          src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxkuZjIic131BsGapQEt-YWOKUX3WodyFr_A&s' 
+          alt="Avatar 3" 
+        />
+      </Avatar>
+      <Avatar sx={{ width: 90, height: 90 }}>
+        <LazyImage 
+          src='https://www.tokidoki.it/cdn/shop/files/tokidoki_logo_pumpkin_carving_thumbnail.jpg?v=1634074134' 
+          alt="Avatar 4" 
+        />
+      </Avatar>
+      <Avatar sx={{ width: 90, height: 90 }}>
+        <LazyImage 
+          src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdv_Xuqk4HLZ0IJVmMJk1yUxqmtMssH0XNcA&s' 
+          alt="Avatar 5" 
+        />
+      </Avatar>
+      <Avatar sx={{ width: 90, height: 90 }}>
+        <LazyImage 
+          src='https://firmatodesign.com/cdn/shop/collections/MMC-KAWS_1200x1200_png.webp?v=1677510790' 
+          alt="Avatar 6" 
+        />
+      </Avatar>
           </Stack>
           <Divider sx={{ width: "50%", margin: '0 auto', borderColor: 'white' }}>♱</Divider>
         </Grid>
 
       </Grid>
+      
 
+      <Grid container component="main" sx={{ mt: 4 }}>
+        <Grid item xs={12} data-aos="fade-up">
+          <Typography fontFamily="'Jersey 15', sans-serif" variant='h3' sx={{ mt: 5, textAlign: 'center', color: 'white' }}>
+            🔥 Trending
+          </Typography>
 
+          <Box sx={{ position: 'relative',mt: 3, ml: 7 }}>
+            {/* Swiper Carousel */}
+            
+            <Swiper
+              slidesPerView={4}
+              spaceBetween={0}
+              navigation={{
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+                
+              }}
+              
+              modules={[Navigation]}
+              
+            >
+              {products.map((product, index) => (
+                <SwiperSlide key={index}>
+                  <GlassCard sx={{ width: 250, textAlign: 'center' }}>
+                    <CardMedia component="img" height="200" image={Blindbox} alt="Blindbox" />
+                    <CardContent>
+                      <Typography variant="h6" sx={{ color: 'white' }}>
+                        {product.name}
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: 'gray' }}>
+                        {product.brand}
+                      </Typography>
+                      <Typography variant="h6" sx={{ color: 'gray' }}>
+                        {product.price}
+                      </Typography>
+                    </CardContent>
+                  </GlassCard>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+
+            {/* Navigation Buttons */}
+            <IconButton className="swiper-button-prev" sx={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', zIndex: 100, left: '-45px !important' }}>
+            </IconButton>
+            <IconButton className="swiper-button-next" sx={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', zIndex: 100 }}>
+       </IconButton>
+          </Box>
+
+          {/* 🆕 New Launch Section */}
+          <Typography fontFamily="'Jersey 15', sans-serif" variant="h3" sx={{ mt: 15, textAlign: 'center', color: 'white' }}>
+            🆕 New Launch
+          </Typography>
+
+          <Box sx={{ position: 'relative', mt: 3, ml: 7 }}>
+            {/* Swiper Carousel */}
+            <Swiper
+              slidesPerView={4}
+              spaceBetween={0}
+              navigation={{
+                nextEl: ".swiper-button-next-launch",
+                prevEl: ".swiper-button-prev-launch",
+              }}
+              modules={[Navigation]}
+              observer={true}
+              observeParents={true}
+              onSwiper={(swiper) => {
+                setTimeout(() => {
+                  swiper.navigation.init(); 
+                  swiper.navigation.update();
+                }, 100);
+              }}
+            >
+              {products.map((product, index) => (
+                <SwiperSlide key={index}>
+                  <GlassCard sx={{ width: 250, textAlign: 'center' }}>
+                    <CardMedia component="img" height="200" image={Blindbox} alt="Blindbox" />
+                    <CardContent>
+                      <Typography variant="h6" sx={{ color: 'white' }}>
+                        {product.name}
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: 'gray' }}>
+                        {product.brand}
+                      </Typography>
+                      <Typography variant="h6" sx={{ color: 'gray' }}>
+                        {product.price}
+                      </Typography>
+                    </CardContent>
+                  </GlassCard>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+
+            {/* Navigation Buttons (New Launch) */}
+            <IconButton className="swiper-button-prev-launch" sx={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', zIndex: 100, left: '-45px' }}>
+            </IconButton>
+            <IconButton className="swiper-button-next-launch" sx={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', zIndex: 100 }}>
+            </IconButton>
+          </Box>
+        </Grid>
+      </Grid>
     </>
+
+    
   )
+  
 }
+
+
 
