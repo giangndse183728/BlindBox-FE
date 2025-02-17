@@ -14,8 +14,8 @@ const Detailpage = () => {
 
   if (!product) {
     return (
-      <Box sx={{ p: 4, bgcolor: "black", color: "white", minHeight: "100vh", textAlign: "center", paddingTop: 10 }}>
-        <Typography variant="h4" sx={{ mb: 2 }}>Product not found!</Typography>
+      <Box sx={{ p: 4, bgcolor: "black", color: "white", minHeight: "100vh", textAlign: "center", paddingTop: 20 }}>
+        <Typography variant="h4" fontFamily="'Jersey 15', sans-serif" sx={{ mb: 2 }}>Product not found!</Typography>
         <Link to="/Collection-page" style={{ textDecoration: "none" }}>
           <Button variant="contained" sx={{ mt: 3, bgcolor: "#666", color: "white" }}>
             Back to Collection
