@@ -11,6 +11,7 @@ import { yellowGlowAnimation } from '../../components/Text/YellowEffect';
 import LoadingScreen from '../../components/Loading/LoadingScreen';
 import ButtonCus from '../../components/Button/ButtonCus';
 import GlassCard from '../../components/Decor/GlassCard';
+import Footer from '../../layouts/Footer';
 const ThreeCus = lazy(() => import('./ThreeCusBanner'));
 
 export default function Home() {
@@ -234,13 +235,7 @@ export default function Home() {
           </Grid>
         </Grid>
 
-        
-
-
-
-
-
-
+    
 
         <Grid item xs={12} data-aos="fade-up" >
           <Typography fontFamily="'Jersey 15', sans-serif" variant='h3' sx={{ mt: 5, textAlign: "center", color: "white" }}>  🕹 Collection  </Typography>
@@ -289,7 +284,7 @@ export default function Home() {
         </Grid>
 
       </Grid>
-
+<Footer/>
 
     </>
   )
