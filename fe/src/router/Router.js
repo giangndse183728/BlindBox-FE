@@ -6,8 +6,11 @@ import Home from '../pages/Homepage/Homepage';
 import Dashboard from '../pages/Admin/Dashboard';
 import ButtonAppBar from '../layouts/Navbar';
 import Footer from '../layouts/Footer';
-import ProtectedRoute from './ProtectedRoute';  
-import CollectionPage from '../pages/Collectionpage/CollectionPage'
+import ProtectedRoute from './ProtectedRoute';
+import Collectionpage from '../pages/Collectionpage/Collectionpage';
+import Detailpage from '../pages/Detailpage/Detailpage';
+import NotFoundPage from '../pages/Error404/NotFoundPage';
+
 const Layout = ({ children, showHeader = true, showFooter = true }) => {
   return (
     <div>
@@ -47,11 +50,27 @@ export const routes = createBrowserRouter([
       </Layout>
     ),
   },
-  {       
+  {
     path: '/Collection-page',
     element: (
       <Layout showHeader={true} showFooter={false}>
-       <CollectionPage/>
+        <Collectionpage/>
+      </Layout>
+    ),
+  },
+  {
+    path: '/product/:id',
+    element: (
+      <Layout showHeader={true} showFooter={false}>
+        <Detailpage/>
+      </Layout>
+    ),
+  },
+  {
+    path: "*",  
+    element: (
+      <Layout showHeader={false} showFooter={false}>
+        <NotFoundPage/>
       </Layout>
     ),
   },
