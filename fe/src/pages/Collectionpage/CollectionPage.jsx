@@ -129,7 +129,7 @@ const Collectionpage = () => {
             color: "white",
             borderRadius: 1,
             position: "sticky",
-            zIndex: 100,
+            width: 1220,
             mb: 2,
           }}
         >

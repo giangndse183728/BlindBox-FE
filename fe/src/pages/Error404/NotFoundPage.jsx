@@ -1,7 +1,6 @@
 import React from "react";
 import { Box, Typography, Button } from "@mui/material";
 import { Link } from "react-router-dom";
-import './Img.css'; // Import the CSS file
 
 const NotFoundPage = () => {
   return (
@@ -10,15 +9,15 @@ const NotFoundPage = () => {
         src="/assets/mario-running/mario-running.gif" 
         alt="Running Mario" 
         style={{
-          width: 200, // Adjust size as needed
-          height: 200, // Adjust size as needed
+          width: 200, 
+          height: 200, 
           marginBottom: 20
         }} 
       />
       <Typography variant="h2" fontFamily="'Jersey 15', sans-serif" sx={{ fontWeight: "bold", mb: 2 }}>404</Typography>
       <Typography variant="h5" fontFamily="'Jersey 15', sans-serif" sx={{ mb: 3 }}>Oops! Page not found.</Typography>
       <Link to="/" style={{ textDecoration: "none" }}>
-        <Button variant="contained" sx={{ bgcolor: "#666", color: "white" }}>Back to HomePage</Button>
+        <Button variant="contained"  fontFamily="'Yusei Magic, sans-serif" sx={{ bgcolor: "red", color: "white" }}>Back to HomePage</Button>
       </Link>
     </Box>
   );

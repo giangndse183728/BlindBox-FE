@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Box, Typography, Button } from "@mui/material";
 
@@ -11,6 +11,10 @@ const products = [
 const Detailpage = () => {
   const { id } = useParams();
   const product = products.find((p) => p.id === parseInt(id));
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   if (!product) {
     return (
