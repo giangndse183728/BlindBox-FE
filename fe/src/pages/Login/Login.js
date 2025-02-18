@@ -9,6 +9,7 @@ import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
 import { Grid, ToggleButton, Divider } from '@mui/material';
 import Typography from '@mui/material/Typography';
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import GoogleSignInButton from '../../components/Button/GoogleButton';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
@@ -20,6 +21,7 @@ import { login, signup, fetchUserData } from '../../api/loginApi';
 import { useNavigate, NavLink } from 'react-router-dom';
 
 const LazyThreeScene = lazy(() => import('./ThreeScene'));
+const clientId = "365306672742-f9s1etoidrep72aqi14kslrvajvia3rv.apps.googleusercontent.com";
 
 const tabItems = [
     {
@@ -171,6 +173,8 @@ export default function Login() {
         setTabAnimationKey(prevKey => prevKey + 1); // Trigger re-animation
     };
 
+    
+
     const handleSubmit = async (values, { setSubmitting, setFieldError }) => {
         try {
             if (selectedTab === 'login') {
@@ -225,6 +229,11 @@ export default function Login() {
             setSubmitting(false);
         }
     };
+
+    const handleLoginGoogle = (data) => {
+        console.log("User Data:", data);
+        // Store user data in state or localStorage
+      };
 
     const renderFields = (fields, formikProps) => {
         if (selectedTab === 'sign') {
@@ -441,7 +450,7 @@ export default function Login() {
                         {selectedTab === 'login' ? 'Sign In' : 'Sign Up'}
                     </Button>
 
-                    {currentTab.showGoogleButton && <GoogleSignInButton />}
+                    {currentTab.showGoogleButton &&  <GoogleSignInButton onSuccess={handleLoginGoogle} />}
 
                     <Box mt={1} mb={2}>
                         <Copyright />
@@ -474,6 +483,7 @@ export default function Login() {
             </Suspense>
 
             {/* Login Form */}
+            <GoogleOAuthProvider clientId={clientId}>
             <Grid
                 item
                 xs={12}
@@ -595,7 +605,7 @@ export default function Login() {
             </Grid>
 
 
-
+            </GoogleOAuthProvider>
 
         </Grid>
     );

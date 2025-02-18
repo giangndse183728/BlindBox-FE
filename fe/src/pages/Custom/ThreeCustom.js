@@ -1,12 +1,12 @@
+import { CustomBoard, BeadInfo} from "./CustomBoard"; 
+import GlassCard from "../../components/Decor/GlassCard";
 import React, { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three-stdlib";
-import CustomBoard from "./CustomBoard";
 import { Grid, Typography, LinearProgress } from '@mui/material';
-import GlassCard from "../../components/Decor/GlassCard";
 import { yellowGlowAnimation } from "../../components/Text/YellowEffect";
-import ButtonCus from "../../components/Button/ButtonCus";
-import ToggleEngine from "./ToggleButton";
+import ButtonCus from "../../components/Button/ButtonCus";;
+
 
 const ThreeCustom = () => {
   const containerRef = useRef(null);
@@ -255,22 +255,8 @@ const ThreeCustom = () => {
           Personalized Accessories  <br /> Your Way 
         </Typography>
        
-        <Typography 
-  variant='subtitle1' 
-  sx={{ mt: 2, mb: 3, ml: 6, color: "white" }} 
-  data-aos="fade-up" 
-  data-aos-delay="200"
->
-  🔹 <strong>Bead Recommendations:</strong> <br />
-  • <strong>Keychain:</strong> 20–30 beads <br />
-  • <strong>Strap:</strong> 30–60 beads <br />
-  • <strong>Cross-Strap:</strong> 60–120 beads <br /><br />
+        <BeadInfo/>
 
-  💎 <strong>Bead Pricing:</strong> <br />
-  • <strong>Solid Beads:</strong> $1 each <br />
-  • <strong>Low-Poly Beads:</strong> $2 each <br />
-  • <strong>Spike Beads:</strong> $3 each <br />
-</Typography>
 
         <ButtonCus variant="button-02" width="250px" sx={{display: 'flex', justifyContent: 'center'}}> Saving</ButtonCus>
         </Grid>
