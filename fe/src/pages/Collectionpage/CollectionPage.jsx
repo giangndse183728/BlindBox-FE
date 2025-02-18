@@ -1,7 +1,8 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { Slider, Checkbox, FormControlLabel, Box, Grid, Typography, Button } from "@mui/material";
 
-const CollectionPage = () => {
+const Collectionpage = () => {
   const [priceRange, setPriceRange] = useState([0, 5000]);
   const [selectedBrand, setSelectedBrand] = useState([]);
   const [appliedPriceRange, setAppliedPriceRange] = useState([0, 5000]);
@@ -53,7 +54,7 @@ const CollectionPage = () => {
   };
 
   return (
-    <Box sx={{ display: "flex", p: 2, bgcolor: "black", paddingTop: 10, minHeight: "100vh" }}>
+    <Box sx={{ display: "flex", p: 2, bgcolor: "black", paddingTop: 10, minHeight: "100vh", width: "100%", overflowX: "hidden" }}>
       {/* Sidebar Filter */}
       <Box
         sx={{
@@ -128,7 +129,7 @@ const CollectionPage = () => {
             color: "white",
             borderRadius: 1,
             position: "sticky",
-            zIndex: 100,
+            width: 1220,
             mb: 2,
           }}
         >
@@ -173,51 +174,51 @@ const CollectionPage = () => {
             .filter((product) => selectedBrand.length === 0 || selectedBrand.includes(product.brand))
             .map((product) => (
               <Grid item xs={12} sm={6} md={4} key={product.id}>
-                <Box
-                  sx={{
-                    bgcolor: "#222",
-                    borderRadius: 1,
-                    p: 9,
-                    textAlign: "center",
-                    color: "white",
-                    position: "relative",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    height: "150px", 
-                    width: "180px", 
-                    border: "2px solid white",
-                  }}
-                >
-                  <img src={product.img} alt={product.name} style={{ width: "100%", borderRadius: "10px" }} />
-                  <Typography variant="h6" sx={{ mt: 1 }}>{product.name}</Typography>
-
-                  {/* Brand & Price in Bottom Left Corner */}
+                <Link to={`/product/${product.id}`} style={{ textDecoration: "none" }}>
                   <Box
                     sx={{
-                      position: "absolute",
-                      bottom: 10,
-                      left: 10,
-                      color: "white",
-                      px: 1,
-                      py: 0.5,
+                      bgcolor: "#222",
                       borderRadius: 1,
-                      textAlign: "left",
+                      p: 9,
+                      textAlign: "center",
+                      color: "white",
+                      position: "relative",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      height: "150px",
+                      width: "250px",
+                      border: "2px solid white",
                     }}
                   >
-                    <Typography variant="body2" sx={{ fontWeight: "bold", fontSize: "0.9rem" }}>
-                      {product.brand}
-                    </Typography>
-                    <Typography variant="body1">${product.price.toFixed(2)}</Typography>
+                    <img src={product.img} alt={product.name} style={{ width: "100%", borderRadius: "10px" }} />
+                    <Typography variant="h6" sx={{ mt: 1 }}>{product.name}</Typography>
+                    {/* Brand & Price in Bottom Left Corner */}
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        bottom: 10,
+                        left: 10,
+                        color: "white",
+                        px: 1,
+                        py: 0.5,
+                        borderRadius: 1,
+                        textAlign: "left",
+                      }}
+                    >
+                      <Typography variant="body2" sx={{ fontWeight: "bold", fontSize: "0.9rem" }}>
+                        {product.brand}
+                      </Typography>
+                      <Typography variant="body1">${product.price.toFixed(2)}</Typography>
+                    </Box>
                   </Box>
-                </Box>
+                </Link>
               </Grid>
             ))}
         </Grid>
-
       </Box>
     </Box>
   );
 };
 
-export default CollectionPage;
+export default Collectionpage;
