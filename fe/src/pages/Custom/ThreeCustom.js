@@ -3,7 +3,7 @@ import GlassCard from "../../components/Decor/GlassCard";
 import React, { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three-stdlib";
-import { Grid, Typography, LinearProgress } from '@mui/material';
+import { Grid, Typography, LinearProgress, Box } from '@mui/material';
 import { yellowGlowAnimation } from "../../components/Text/YellowEffect";
 import ButtonCus from "../../components/Button/ButtonCus";;
 
@@ -16,8 +16,9 @@ const ThreeCustom = () => {
   const animationFrameRef = useRef(null);
   const modelsRef = useRef([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [numberOfModels, setNumberOfModels] = useState(50); 
-  const [modelGroups, setModelGroups] = useState([{ color: '#BED3F3', count: 50 }]);
+  const [numberOfModels, setNumberOfModels] = useState(0); 
+  const [modelGroups, setModelGroups] = useState([]);
+  const [sphereType, setSphereType] = useState('low');
 
   const baseRadius = 0.2; 
   
@@ -103,23 +104,30 @@ const ThreeCustom = () => {
     
     modelGroups.forEach(group => {
       for (let i = 0; i < group.count; i++) {
-        const geometry = new THREE.SphereGeometry(0.5, 64, 64);
-     
-        const position = geometry.attributes.position;
-
-        for (let i = 0; i < position.count; i++) {
-          const v = new THREE.Vector3().fromBufferAttribute(position, i);
-          
-          const originalLength = v.length(); 
-          v.normalize().multiplyScalar(originalLength * (1 + Math.random() * 0.3)); 
-          
-          position.setXYZ(i, v.x, v.y, v.z);
+        let geometry;
+        
+        switch(group.type) {
+          case 'solid':
+            geometry = new THREE.SphereGeometry(0.5, 32, 32);
+            break;
+          case 'low':
+            geometry = new THREE.SphereGeometry(0.5, 8, 8);
+            break;
+          case 'spike':
+            geometry = new THREE.SphereGeometry(0.5, 64, 64);
+            // Add spiky effect
+            const position = geometry.attributes.position;
+            for (let i = 0; i < position.count; i++) {
+              const v = new THREE.Vector3().fromBufferAttribute(position, i);
+              const originalLength = v.length();
+              v.normalize().multiplyScalar(originalLength * (1 + Math.random() * 0.3));
+              position.setXYZ(i, v.x, v.y, v.z);
+            }
+            geometry.attributes.position.needsUpdate = true;
+            geometry.computeVertexNormals();
+            break;
         }
-        
-        geometry.attributes.position.needsUpdate = true;
-        geometry.computeVertexNormals();
-      
-        
+
         // Create gem-like material with the group's color
         const gemMaterial = new THREE.MeshPhysicalMaterial({
           color: new THREE.Color(group.color),
@@ -134,7 +142,7 @@ const ThreeCustom = () => {
           thickness: 5,
           opacity: 1,
           transparent: true,
-          flatShading: true 
+          flatShading: group.type === 'low'  // Enable flat shading for low-poly
         });
 
         const sphere = new THREE.Mesh(geometry, gemMaterial);
@@ -223,7 +231,7 @@ const ThreeCustom = () => {
   
     if (newTotal <= 120) {
       setNumberOfModels(prev => prev + count);
-      setModelGroups(prev => [...prev, { color, count }]);
+      setModelGroups(prev => [...prev, { color, count, type: sphereType }]);
     } else {
       // Optionally show an alert or message to the user that the limit is reached
       alert('You can create a maximum of 120 models!');
@@ -233,6 +241,14 @@ const ThreeCustom = () => {
   const handleRemoveAll = () => {
     setNumberOfModels(0);
     setModelGroups([]);
+  };
+
+  const handleRemoveLast = () => {
+    if (modelGroups.length > 0) {
+      const lastGroup = modelGroups[modelGroups.length - 1];
+      setNumberOfModels(prev => Math.max(0, prev - lastGroup.count));
+      setModelGroups(prev => prev.slice(0, -1));
+    }
   };
 
   return (
@@ -257,8 +273,9 @@ const ThreeCustom = () => {
        
         <BeadInfo/>
 
-
+    
         <ButtonCus variant="button-02" width="250px" sx={{display: 'flex', justifyContent: 'center'}}> Saving</ButtonCus>
+        
         </Grid>
         <Grid item xs={6}>
           <div
@@ -274,12 +291,14 @@ const ThreeCustom = () => {
             }}
           />
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={3} sx={{ mt: 4 }}>
           <GlassCard>
             <CustomBoard
               onAddModels={handleAddModels} 
-              onRemoveAll={handleRemoveAll} 
-              isLoading={isLoading} 
+              onRemoveAll={handleRemoveAll}
+              onRemoveLast={handleRemoveLast}
+              isLoading={isLoading}
+              onTypeChange={(type) => setSphereType(type)}
             />
                 <Typography fontFamily="'Jersey 15', sans-serif" variant="h6" sx={{ mt: 1, textAlign: "center", color: "white" }}>
       Total Models: {numberOfModels}
