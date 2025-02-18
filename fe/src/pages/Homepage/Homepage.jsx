@@ -316,73 +316,63 @@ export default function Home() {
 
         <Grid item xs={12} data-aos="fade-up">
 
-          <Typography fontFamily="'Jersey 15', sans-serif" variant='h3' sx={{ mt: 5, textAlign: 'center', color: 'white' }}>
+          <Typography fontFamily="'Jersey 15', sans-serif" variant='h4' sx={{ mt: 5, textAlign: 'center', color: 'white' }}>
 
             🔥 Trending
 
           </Typography>
 
-          <Box sx={{ position: 'relative', mt: 3, ml: 7 }}>
+          <Box sx={{ width: '90%', position: 'relative', mx: 'auto', mt: 3 }}>
 
             {/* Swiper Carousel */}
-
-
-
             <Swiper
 
               slidesPerView={4}
-
               spaceBetween={0}
-
               navigation={{
 
-                nextEl: '.swiper-button-next',
-
-                prevEl: '.swiper-button-prev',
-
-
-
+                nextEl: '.swiper-button-next-trending',
+                prevEl: '.swiper-button-prev-trending',
               }}
 
 
 
               modules={[Navigation]}
-
-
-
             >
 
               {products.map((product, index) => (
 
                 <SwiperSlide key={index}>
+                  <Box sx={{ display: 'flex', justifyContent: 'center' }}>
 
-                  <GlassCard sx={{ width: 250, textAlign: 'center' }}>
+                    <GlassCard sx={{ width: 250, textAlign: 'center' }}>
 
-                    <img src="/assets/blindbox1.png" alt="Blindbox 1" height="200" />
+                      <img src="/assets/blindbox1.png" alt="Blindbox 1" height="200" />
 
-                    <CardContent>
+                      <CardContent>
 
-                      <Typography variant="h6" sx={{ color: 'white' }}>
+                        <Typography variant="h6" sx={{ color: 'white' }}>
 
-                        {product.name}
+                          {product.name}
 
-                      </Typography>
+                        </Typography>
 
-                      <Typography variant="body2" sx={{ color: 'gray' }}>
+                        <Typography variant="body2" sx={{ color: 'gray' }}>
 
-                        {product.brand}
+                          {product.brand}
 
-                      </Typography>
+                        </Typography>
 
-                      <Typography variant="h6" sx={{ color: 'gray' }}>
+                        <Typography variant="h6" sx={{ color: 'gray' }}>
 
-                        {product.price}
+                          {product.price}
 
-                      </Typography>
+                        </Typography>
 
-                    </CardContent>
+                      </CardContent>
 
-                  </GlassCard>
+                    </GlassCard>
+                  </Box>
 
                 </SwiperSlide>
 
@@ -392,25 +382,29 @@ export default function Home() {
 
             {/* Navigation Buttons */}
 
-            <IconButton className="swiper-button-prev" sx={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', zIndex: 100, left: '-45px !important' }}>
-
+            <IconButton className="swiper-button-prev-trending" sx={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', zIndex: 100, left: 0 }}>
+              <Button>
+                <ArrowCircleLeftOutlinedIcon sx={{ color: 'white', fontSize: '30px' }} />
+              </Button>
             </IconButton>
 
-            <IconButton className="swiper-button-next" sx={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', zIndex: 100 }}>
-
+            <IconButton className="swiper-button-next-trending" sx={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', zIndex: 100, right: 0 }}>
+              <Button>
+                <ArrowCircleRightOutlinedIcon sx={{ color: 'white', fontSize: '30px' }} />
+              </Button>
             </IconButton>
 
           </Box>
 
           {/* 🆕 New Launch Section */}
 
-          <Typography fontFamily="'Jersey 15', sans-serif" variant="h3" sx={{ mt: 15, textAlign: 'center', color: 'white' }}>
+          <Typography fontFamily="'Jersey 15', sans-serif" variant="h4" sx={{ mt: 15, textAlign: 'center', color: 'white' }}>
 
             🆕 New Launch
 
           </Typography>
 
-          <Box sx={{ position: 'relative', mt: 3, ml: 7 }}>
+          <Box sx={{ width: '90%', position: 'relative', mx: 'auto', mt: 3 }}>
 
             {/* Swiper Carousel */}
 
@@ -451,35 +445,35 @@ export default function Home() {
               {products.map((product, index) => (
 
                 <SwiperSlide key={index}>
+                  <Box sx={{ display: 'flex', justifyContent: 'center' }}>
 
-                  <GlassCard sx={{ width: 250, textAlign: 'center' }}>
+                    <GlassCard sx={{ width: 250, textAlign: 'center' }}>
 
-                    <CardMedia component="img" height="200" image="/assets/blindbox1.png" alt="Blindbox" />
+                      <img src="/assets/blindbox1.png" alt="Blindbox 1" height="200" />
+                      <CardContent>
 
+                        <Typography variant="h6" sx={{ color: 'white' }}>
 
-                    <CardContent>
+                          {product.name}
 
-                      <Typography variant="h6" sx={{ color: 'white' }}>
+                        </Typography>
 
-                        {product.name}
+                        <Typography variant="body2" sx={{ color: 'gray' }}>
 
-                      </Typography>
+                          {product.brand}
 
-                      <Typography variant="body2" sx={{ color: 'gray' }}>
+                        </Typography>
 
-                        {product.brand}
+                        <Typography variant="h6" sx={{ color: 'gray' }}>
 
-                      </Typography>
+                          {product.price}
 
-                      <Typography variant="h6" sx={{ color: 'gray' }}>
+                        </Typography>
 
-                        {product.price}
+                      </CardContent>
 
-                      </Typography>
-
-                    </CardContent>
-
-                  </GlassCard>
+                    </GlassCard>
+                  </Box>
 
                 </SwiperSlide>
 
@@ -489,15 +483,21 @@ export default function Home() {
 
             {/* Navigation Buttons (New Launch) */}
 
-            <IconButton className="swiper-button-prev-launch" sx={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', zIndex: 100, left: '-45px' }}>
-
+            <IconButton className="swiper-button-prev-launch" sx={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', zIndex: 100, left: 0 }}>
+              <Button>
+                <ArrowCircleLeftOutlinedIcon sx={{ color: 'white', fontSize: '30px' }} />
+              </Button>
             </IconButton>
 
-            <IconButton className="swiper-button-next-launch" sx={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', zIndex: 100 }}>
-
+            <IconButton className="swiper-button-next-launch" sx={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', zIndex: 100, right: 0 }}>
+              <Button>
+                <ArrowCircleRightOutlinedIcon sx={{ color: 'white', fontSize: '30px' }} />
+              </Button>
             </IconButton>
 
           </Box>
+
+
 
         </Grid>
 
