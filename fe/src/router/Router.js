@@ -11,6 +11,8 @@ import Home from '../pages/Homepage/Homepage';
 import CollectionPage from '../pages/Collectionpage/CollectionPage'
 //Admin
 import Dashboard from '../pages/Admin/Dashboard';
+//User
+import CustomPage from '../pages/Custom/CustomPage';
 
 const Layout = ({ children, showHeader = true}) => {
   return (
@@ -55,6 +57,16 @@ export const routes = createBrowserRouter([
       <Layout showHeader={true} >
         <ProtectedRoute requiredRole={0}>
           <Dashboard />
+        </ProtectedRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: '/Custom',
+    element: (
+      <Layout showHeader={true} >
+        <ProtectedRoute requiredRole={1}>
+          <CustomPage/>
         </ProtectedRoute>
       </Layout>
     ),
