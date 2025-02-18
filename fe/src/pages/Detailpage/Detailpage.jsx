@@ -4,9 +4,9 @@ import { Box, Typography, Button, Grid, TextField } from "@mui/material";
 import './Img.css';
 
 const products = [
-  { id: 1, name: "Anime Blind Box", img: "https://via.placeholder.com/300", price: 2999.99, brand: "Pop Mart", description: "A surprise anime-themed blind box with exclusive figurines." },
-  { id: 2, name: "Superhero Surprise Pack", img: "https://via.placeholder.com/300", price: 2500, brand: "My Kingdom", description: "Unleash the hero inside you with this mystery superhero box." },
-  { id: 3, name: "Kawaii Collectibles", img: "https://via.placeholder.com/300", price: 3200, brand: "Tokidoki", description: "A collection of adorable kawaii items to brighten your day." },
+  { id: 1, name: "Anime Blind Box", img: "/assets/blindbox1.png", price: 2999.99, brand: "Pop Mart", description: "A surprise anime-themed blind box with exclusive figurines." },
+  { id: 2, name: "Superhero Surprise Pack", img: "/assets/blindbox1.png", price: 2500, brand: "My Kingdom", description: "Unleash the hero inside you with this mystery superhero box." },
+  { id: 3, name: "Kawaii Collectibles", img: "/assets/blindbox1.png", price: 3200, brand: "Tokidoki", description: "A collection of adorable kawaii items to brighten your day." },
 ];
 
 const Detailpage = () => {
@@ -56,7 +56,7 @@ const Detailpage = () => {
         <Grid container spacing={4} alignItems="center">
           {/* Product Image */}
           <Grid item xs={12} md={6} sx={{ textAlign: "center" }}>
-            <img src={product.img} alt={product.name} style={{ width: "100%", maxWidth: "400px", borderRadius: "10px" }} />
+            <img src={product.img} alt={product.name} style={{ width: 500, height: 500, borderRadius: "10p" }} />
           </Grid>
 
           {/* Product Details */}

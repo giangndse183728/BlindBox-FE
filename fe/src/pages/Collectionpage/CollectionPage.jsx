@@ -23,7 +23,6 @@ const Collectionpage = () => {
     { id: 13, name: "Anime Limited Edition Box", img: "/assets/blindbox1.png", price: 3799.99, brand: "Pop Mart" },
   ]);
 
-
   const handlePriceChange = (event, newValue) => {
     setPriceRange(newValue);
   };
@@ -58,7 +57,7 @@ const Collectionpage = () => {
       {/* Sidebar Filter */}
       <Box
         sx={{
-          width: 300,
+          width: { xs: "100%", sm: 300 },  // Adjust width based on screen size
           p: 2,
           bgcolor: "#333",
           color: "white",
@@ -75,8 +74,9 @@ const Collectionpage = () => {
             textAlign: "center",
             width: "100%",
             fontWeight: "bold",
-            fontSize: "1.8rem"
-          }}>
+            fontSize: "1.8rem",
+          }}
+        >
           Product Filter
         </Typography>
 
@@ -120,7 +120,7 @@ const Collectionpage = () => {
       </Box>
 
       {/* Product Section */}
-      <Box sx={{ flexGrow: 1, ml: 2 }}>
+      <Box sx={{ flexGrow: 1, ml: { xs: 0, sm: 2 }, mt: { xs: 2, sm: 0 } }}>
         {/* Sorting Bar */}
         <Box
           sx={{
@@ -129,34 +129,42 @@ const Collectionpage = () => {
             color: "white",
             borderRadius: 1,
             position: "sticky",
-            width: "100%",
+            width: "90%",
             mb: 2,
-            display: "flex",
-            flexWrap: "wrap",
-            justifyContent: "flex-start"
           }}
         >
           {/* Sorting Buttons */}
-          {["az", "za", "low-high", "high-low"].map((sortType) => (
-            <Button
-              key={sortType}
-              variant="contained"
-              sx={{
-                bgcolor: "#666",
-                color: "white",
-                borderRadius: 1,
-                width: { xs: "100%", sm: "auto" },
-                height: 40,
-                "&:hover": { bgcolor: "#888" },
-                "&:focus": { outline: "2px solid white" },
-                mb: 1,
-                mr: 1,
-              }}
-              onClick={() => sortProducts(sortType)}
-            >
-              {sortType === "az" ? "A-Z" : sortType === "za" ? "Z-A" : sortType === "low-high" ? "Lowest to Highest" : "Highest to Lowest"}
-            </Button>
-          ))}
+          <Button
+            variant="contained"
+            sx={{ bgcolor: "#666", color: "white", borderRadius: 1, width: 120, height: 40, "&:hover": { bgcolor: "#888" }, "&:focus": { outline: "2px solid white" } }}
+            onClick={() => sortProducts("az")}
+          >
+            A-Z
+          </Button>
+
+          <Button
+            variant="contained"
+            sx={{ bgcolor: "#666", color: "white", borderRadius: 1, width: 120, height: 40, ml: 1, "&:hover": { bgcolor: "#888" }, "&:focus": { outline: "2px solid white" } }}
+            onClick={() => sortProducts("za")}
+          >
+            Z-A
+          </Button>
+
+          <Button
+            variant="contained"
+            sx={{ bgcolor: "#666", color: "white", borderRadius: 1, width: 200, height: 40, ml: 1, "&:hover": { bgcolor: "#888" }, "&:focus": { outline: "2px solid white" } }}
+            onClick={() => sortProducts("low-high")}
+          >
+            Lowest to Highest
+          </Button>
+
+          <Button
+            variant="contained"
+            sx={{ bgcolor: "#666", color: "white", borderRadius: 1, width: 200, height: 40, ml: 1, "&:hover": { bgcolor: "#888" }, "&:focus": { outline: "2px solid white" } }}
+            onClick={() => sortProducts("high-low")}
+          >
+            Highest to Lowest
+          </Button>
         </Box>
 
         {/* Product Grid */}
@@ -183,8 +191,8 @@ const Collectionpage = () => {
                       border: "2px solid white",
                     }}
                   >
-                    <img src={product.img} alt={product.name} style={{ width: 150, height: 150, borderRadius: "10px", marginTop: "-10px" }} />
-                    <Typography variant="h6" sx={{ mt: "-8px" }}>{product.name}</Typography>
+                    <img src={product.img} alt={product.name} style={{ width: 150, height: 150, borderRadius: "10px", marginTop: "-40px" }} />
+                    <Typography variant="h6" sx={{ mt: "-15px" }}>{product.name}</Typography>
                     {/* Brand & Price in Bottom Left Corner */}
                     <Box
                       sx={{
