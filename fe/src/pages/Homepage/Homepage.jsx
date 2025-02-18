@@ -12,8 +12,35 @@ import LoadingScreen from '../../components/Loading/LoadingScreen';
 import ButtonCus from '../../components/Button/ButtonCus';
 import GlassCard from '../../components/Decor/GlassCard';
 import Footer from '../../layouts/Footer';
-const ThreeCus = lazy(() => import('./ThreeCusBanner'));
+import { ArrowBack, ArrowForward } from '@mui/icons-material';
+import { IconButton } from '@mui/material';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import ArrowCircleLeftOutlinedIcon from '@mui/icons-material/ArrowCircleLeftOutlined';
+import ArrowCircleRightOutlinedIcon from '@mui/icons-material/ArrowCircleRightOutlined';
 
+const ThreeCus = lazy(() => import('./ThreeCusBanner'));
+const products = [
+
+  { name: 'Crybaby × Powerpuff', brand: 'Popmart', price: '$4999.99' },
+
+  { name: 'Crybaby × Powerpuff', brand: 'Popmart', price: '$4999.99' },
+
+  { name: 'Crybaby × Powerpuff', brand: 'Popmart', price: '$4999.99' },
+
+  { name: 'Crybaby × Powerpuff', brand: 'Popmart', price: '$4999.99' },
+
+  { name: 'Crybaby × Powerpuff', brand: 'Popmart', price: '$4999.99' },
+
+  { name: 'Crybaby × Powerpuff', brand: 'Popmart', price: '$4999.99' },
+
+  { name: 'Crybaby × Powerpuff', brand: 'Popmart', price: '$4999.99' },
+
+  { name: 'Crybaby × Powerpuff', brand: 'Popmart', price: '$4999.99' },
+
+];
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [videoLoaded, setVideoLoaded] = useState(false);
@@ -75,13 +102,13 @@ export default function Home() {
 
   const LazyImage = ({ src, alt, ...props }) => {
     return (
-      <img 
-        src={src} 
-        alt={alt} 
+      <img
+        src={src}
+        alt={alt}
         width={90}
         height={90}
-        loading="lazy" 
-        {...props} 
+        loading="lazy"
+        {...props}
       />
     );
   };
@@ -90,7 +117,7 @@ export default function Home() {
     <>
       {isLoading && <LoadingScreen />}
       <Box sx={{ position: 'relative', overflow: 'hidden', width: '100%', height: '100vh' }}>
-        <video 
+        <video
           src="/assets/BannerVid.webm"
           autoPlay
           muted
@@ -156,86 +183,86 @@ export default function Home() {
         </Grid>
 
         <Suspense fallback={<LoadingScreen />}>
-  <ThreeCus />
-</Suspense>
+          <ThreeCus />
+        </Suspense>
 
 
 
-        <Grid container component="main" sx={{ mt: 4}}>
-        <Grid item xs={6} >
-        <div className="sketchfab-embed-wrapper"> 
-        <iframe
-    title="Sketchfab Model"
-    src="https://sketchfab.com/models/3764a2442eca43c7bbe64d8297d84905/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_animations=0&ui_infos=0&ui_stop=0&ui_inspector=0&ui_watermark_link=0&ui_watermark=0&ui_hint=0&ui_ar=0&ui_help=0&ui_settings=0&ui_vr=0&ui_fullscreen=0&ui_annotations=0&dnt=1"
-    width="800"
-    height="600"
-    loading="lazy"
-    allow="accelerometer; gyroscope; autoplay; fullscreen; xr-spatial-tracking"
-    allowFullScreen
-    mozallowfullscreen="true"
-    webkitallowfullscreen="true"
-    style={{ border: "none" }}
-    className="my-frame"
-    xr-spatial-tracking="true"
-    execution-while-out-of-viewport="true"
-    execution-while-not-rendered="true"
-    web-share="true"
-/>
+        <Grid container component="main" sx={{ mt: 4 }}>
+          <Grid item xs={6} >
+            <div className="sketchfab-embed-wrapper">
+              <iframe
+                title="Sketchfab Model"
+                src="https://sketchfab.com/models/3764a2442eca43c7bbe64d8297d84905/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_animations=0&ui_infos=0&ui_stop=0&ui_inspector=0&ui_watermark_link=0&ui_watermark=0&ui_hint=0&ui_ar=0&ui_help=0&ui_settings=0&ui_vr=0&ui_fullscreen=0&ui_annotations=0&dnt=1"
+                width="800"
+                height="600"
+                loading="lazy"
+                allow="accelerometer; gyroscope; autoplay; fullscreen; xr-spatial-tracking"
+                allowFullScreen
+                mozallowfullscreen="true"
+                webkitallowfullscreen="true"
+                style={{ border: "none" }}
+                className="my-frame"
+                xr-spatial-tracking="true"
+                execution-while-out-of-viewport="true"
+                execution-while-not-rendered="true"
+                web-share="true"
+              />
 
- </div>
+            </div>
           </Grid>
-        <Grid item xs={5} data-aos="fade-up">
-            <Typography  fontFamily="'Jersey 15', sans-serif" variant='h3' sx={{ mb: 4, ...yellowGlowAnimation}}>Discover the Thrill of Mystery <br/> Buy & Sell Blind Boxes!</Typography>
+          <Grid item xs={5} data-aos="fade-up">
+            <Typography fontFamily="'Jersey 15', sans-serif" variant='h3' sx={{ mb: 4, ...yellowGlowAnimation }}>Discover the Thrill of Mystery <br /> Buy & Sell Blind Boxes!</Typography>
 
             <Typography variant="subtitle1" color='white'>
-            Welcome to the ultimate marketplace for blind box enthusiasts! Our platform connects buyers and sellers in an exciting world of mystery and surprise. Whether you're looking to unbox rare collectibles or sell your own mystery sets, we make it easy, secure, and fun. Explore endless possibilities, trade with confidence, and experience the joy of the unknown. Start your blind box journey today!
+              Welcome to the ultimate marketplace for blind box enthusiasts! Our platform connects buyers and sellers in an exciting world of mystery and surprise. Whether you're looking to unbox rare collectibles or sell your own mystery sets, we make it easy, secure, and fun. Explore endless possibilities, trade with confidence, and experience the joy of the unknown. Start your blind box journey today!
             </Typography>
             <Grid container sx={{ mt: 4 }}>
               <Grid item xs={4}  >
-              <ButtonCus variant="button-22" width="150px"> Shop Now </ButtonCus>
-            
+                <ButtonCus variant="button-22" width="150px"> Shop Now </ButtonCus>
+
               </Grid>
               <Grid item xs={4} >
-              <ButtonCus variant="button-22" width="150px"> Shop Now </ButtonCus>
-                 
+                <ButtonCus variant="button-22" width="150px"> Shop Now </ButtonCus>
+
               </Grid>
               <Grid item xs={4} >
-              <Typography color='white' sx={{ ...yellowGlowAnimation}} variant="h4" fontFamily="'Jersey 15', sans-serif">***************</Typography>
+                <Typography color='white' sx={{ ...yellowGlowAnimation }} variant="h4" fontFamily="'Jersey 15', sans-serif">***************</Typography>
               </Grid>
             </Grid>
-            
 
-    
-      <GlassCard sx={{ mt: 5, width: '60%' }}> 
-      <Grid container spacing={2}>
-        {/* Column 1 */}
-        <Grid item xs={4}>
-          <Typography fontFamily="'Jersey 15', sans-serif" variant="h5" sx={{ color: 'white' }}>
-            Up to 10K Customers
-          </Typography>
-        </Grid>
-        
-        {/* Column 2 */}
-        <Grid item xs={4}>
-          <Typography fontFamily="'Jersey 15', sans-serif" variant="h5" sx={{ color: 'white' }}>
-            Up to 1K Products
-          </Typography>
-        </Grid>
-        
-        {/* Column 3 */}
-        <Grid item xs={4}>
-          <Typography fontFamily="'Jersey 15', sans-serif" variant="h5" sx={{ color: 'white' }}>
-            Up to 1M Followers
-          </Typography>
-        </Grid>
-      </Grid>
-      </GlassCard>
 
-    
+
+            <GlassCard sx={{ mt: 5, width: '60%' }}>
+              <Grid container spacing={2}>
+                {/* Column 1 */}
+                <Grid item xs={4}>
+                  <Typography fontFamily="'Jersey 15', sans-serif" variant="h5" sx={{ color: 'white' }}>
+                    Up to 10K Customers
+                  </Typography>
+                </Grid>
+
+                {/* Column 2 */}
+                <Grid item xs={4}>
+                  <Typography fontFamily="'Jersey 15', sans-serif" variant="h5" sx={{ color: 'white' }}>
+                    Up to 1K Products
+                  </Typography>
+                </Grid>
+
+                {/* Column 3 */}
+                <Grid item xs={4}>
+                  <Typography fontFamily="'Jersey 15', sans-serif" variant="h5" sx={{ color: 'white' }}>
+                    Up to 1M Followers
+                  </Typography>
+                </Grid>
+              </Grid>
+            </GlassCard>
+
+
           </Grid>
         </Grid>
 
-    
+
 
         <Grid item xs={12} data-aos="fade-up" >
           <Typography fontFamily="'Jersey 15', sans-serif" variant='h3' sx={{ mt: 5, textAlign: "center", color: "white" }}>  🕹 Collection  </Typography>
@@ -243,48 +270,241 @@ export default function Home() {
           <Typography variant='subtitle1' sx={{ mt: 2, mb: 3, mx: 20, textAlign: "center", color: "white" }} data-aos="fade-up" data-aos-delay="200">  Explore Our Exclusive Blind Box Collection: Discover limited-edition and rare collectibles from top brands like Pop Mart, Tokidoki, BE@RBRICK, and more. Each blind box is offered by trusted sellers at great prices, bringing you the thrill of surprise and exceptional value. Start your collection today! </Typography>
 
           <Stack direction="row" spacing={10} justifyContent="center" sx={{ mb: 3 }} data-aos="fade-up" data-aos-delay="400">
-          <Avatar sx={{ width: 90, height: 90 }}>
-        <LazyImage 
-          src='https://i.ebayimg.com/images/g/6bsAAOSwFlVhJpnu/s-l400.jpg' 
-          alt="Avatar 1" 
-        />
-      </Avatar>
-      <Avatar sx={{ width: 90, height: 90 }}>
-        <LazyImage 
-          src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHT7EIqHbuwCvGxYZpWf6M43MNxDxp3OpARg&s' 
-          alt="Avatar 2" 
-        />
-      </Avatar>
-      <Avatar sx={{ width: 90, height: 90 }}>
-        <LazyImage 
-          src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxkuZjIic131BsGapQEt-YWOKUX3WodyFr_A&s' 
-          alt="Avatar 3" 
-        />
-      </Avatar>
-      <Avatar sx={{ width: 90, height: 90 }}>
-        <LazyImage 
-          src='https://www.tokidoki.it/cdn/shop/files/tokidoki_logo_pumpkin_carving_thumbnail.jpg?v=1634074134' 
-          alt="Avatar 4" 
-        />
-      </Avatar>
-      <Avatar sx={{ width: 90, height: 90 }}>
-        <LazyImage 
-          src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdv_Xuqk4HLZ0IJVmMJk1yUxqmtMssH0XNcA&s' 
-          alt="Avatar 5" 
-        />
-      </Avatar>
-      <Avatar sx={{ width: 90, height: 90 }}>
-        <LazyImage 
-          src='https://firmatodesign.com/cdn/shop/collections/MMC-KAWS_1200x1200_png.webp?v=1677510790' 
-          alt="Avatar 6" 
-        />
-      </Avatar>
+            <Avatar sx={{ width: 90, height: 90 }}>
+              <LazyImage
+                src='https://i.ebayimg.com/images/g/6bsAAOSwFlVhJpnu/s-l400.jpg'
+                alt="Avatar 1"
+              />
+            </Avatar>
+            <Avatar sx={{ width: 90, height: 90 }}>
+              <LazyImage
+                src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHT7EIqHbuwCvGxYZpWf6M43MNxDxp3OpARg&s'
+                alt="Avatar 2"
+              />
+            </Avatar>
+            <Avatar sx={{ width: 90, height: 90 }}>
+              <LazyImage
+                src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxkuZjIic131BsGapQEt-YWOKUX3WodyFr_A&s'
+                alt="Avatar 3"
+              />
+            </Avatar>
+            <Avatar sx={{ width: 90, height: 90 }}>
+              <LazyImage
+                src='https://www.tokidoki.it/cdn/shop/files/tokidoki_logo_pumpkin_carving_thumbnail.jpg?v=1634074134'
+                alt="Avatar 4"
+              />
+            </Avatar>
+            <Avatar sx={{ width: 90, height: 90 }}>
+              <LazyImage
+                src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdv_Xuqk4HLZ0IJVmMJk1yUxqmtMssH0XNcA&s'
+                alt="Avatar 5"
+              />
+            </Avatar>
+            <Avatar sx={{ width: 90, height: 90 }}>
+              <LazyImage
+                src='https://firmatodesign.com/cdn/shop/collections/MMC-KAWS_1200x1200_png.webp?v=1677510790'
+                alt="Avatar 6"
+              />
+            </Avatar>
           </Stack>
           <Divider sx={{ width: "50%", margin: '0 auto', borderColor: 'white' }}>♱</Divider>
         </Grid>
 
       </Grid>
-<Footer/>
+
+      <Grid container component="main" sx={{ mt: 4 }}>
+
+        <Grid item xs={12} data-aos="fade-up">
+
+          <Typography fontFamily="'Jersey 15', sans-serif" variant='h3' sx={{ mt: 5, textAlign: 'center', color: 'white' }}>
+
+            🔥 Trending
+
+          </Typography>
+
+          <Box sx={{ position: 'relative', mt: 3, ml: 7 }}>
+
+            {/* Swiper Carousel */}
+
+
+
+            <Swiper
+
+              slidesPerView={4}
+
+              spaceBetween={0}
+
+              navigation={{
+
+                nextEl: '.swiper-button-next',
+
+                prevEl: '.swiper-button-prev',
+
+
+
+              }}
+
+
+
+              modules={[Navigation]}
+
+
+
+            >
+
+              {products.map((product, index) => (
+
+                <SwiperSlide key={index}>
+
+                  <GlassCard sx={{ width: 250, textAlign: 'center' }}>
+
+                    <img src="/assets/blindbox1.png" alt="Blindbox 1" height="200" />
+
+                    <CardContent>
+
+                      <Typography variant="h6" sx={{ color: 'white' }}>
+
+                        {product.name}
+
+                      </Typography>
+
+                      <Typography variant="body2" sx={{ color: 'gray' }}>
+
+                        {product.brand}
+
+                      </Typography>
+
+                      <Typography variant="h6" sx={{ color: 'gray' }}>
+
+                        {product.price}
+
+                      </Typography>
+
+                    </CardContent>
+
+                  </GlassCard>
+
+                </SwiperSlide>
+
+              ))}
+
+            </Swiper>
+
+            {/* Navigation Buttons */}
+
+            <IconButton className="swiper-button-prev" sx={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', zIndex: 100, left: '-45px !important' }}>
+
+            </IconButton>
+
+            <IconButton className="swiper-button-next" sx={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', zIndex: 100 }}>
+
+            </IconButton>
+
+          </Box>
+
+          {/* 🆕 New Launch Section */}
+
+          <Typography fontFamily="'Jersey 15', sans-serif" variant="h3" sx={{ mt: 15, textAlign: 'center', color: 'white' }}>
+
+            🆕 New Launch
+
+          </Typography>
+
+          <Box sx={{ position: 'relative', mt: 3, ml: 7 }}>
+
+            {/* Swiper Carousel */}
+
+            <Swiper
+
+              slidesPerView={4}
+
+              spaceBetween={0}
+
+              navigation={{
+
+                nextEl: ".swiper-button-next-launch",
+
+                prevEl: ".swiper-button-prev-launch",
+
+              }}
+
+              modules={[Navigation]}
+
+              observer={true}
+
+              observeParents={true}
+
+              onSwiper={(swiper) => {
+
+                setTimeout(() => {
+
+                  swiper.navigation.init();
+
+                  swiper.navigation.update();
+
+                }, 100);
+
+              }}
+
+            >
+
+              {products.map((product, index) => (
+
+                <SwiperSlide key={index}>
+
+                  <GlassCard sx={{ width: 250, textAlign: 'center' }}>
+
+                    <CardMedia component="img" height="200" image="/assets/blindbox1.png" alt="Blindbox" />
+
+
+                    <CardContent>
+
+                      <Typography variant="h6" sx={{ color: 'white' }}>
+
+                        {product.name}
+
+                      </Typography>
+
+                      <Typography variant="body2" sx={{ color: 'gray' }}>
+
+                        {product.brand}
+
+                      </Typography>
+
+                      <Typography variant="h6" sx={{ color: 'gray' }}>
+
+                        {product.price}
+
+                      </Typography>
+
+                    </CardContent>
+
+                  </GlassCard>
+
+                </SwiperSlide>
+
+              ))}
+
+            </Swiper>
+
+            {/* Navigation Buttons (New Launch) */}
+
+            <IconButton className="swiper-button-prev-launch" sx={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', zIndex: 100, left: '-45px' }}>
+
+            </IconButton>
+
+            <IconButton className="swiper-button-next-launch" sx={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', zIndex: 100 }}>
+
+            </IconButton>
+
+          </Box>
+
+        </Grid>
+
+      </Grid>
+
+
+      <Footer />
 
     </>
   )
