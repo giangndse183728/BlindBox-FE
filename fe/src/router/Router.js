@@ -13,6 +13,8 @@ import Detailpage from '../pages/Detailpage/Detailpage';
 import NotFoundPage from '../pages/Error404/NotFoundPage';
 //Admin
 import Dashboard from '../pages/Admin/Dashboard';
+//User
+import CustomPage from '../pages/Custom/CustomPage';
 
 
 const Layout = ({ children, showHeader = true }) => {
@@ -63,6 +65,16 @@ export const routes = createBrowserRouter([
     ),
   },
   {
+    path: '/Custom',
+    element: (
+      <Layout showHeader={true} >
+        <ProtectedRoute requiredRole={1}>
+          <CustomPage/>
+        </ProtectedRoute>
+      </Layout>
+    ),
+  },
+  {       
     path: '/Collection-page',
     element: (
       <Layout showHeader={true} showFooter={false}>
