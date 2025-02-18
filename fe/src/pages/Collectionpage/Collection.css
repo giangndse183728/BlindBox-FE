@@ -1,0 +1,24 @@
+/* For mobile screens (<= 600px) */
+@media (max-width: 600px) {
+    .sidebar {
+      display: none; /* Hide sidebar on mobile */
+    }
+  
+    .filter-button {
+      display: block; /* Show mobile filter button */
+    }
+  
+    .product-grid {
+      display: block; /* Stack product items on mobile */
+    }
+  }
+  
+  /* For tablets and above (min-width: 600px) */
+  @media (min-width: 600px) {
+    .product-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px; /* Adjust gap between products */
+    }
+  }
+  

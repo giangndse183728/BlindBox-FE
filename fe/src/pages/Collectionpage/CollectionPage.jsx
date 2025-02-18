@@ -8,19 +8,19 @@ const Collectionpage = () => {
   const [appliedPriceRange, setAppliedPriceRange] = useState([0, 5000]);
 
   const [products, setProducts] = useState([
-    { id: 1, name: "Anime Blind Box", img: "https://via.placeholder.com/150", price: 2999.99, brand: "Pop Mart" },
-    { id: 2, name: "Superhero Surprise Pack", img: "https://via.placeholder.com/150", price: 2500, brand: "My Kingdom" },
-    { id: 3, name: "Kawaii Collectibles", img: "https://via.placeholder.com/150", price: 3200, brand: "Tokidoki" },
-    { id: 4, name: "Gaming Loot Crate", img: "https://via.placeholder.com/150", price: 1999.99, brand: "Funko" },
-    { id: 5, name: "Sci-Fi Mystery Box", img: "https://via.placeholder.com/150", price: 4500, brand: "Mighty Jaxx" },
-    { id: 6, name: "Cartoon Nostalgia Box", img: "https://via.placeholder.com/150", price: 2800, brand: "Kidrobot" },
-    { id: 7, name: "Fantasy Adventure Pack", img: "https://via.placeholder.com/150", price: 3500, brand: "Pop Mart" },
-    { id: 8, name: "Retro Game Blind Box", img: "https://via.placeholder.com/150", price: 4000, brand: "My Kingdom" },
-    { id: 9, name: "Limited Edition Blind Box", img: "https://via.placeholder.com/150", price: 4999.99, brand: "Tokidoki" },
-    { id: 10, name: "Horror Themed Surprise", img: "https://via.placeholder.com/150", price: 2700, brand: "Funko" },
-    { id: 11, name: "Marvel Blind Box", img: "https://via.placeholder.com/150", price: 3300, brand: "Mighty Jaxx" },
-    { id: 12, name: "DC Comics Mystery Pack", img: "https://via.placeholder.com/150", price: 3100, brand: "Kidrobot" },
-    { id: 13, name: "Anime Limited Edition Box", img: "https://via.placeholder.com/150", price: 3799.99, brand: "Pop Mart" },
+    { id: 1, name: "Anime Blind Box", img: "/assets/blindbox1.png", price: 2999.99, brand: "Pop Mart" },
+    { id: 2, name: "Superhero Surprise Pack", img: "/assets/blindbox1.png", price: 2500, brand: "My Kingdom" },
+    { id: 3, name: "Kawaii Collectibles", img: "/assets/blindbox1.png", price: 3200, brand: "Tokidoki" },
+    { id: 4, name: "Gaming Loot Crate", img: "/assets/blindbox1.png", price: 1999.99, brand: "Funko" },
+    { id: 5, name: "Sci-Fi Mystery Box", img: "/assets/blindbox1.png", price: 4500, brand: "Mighty Jaxx" },
+    { id: 6, name: "Cartoon Nostalgia Box", img: "/assets/blindbox1.png", price: 2800, brand: "Kidrobot" },
+    { id: 7, name: "Fantasy Adventure Pack", img: "/assets/blindbox1.png", price: 3500, brand: "Pop Mart" },
+    { id: 8, name: "Retro Game Blind Box", img: "/assets/blindbox1.png", price: 4000, brand: "My Kingdom" },
+    { id: 9, name: "Limited Edition Blind Box", img: "/assets/blindbox1.png", price: 4999.99, brand: "Tokidoki" },
+    { id: 10, name: "Horror Themed Surprise", img: "/assets/blindbox1.png", price: 2700, brand: "Funko" },
+    { id: 11, name: "Marvel Blind Box", img: "/assets/blindbox1.png", price: 3300, brand: "Mighty Jaxx" },
+    { id: 12, name: "DC Comics Mystery Pack", img: "/assets/blindbox1.png", price: 3100, brand: "Kidrobot" },
+    { id: 13, name: "Anime Limited Edition Box", img: "/assets/blindbox1.png", price: 3799.99, brand: "Pop Mart" },
   ]);
 
 
@@ -129,42 +129,34 @@ const Collectionpage = () => {
             color: "white",
             borderRadius: 1,
             position: "sticky",
-            width: 1220,
+            width: "100%",
             mb: 2,
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "flex-start"
           }}
         >
           {/* Sorting Buttons */}
-          <Button
-            variant="contained"
-            sx={{ bgcolor: "#666", color: "white", borderRadius: 1, width: 120, height: 40, "&:hover": { bgcolor: "#888" }, "&:focus": { outline: "2px solid white" } }}
-            onClick={() => sortProducts("az")}
-          >
-            A-Z
-          </Button>
-
-          <Button
-            variant="contained"
-            sx={{ bgcolor: "#666", color: "white", borderRadius: 1, width: 120, height: 40, ml: 1, "&:hover": { bgcolor: "#888" }, "&:focus": { outline: "2px solid white" } }}
-            onClick={() => sortProducts("za")}
-          >
-            Z-A
-          </Button>
-
-          <Button
-            variant="contained"
-            sx={{ bgcolor: "#666", color: "white", borderRadius: 1, width: 200, height: 40, ml: 1, "&:hover": { bgcolor: "#888" }, "&:focus": { outline: "2px solid white" } }}
-            onClick={() => sortProducts("low-high")}
-          >
-            Lowest to Highest
-          </Button>
-
-          <Button
-            variant="contained"
-            sx={{ bgcolor: "#666", color: "white", borderRadius: 1, width: 200, height: 40, ml: 1, "&:hover": { bgcolor: "#888" }, "&:focus": { outline: "2px solid white" } }}
-            onClick={() => sortProducts("high-low")}
-          >
-            Highest to Lowest
-          </Button>
+          {["az", "za", "low-high", "high-low"].map((sortType) => (
+            <Button
+              key={sortType}
+              variant="contained"
+              sx={{
+                bgcolor: "#666",
+                color: "white",
+                borderRadius: 1,
+                width: { xs: "100%", sm: "auto" },
+                height: 40,
+                "&:hover": { bgcolor: "#888" },
+                "&:focus": { outline: "2px solid white" },
+                mb: 1,
+                mr: 1,
+              }}
+              onClick={() => sortProducts(sortType)}
+            >
+              {sortType === "az" ? "A-Z" : sortType === "za" ? "Z-A" : sortType === "low-high" ? "Lowest to Highest" : "Highest to Lowest"}
+            </Button>
+          ))}
         </Box>
 
         {/* Product Grid */}
@@ -191,8 +183,8 @@ const Collectionpage = () => {
                       border: "2px solid white",
                     }}
                   >
-                    <img src={product.img} alt={product.name} style={{ width: "100%", borderRadius: "10px" }} />
-                    <Typography variant="h6" sx={{ mt: 1 }}>{product.name}</Typography>
+                    <img src={product.img} alt={product.name} style={{ width: 150, height: 150, borderRadius: "10px", marginTop: "-10px" }} />
+                    <Typography variant="h6" sx={{ mt: "-8px" }}>{product.name}</Typography>
                     {/* Brand & Price in Bottom Left Corner */}
                     <Box
                       sx={{
