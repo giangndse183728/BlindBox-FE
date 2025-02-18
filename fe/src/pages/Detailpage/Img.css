@@ -1,0 +1,13 @@
+/* LoadingScreen.css */
+.rotating-logo {
+    animation: rotate 2s linear infinite; /* Adjust duration and timing function as needed */
+  }
+  
+  @keyframes rotate {
+    from {
+      transform: rotateY(0deg);
+    }
+    to {
+      transform: rotateY(360deg);
+    }
+  }

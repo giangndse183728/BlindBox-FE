@@ -1,16 +1,18 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Box, Typography, Button } from "@mui/material";
+import { Box, Typography, Button, Grid, TextField } from "@mui/material";
+import './Img.css';
 
 const products = [
-  { id: 1, name: "Anime Blind Box", img: "https://via.placeholder.com/150", price: 2999.99, brand: "Pop Mart", description: "A surprise anime-themed blind box with exclusive figurines." },
-  { id: 2, name: "Superhero Surprise Pack", img: "https://via.placeholder.com/150", price: 2500, brand: "My Kingdom", description: "Unleash the hero inside you with this mystery superhero box." },
-  { id: 3, name: "Kawaii Collectibles", img: "https://via.placeholder.com/150", price: 3200, brand: "Tokidoki", description: "A collection of adorable kawaii items to brighten your day." },
+  { id: 1, name: "Anime Blind Box", img: "https://via.placeholder.com/300", price: 2999.99, brand: "Pop Mart", description: "A surprise anime-themed blind box with exclusive figurines." },
+  { id: 2, name: "Superhero Surprise Pack", img: "https://via.placeholder.com/300", price: 2500, brand: "My Kingdom", description: "Unleash the hero inside you with this mystery superhero box." },
+  { id: 3, name: "Kawaii Collectibles", img: "https://via.placeholder.com/300", price: 3200, brand: "Tokidoki", description: "A collection of adorable kawaii items to brighten your day." },
 ];
 
 const Detailpage = () => {
   const { id } = useParams();
   const product = products.find((p) => p.id === parseInt(id));
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -18,11 +20,12 @@ const Detailpage = () => {
 
   if (!product) {
     return (
-      <Box sx={{ p: 4, bgcolor: "black", color: "white", minHeight: "100vh", textAlign: "center", paddingTop: 20 }}>
-        <Typography variant="h4" fontFamily="'Jersey 15', sans-serif" sx={{ mb: 2 }}>Product not found!</Typography>
+      <Box sx={{ p: 4, bgcolor: "#666", color: "white", minHeight: "100vh", textAlign: "center", paddingTop: 35 }}>
+        <img src="/assets/gif/floating-bill-cipher.gif" alt="BlindB!ox" className="rotating-logo" style={{ width: 180, height: 170, marginBottom: 20 }} />
+        <Typography variant="h4" fontFamily="'Jersey 15', sans-serif" sx={{ mb: 2 }}>Sadly! The product you find does not exist!</Typography>
         <Link to="/Collection-page" style={{ textDecoration: "none" }}>
-          <Button variant="contained" sx={{ mt: 3, bgcolor: "#666", color: "white" }}>
-            Back to Collection
+          <Button variant="contained" sx={{ mt: 3, bgcolor: "#333", color: "white" }}>
+            Find other products here! 😁
           </Button>
         </Link>
       </Box>
@@ -30,18 +33,67 @@ const Detailpage = () => {
   }
 
   return (
-    <Box sx={{ p: 4, bgcolor: "black", color: "white", minHeight: "100vh", textAlign: "center", paddingTop: 10 }}>
-      <Typography variant="h4" sx={{ mb: 2 }}>{product.name}</Typography>
-      <img src={product.img} alt={product.name} style={{ width: "300px", borderRadius: "10px" }} />
-      <Typography variant="h6" sx={{ mt: 2 }}>Brand: {product.brand}</Typography>
-      <Typography variant="h5" sx={{ mt: 1 }}>Price: ${product.price.toFixed(2)}</Typography>
-      <Typography sx={{ mt: 2 }}>{product.description}</Typography>
-      
-      <Link to="/Collection-page" style={{ textDecoration: "none" }}>
-        <Button variant="contained" sx={{ mt: 3, bgcolor: "#666", color: "white" }}>
-          Back to Collection
-        </Button>
-      </Link>
+    <Box sx={{ bgcolor: "black", minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+      <Box sx={{ position: "relative", bgcolor: "#222", p: 4, borderRadius: 4, width: 1300, height: 550, boxShadow: 3 }}>
+        
+        {/* Back to Collection Button - Positioned at the Top Right */}
+        <Link to="/Collection-page" style={{ textDecoration: "none" }}>
+          <Button
+            variant="contained"
+            sx={{
+              position: "absolute",
+              top: 10,
+              right: 10,
+              bgcolor: "#222",
+              color: "white",
+              "&:hover": { bgcolor: "#444" },
+            }}
+          >
+            Back to Collection
+          </Button>
+        </Link>
+
+        <Grid container spacing={4} alignItems="center">
+          {/* Product Image */}
+          <Grid item xs={12} md={6} sx={{ textAlign: "center" }}>
+            <img src={product.img} alt={product.name} style={{ width: "100%", maxWidth: "400px", borderRadius: "10px" }} />
+          </Grid>
+
+          {/* Product Details */}
+          <Grid item xs={12} md={6} sx={{ color: "white" }}>
+            <Typography variant="h4" sx={{ fontWeight: "bold", color: "#f8b400" }}>{product.name}</Typography>
+            <Typography variant="h6" sx={{ mt: 1 }}>Brand: {product.brand}</Typography>
+            <Typography variant="h5" sx={{ mt: 1, color: "#ff4444" }}>Price: ${product.price.toFixed(2)}</Typography>
+            <Typography sx={{ mt: 2 }}>{product.description}</Typography>
+
+            {/* Quantity Selector */}
+            <Box sx={{ display: "flex", alignItems: "center", mt: 3 }}>
+              <Typography variant="h6" sx={{ mr: 2 }}>Quantity:</Typography>
+              <TextField
+                type="number"
+                variant="outlined"
+                size="small"
+                inputProps={{ min: 1 }}
+                value={quantity}
+                onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                sx={{
+                  width: "80px",
+                  input: { color: "white", textAlign: "center" },
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": { borderColor: "white" },
+                    "&:hover fieldset": { borderColor: "yellow" },
+                  },
+                }}
+              />
+            </Box>
+
+            {/* Add to Cart Button */}
+            <Button variant="contained" sx={{ mt: 3, bgcolor: "#ff4444", color: "white", "&:hover": { bgcolor: "#cc0000" } }}>
+              Add to Cart
+            </Button>
+          </Grid>
+        </Grid>
+      </Box>
     </Box>
   );
 };
