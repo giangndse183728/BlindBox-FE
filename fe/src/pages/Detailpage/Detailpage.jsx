@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Box, Typography, Button, Grid, TextField } from "@mui/material";
-import './Img.css';
+import ProductNotFound from "./ProductNotFound";  // Import the new component
 
 const products = [
   { id: 1, name: "Anime Blind Box", img: "/assets/blindbox1.png", price: 2999.99, brand: "Pop Mart", description: "A surprise anime-themed blind box with exclusive figurines." },
@@ -19,22 +19,12 @@ const Detailpage = () => {
   }, []);
 
   if (!product) {
-    return (
-      <Box sx={{ p: 4, bgcolor: "#666", color: "white", minHeight: "100vh", textAlign: "center", paddingTop: 35 }}>
-        <img src="/assets/gif/floating-bill-cipher.gif" alt="BlindB!ox" className="rotating-logo" style={{ width: 180, height: 170, marginBottom: 20 }} />
-        <Typography variant="h4" fontFamily="'Jersey 15', sans-serif" sx={{ mb: 2 }}>Sadly! The product you find does not exist!</Typography>
-        <Link to="/Collection-page" style={{ textDecoration: "none" }}>
-          <Button variant="contained" sx={{ mt: 3, bgcolor: "#333", color: "white" }}>
-            Find other products here! 😁
-          </Button>
-        </Link>
-      </Box>
-    );
+    return <ProductNotFound />;  // Render the ProductNotFound component
   }
 
   return (
-    <Box sx={{ bgcolor: "black", minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
-      <Box sx={{ position: "relative", bgcolor: "#222", p: 4, borderRadius: 4, width: 1300, height: 550, boxShadow: 3 }}>
+    <Box sx={{ bgcolor: "#666", minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+      <Box sx={{ position: "relative", bgcolor: "black", p: 4, borderRadius: 4, width: 1300, height: 500, boxShadow: 3, top:20 }}>
         
         {/* Back to Collection Button - Positioned at the Top Right */}
         <Link to="/Collection-page" style={{ textDecoration: "none" }}>
@@ -44,7 +34,7 @@ const Detailpage = () => {
               position: "absolute",
               top: 10,
               right: 10,
-              bgcolor: "#222",
+              bgcolor: "black",
               color: "white",
               "&:hover": { bgcolor: "#444" },
             }}

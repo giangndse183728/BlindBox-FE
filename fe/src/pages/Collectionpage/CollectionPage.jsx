@@ -57,7 +57,7 @@ const Collectionpage = () => {
       {/* Sidebar Filter */}
       <Box
         sx={{
-          width: { xs: "100%", sm: 300 },  // Adjust width based on screen size
+          width: { xs: "100%", sm: 300 },  
           p: 2,
           bgcolor: "#333",
           color: "white",
@@ -65,6 +65,7 @@ const Collectionpage = () => {
           height: "fit-content",
           position: "sticky",
           flexShrink: 0,
+          top:5
         }}
       >
         <Typography
@@ -131,6 +132,7 @@ const Collectionpage = () => {
             position: "sticky",
             width: "90%",
             mb: 2,
+            top:5
           }}
         >
           {/* Sorting Buttons */}
@@ -186,8 +188,8 @@ const Collectionpage = () => {
                       display: "flex",
                       flexDirection: "column",
                       alignItems: "center",
-                      height: "150px",
-                      width: "250px",
+                      height: "180px",
+                      width: "220px",
                       border: "2px solid white",
                     }}
                   >

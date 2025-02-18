@@ -8,7 +8,7 @@ import Login from '../pages/Login/Login';
 import ForgotPassword from '../pages/Login/ForgotPassword';
 //General
 import Home from '../pages/Homepage/Homepage';
-import Collectionpage from '../pages/Collectionpage/Collectionpage';
+import Collectionpage from '../pages/Collectionpage/CollectionPage';
 import Detailpage from '../pages/Detailpage/Detailpage';
 import NotFoundPage from '../pages/Error404/NotFoundPage';
 //Admin
