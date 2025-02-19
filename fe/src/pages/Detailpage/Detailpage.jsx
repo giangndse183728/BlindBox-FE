@@ -31,7 +31,7 @@ const Detailpage = () => {
         width: 1400,
         height: 525,
         boxShadow: 3,
-        top: 20,
+        top: 30,
         backgroundImage: "url(/assets/background.jpeg)",
         backgroundSize: "cover",
         backgroundPosition: "center",

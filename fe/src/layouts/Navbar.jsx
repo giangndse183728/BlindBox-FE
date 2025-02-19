@@ -33,7 +33,7 @@ import ButtonCus from '../components/Button/ButtonCus';
 
 const menuItems = [
   { text: 'Home', path: '/', icon: HomeOutlinedIcon, activeIcon: HomeIcon },
-  { text: 'Collection', path: '/collection', icon: CollectionsOutlinedIcon, activeIcon: CollectionsIcon },
+  { text: 'Collection', path: '/Collection-page', icon: CollectionsOutlinedIcon, activeIcon: CollectionsIcon },
   { text: 'Trading', path: '/trading', icon: ChangeCircleOutlinedIcon, activeIcon: ChangeCircleIcon },
   { text: 'Custom Accessories', path: '/custom-accessories', icon: DesignServicesOutlinedIcon, activeIcon: DesignServicesIcon },
   { text: 'Inventory', path: '/inventory', icon: BackpackOutlinedIcon, activeIcon: BackpackIcon },
