@@ -21,7 +21,7 @@ import { login, signup, fetchUserData } from '../../api/loginApi';
 import { useNavigate, NavLink } from 'react-router-dom';
 
 const LazyThreeScene = lazy(() => import('./ThreeScene'));
-const clientId = "365306672742-f9s1etoidrep72aqi14kslrvajvia3rv.apps.googleusercontent.com";
+const clientId = "134657875841-u4mhsp6stglrfmlnvu7tji2qcpger4lo.apps.googleusercontent.com";
 
 const tabItems = [
     {

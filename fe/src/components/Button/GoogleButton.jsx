@@ -7,24 +7,30 @@ const googleLogoUrl = 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1
 const GoogleSignInButton = ({ onSuccess }) => {
     const login = useGoogleLogin({
         flow: "auth-code",
+        access_type: "offline",  // Ensures refresh token is received
+        response_type: "code",    // Authorization code flow
+        prompt: "consent",        // Forces consent screen every time
+        redirect_uri: "http://localhost:5000/accounts/oauth/google", // Redirect to backend
+        scope: [
+            'https://www.googleapis.com/auth/userinfo.profile',
+            'https://www.googleapis.com/auth/userinfo.email',
+        ],
         onSuccess: async (codeResponse) => {
-          console.log("Google Auth Code:", codeResponse);
+            console.log("Google Auth Code:", codeResponse);
       
-          // Send auth code to backend for exchange
-          fetch("http://localhost:5000/auth/google", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ code: codeResponse.code }),  // Send auth code, not token
-          })
+            // Send auth code to backend for exchange
+            fetch("http://localhost:5000/auth/google", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ code: codeResponse.code }),  // Send auth code, not token
+            })
             .then((res) => res.json())
             .then((data) => onSuccess(data))
             .catch((err) => console.error("Error:", err));
         },
         onError: () => console.log("Login Failed"),
-        redirect_uri: "http://localhost:5000/auth/google", // Redirect to backend
-      });
-
-
+        
+    });
 
     return (
         <Button
