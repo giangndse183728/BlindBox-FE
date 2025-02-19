@@ -4,7 +4,7 @@ import { Box, Typography, Button } from "@mui/material";
 
 const ProductNotFound = () => {
   return (
-    <Box sx={{ p: 4, bgcolor: "#666", color: "white", minHeight: "100vh", textAlign: "center", paddingTop: 25 }}>
+    <Box sx={{ p: 4, bgcolor: "#666", color: "white", minHeight: "100vh", textAlign: "center", paddingTop: 25}}>
       <img
         src="/assets/gif/floating-bill-cipher.gif"
         alt="BlindB!ox"

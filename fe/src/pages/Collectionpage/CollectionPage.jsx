@@ -55,11 +55,20 @@ const Collectionpage = () => {
   };
 
   return (
-    <Box sx={{ display: "flex", p: 2, bgcolor: "black", paddingTop: 10, minHeight: "100vh", overflowX: "hidden" }}>
+    <Box sx={{
+      display: "flex",
+      p: 2, bgcolor: "black",
+      paddingTop: 10,
+      minHeight: "100vh",
+      overflowX: "hidden",
+      backgroundImage: "url(/assets/background.jpeg)",
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+    }}>
       {/* Sidebar Filter */}
       <Box
         sx={{
-          width: { xs: "100%", sm: 300 },
+          width: { xs: "100%", sm: 270 },
           p: 2,
           bgcolor: "#333",
           color: "white",
@@ -181,7 +190,6 @@ const Collectionpage = () => {
                 <Link to={`/product/${product.id}`} style={{ textDecoration: "none" }}>
                   <Box
                     sx={{
-                      bgcolor: "#222",
                       borderRadius: 1,
                       p: 9,
                       textAlign: "center",
@@ -219,7 +227,7 @@ const Collectionpage = () => {
                       sx={{
                         position: "absolute",
                         bottom: 10,
-                        right: 10, // Đặt nó vào góc dưới bên phải
+                        right: 10,
                         color: "white",
                         px: 1,
                         py: 0.5,
@@ -232,8 +240,27 @@ const Collectionpage = () => {
                         name={`customized-color-${product.id}`}
                         defaultValue={2}
                         precision={0.5}
-                        icon={<FavoriteIcon fontSize="inherit" sx={{ color: "red" }} />}
-                        emptyIcon={<FavoriteBorderIcon fontSize="inherit" />}
+                        icon={
+                          <FavoriteIcon
+                            fontSize="inherit"
+                            sx={{
+                              color: "red",
+                              stroke: "white", // Adds an outline to the heart icon
+                              strokeWidth: 1, // Thickness of the outline
+                              filter: "drop-shadow(0px 0px 2px white)", // Glowing effect for better visibility
+                            }}
+                          />
+                        }
+                        emptyIcon={
+                          <FavoriteBorderIcon
+                            fontSize="inherit"
+                            sx={{
+                              stroke: "white", // Outline for the empty heart
+                              strokeWidth: 1,
+                              filter: "drop-shadow(0px 0px 2px white)", // Glow effect
+                            }}
+                          />
+                        }
                       />
                     </Box>
                   </Box>

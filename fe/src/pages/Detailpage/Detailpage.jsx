@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Box, Typography, Button, Grid, TextField } from "@mui/material";
+import { Box, Typography, Button, Grid } from "@mui/material";
 import ProductNotFound from "./ProductNotFound";  // Import the new component
 
 const products = [
@@ -24,7 +24,18 @@ const Detailpage = () => {
 
   return (
     <Box sx={{ bgcolor: "#666", minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
-      <Box sx={{ position: "relative", bgcolor: "black", p: 4, borderRadius: 4, width: 1300, height: 500, boxShadow: 3, top: 20 }}>
+      <Box sx={{
+        position: "relative",
+        bgcolor: "black",
+        p: 4, borderRadius: 4,
+        width: 1400,
+        height: 525,
+        boxShadow: 3,
+        top: 20,
+        backgroundImage: "url(/assets/background.jpeg)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}>
 
         {/* Back to Collection Button - Positioned at the Top Right */}
         <Link to="/Collection-page" style={{ textDecoration: "none" }}>
@@ -59,17 +70,17 @@ const Detailpage = () => {
             {/* Quantity Selector */}
             <Box sx={{ display: "flex", alignItems: "center", mt: 3 }}>
               <Typography variant="h6" sx={{ mr: 2 }}>Quantity:</Typography>
-              <Box sx={{ display: "flex", alignItems: "center"}}>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
                 <Button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  sx={{ minWidth: "40px", color: "white", bgcolor: "#444", "&:hover": { bgcolor: "#666" },border: "1px solid white", borderRadius: 2 }}
+                  sx={{ minWidth: "40px", color: "white", bgcolor: "#444", "&:hover": { bgcolor: "#666" }, border: "1px solid white", borderRadius: 2 }}
                 >
                   -
                 </Button>
-                <Typography sx={{ mx: 2, color: "white", minWidth: "40px", textAlign: "center",border: "1px solid white", borderRadius: 2 }}>{quantity}</Typography>
+                <Typography sx={{ mx: 2, color: "white", minWidth: "40px", textAlign: "center", border: "1px solid white", borderRadius: 2 }}>{quantity}</Typography>
                 <Button
                   onClick={() => setQuantity(quantity + 1)}
-                  sx={{ minWidth: "40px", color: "white", bgcolor: "#444", "&:hover": { bgcolor: "#666" },border: "1px solid white", borderRadius: 2 }}
+                  sx={{ minWidth: "40px", color: "white", bgcolor: "#444", "&:hover": { bgcolor: "#666" }, border: "1px solid white", borderRadius: 2 }}
                 >
                   +
                 </Button>
