@@ -24,8 +24,8 @@ const Detailpage = () => {
 
   return (
     <Box sx={{ bgcolor: "#666", minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
-      <Box sx={{ position: "relative", bgcolor: "black", p: 4, borderRadius: 4, width: 1300, height: 500, boxShadow: 3, top:20 }}>
-        
+      <Box sx={{ position: "relative", bgcolor: "black", p: 4, borderRadius: 4, width: 1300, height: 500, boxShadow: 3, top: 20 }}>
+
         {/* Back to Collection Button - Positioned at the Top Right */}
         <Link to="/Collection-page" style={{ textDecoration: "none" }}>
           <Button
@@ -59,22 +59,21 @@ const Detailpage = () => {
             {/* Quantity Selector */}
             <Box sx={{ display: "flex", alignItems: "center", mt: 3 }}>
               <Typography variant="h6" sx={{ mr: 2 }}>Quantity:</Typography>
-              <TextField
-                type="number"
-                variant="outlined"
-                size="small"
-                inputProps={{ min: 1 }}
-                value={quantity}
-                onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                sx={{
-                  width: "80px",
-                  input: { color: "white", textAlign: "center" },
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": { borderColor: "white" },
-                    "&:hover fieldset": { borderColor: "yellow" },
-                  },
-                }}
-              />
+              <Box sx={{ display: "flex", alignItems: "center"}}>
+                <Button
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  sx={{ minWidth: "40px", color: "white", bgcolor: "#444", "&:hover": { bgcolor: "#666" },border: "1px solid white", borderRadius: 2 }}
+                >
+                  -
+                </Button>
+                <Typography sx={{ mx: 2, color: "white", minWidth: "40px", textAlign: "center",border: "1px solid white", borderRadius: 2 }}>{quantity}</Typography>
+                <Button
+                  onClick={() => setQuantity(quantity + 1)}
+                  sx={{ minWidth: "40px", color: "white", bgcolor: "#444", "&:hover": { bgcolor: "#666" },border: "1px solid white", borderRadius: 2 }}
+                >
+                  +
+                </Button>
+              </Box>
             </Box>
 
             {/* Add to Cart Button */}

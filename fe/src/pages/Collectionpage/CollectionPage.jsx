@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Slider, Checkbox, FormControlLabel, Box, Grid, Typography, Button } from "@mui/material";
+import { Slider, Checkbox, FormControlLabel, Box, Grid, Typography, Button, Rating } from "@mui/material";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 
 const Collectionpage = () => {
   const [priceRange, setPriceRange] = useState([0, 5000]);
@@ -57,7 +59,7 @@ const Collectionpage = () => {
       {/* Sidebar Filter */}
       <Box
         sx={{
-          width: { xs: "100%", sm: 300 },  
+          width: { xs: "100%", sm: 300 },
           p: 2,
           bgcolor: "#333",
           color: "white",
@@ -65,7 +67,7 @@ const Collectionpage = () => {
           height: "fit-content",
           position: "sticky",
           flexShrink: 0,
-          top:5
+          top: 5
         }}
       >
         <Typography
@@ -132,7 +134,7 @@ const Collectionpage = () => {
             position: "sticky",
             width: "90%",
             mb: 2,
-            top:5
+            top: 5
           }}
         >
           {/* Sorting Buttons */}
@@ -212,6 +214,27 @@ const Collectionpage = () => {
                         {product.brand}
                       </Typography>
                       <Typography variant="body1">${product.price.toFixed(2)}</Typography>
+                    </Box>
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        bottom: 10,
+                        right: 10, // Đặt nó vào góc dưới bên phải
+                        color: "white",
+                        px: 1,
+                        py: 0.5,
+                        borderRadius: 1,
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Rating
+                        name={`customized-color-${product.id}`}
+                        defaultValue={2}
+                        precision={0.5}
+                        icon={<FavoriteIcon fontSize="inherit" sx={{ color: "red" }} />}
+                        emptyIcon={<FavoriteBorderIcon fontSize="inherit" />}
+                      />
                     </Box>
                   </Box>
                 </Link>
