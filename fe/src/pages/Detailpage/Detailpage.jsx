@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Box, Typography, Button, Grid, TextField } from "@mui/material";
-import './Img.css';
+import { Box, Typography, Button, Grid } from "@mui/material";
+import ProductNotFound from "./ProductNotFound";  // Import the new component
 
 const products = [
   { id: 1, name: "Anime Blind Box", img: "/assets/blindbox1.png", price: 2999.99, brand: "Pop Mart", description: "A surprise anime-themed blind box with exclusive figurines." },
@@ -19,23 +19,24 @@ const Detailpage = () => {
   }, []);
 
   if (!product) {
-    return (
-      <Box sx={{ p: 4, bgcolor: "#666", color: "white", minHeight: "100vh", textAlign: "center", paddingTop: 35 }}>
-        <img src="/assets/gif/floating-bill-cipher.gif" alt="BlindB!ox" className="rotating-logo" style={{ width: 180, height: 170, marginBottom: 20 }} />
-        <Typography variant="h4" fontFamily="'Jersey 15', sans-serif" sx={{ mb: 2 }}>Sadly! The product you find does not exist!</Typography>
-        <Link to="/Collection-page" style={{ textDecoration: "none" }}>
-          <Button variant="contained" sx={{ mt: 3, bgcolor: "#333", color: "white" }}>
-            Find other products here! 😁
-          </Button>
-        </Link>
-      </Box>
-    );
+    return <ProductNotFound />;  // Render the ProductNotFound component
   }
 
   return (
-    <Box sx={{ bgcolor: "black", minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
-      <Box sx={{ position: "relative", bgcolor: "#222", p: 4, borderRadius: 4, width: 1300, height: 550, boxShadow: 3 }}>
-        
+    <Box sx={{ bgcolor: "#666", minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+      <Box sx={{
+        position: "relative",
+        bgcolor: "black",
+        p: 4, borderRadius: 4,
+        width: 1400,
+        height: 525,
+        boxShadow: 3,
+        top: 30,
+        backgroundImage: "url(/assets/background.jpeg)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}>
+
         {/* Back to Collection Button - Positioned at the Top Right */}
         <Link to="/Collection-page" style={{ textDecoration: "none" }}>
           <Button
@@ -44,7 +45,7 @@ const Detailpage = () => {
               position: "absolute",
               top: 10,
               right: 10,
-              bgcolor: "#222",
+              bgcolor: "black",
               color: "white",
               "&:hover": { bgcolor: "#444" },
             }}
@@ -69,22 +70,21 @@ const Detailpage = () => {
             {/* Quantity Selector */}
             <Box sx={{ display: "flex", alignItems: "center", mt: 3 }}>
               <Typography variant="h6" sx={{ mr: 2 }}>Quantity:</Typography>
-              <TextField
-                type="number"
-                variant="outlined"
-                size="small"
-                inputProps={{ min: 1 }}
-                value={quantity}
-                onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                sx={{
-                  width: "80px",
-                  input: { color: "white", textAlign: "center" },
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": { borderColor: "white" },
-                    "&:hover fieldset": { borderColor: "yellow" },
-                  },
-                }}
-              />
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Button
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  sx={{ minWidth: "40px", color: "white", bgcolor: "#444", "&:hover": { bgcolor: "#666" }, border: "1px solid white", borderRadius: 2 }}
+                >
+                  -
+                </Button>
+                <Typography sx={{ mx: 2, color: "white", minWidth: "40px", textAlign: "center", border: "1px solid white", borderRadius: 2 }}>{quantity}</Typography>
+                <Button
+                  onClick={() => setQuantity(quantity + 1)}
+                  sx={{ minWidth: "40px", color: "white", bgcolor: "#444", "&:hover": { bgcolor: "#666" }, border: "1px solid white", borderRadius: 2 }}
+                >
+                  +
+                </Button>
+              </Box>
             </Box>
 
             {/* Add to Cart Button */}
