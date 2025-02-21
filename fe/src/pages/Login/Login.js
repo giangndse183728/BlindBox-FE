@@ -21,7 +21,7 @@ import { login, signup, fetchUserData } from '../../api/loginApi';
 import { useNavigate, NavLink } from 'react-router-dom';
 
 const LazyThreeScene = lazy(() => import('./ThreeScene'));
-const clientId = "365306672742-f9s1etoidrep72aqi14kslrvajvia3rv.apps.googleusercontent.com";
+const clientId = "134657875841-u4mhsp6stglrfmlnvu7tji2qcpger4lo.apps.googleusercontent.com";
 
 const tabItems = [
     {
@@ -230,10 +230,6 @@ export default function Login() {
         }
     };
 
-    const handleLoginGoogle = (data) => {
-        console.log("User Data:", data);
-        // Store user data in state or localStorage
-      };
 
     const renderFields = (fields, formikProps) => {
         if (selectedTab === 'sign') {
@@ -450,7 +446,7 @@ export default function Login() {
                         {selectedTab === 'login' ? 'Sign In' : 'Sign Up'}
                     </Button>
 
-                    {currentTab.showGoogleButton &&  <GoogleSignInButton onSuccess={handleLoginGoogle} />}
+                    {currentTab.showGoogleButton &&  <GoogleSignInButton  />}
 
                     <Box mt={1} mb={2}>
                         <Copyright />
@@ -483,7 +479,7 @@ export default function Login() {
             </Suspense>
 
             {/* Login Form */}
-            <GoogleOAuthProvider clientId={clientId}>
+          
             <Grid
                 item
                 xs={12}
@@ -605,7 +601,7 @@ export default function Login() {
             </Grid>
 
 
-            </GoogleOAuthProvider>
+          
 
         </Grid>
     );
