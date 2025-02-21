@@ -187,23 +187,27 @@ const Collectionpage = () => {
             .filter((product) => selectedBrand.length === 0 || selectedBrand.includes(product.brand))
             .map((product) => (
               <Grid item xs={12} sm={6} md={4} key={product.id}>
-                <Link to={`/product/${product.id}`} style={{ textDecoration: "none" }}>
-                  <Box
-                    sx={{
-                      borderRadius: 1,
-                      p: 9,
-                      textAlign: "center",
-                      color: "white",
-                      position: "relative",
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      height: "180px",
-                      width: "220px",
-                      border: "2px solid white",
-                    }}
-                  >
-                    <img src={product.img} alt={product.name} style={{ width: 150, height: 150, borderRadius: "10px", marginTop: "-40px" }} />
+                <Box sx={{
+                  borderRadius: 1,
+                  p: 9,
+                  textAlign: "center",
+                  color: "white",
+                  position: "relative",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  height: "180px",
+                  width: "220px",
+                  border: "2px solid white",
+                }}>
+                  {/* Only the image is clickable */}
+                  <Link to={`/product/${product.id}`} style={{ textDecoration: "none" }}>
+                    <img 
+                      src={product.img} 
+                      alt={product.name} 
+                      style={{ width: 150, height: 150, borderRadius: "10px", marginTop: "-40px", cursor: "pointer" }} 
+                    />
+                  </Link>
                     <Typography variant="h6" sx={{ mt: "-15px" }}>{product.name}</Typography>
                     {/* Brand & Price in Bottom Left Corner */}
                     <Box
@@ -264,7 +268,6 @@ const Collectionpage = () => {
                       />
                     </Box>
                   </Box>
-                </Link>
               </Grid>
             ))}
         </Grid>
