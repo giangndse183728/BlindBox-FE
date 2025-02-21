@@ -6,6 +6,7 @@ import Footer from '../layouts/Footer';
 //Login
 import Login from '../pages/Login/Login';
 import ForgotPassword from '../pages/Login/ForgotPassword';
+import AuthCallback from '../pages/Login/AuthCallBack';
 //General
 import Home from '../pages/Homepage/Homepage';
 import Collectionpage from '../pages/Collectionpage/CollectionPage';
@@ -25,6 +26,8 @@ const Layout = ({ children, showHeader = true }) => {
     </div>
   );
 };
+
+
 
 export const routes = createBrowserRouter([
   {
@@ -53,6 +56,12 @@ export const routes = createBrowserRouter([
     ),
   },
 
+  {
+    path: '/login/oauth',
+    element: (
+      <AuthCallback />
+  ),
+},
 
   {
     path: '/Dashboard',

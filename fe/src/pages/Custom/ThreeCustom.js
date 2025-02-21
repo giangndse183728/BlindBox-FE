@@ -111,7 +111,7 @@ const ThreeCustom = () => {
             geometry = new THREE.SphereGeometry(0.5, 32, 32);
             break;
           case 'low':
-            geometry = new THREE.SphereGeometry(0.5, 8, 8);
+            geometry = new THREE.SphereGeometry(0.6, 8, 5);
             break;
           case 'spike':
             geometry = new THREE.SphereGeometry(0.5, 64, 64);
@@ -187,7 +187,7 @@ const ThreeCustom = () => {
     ];
 
     lights.forEach(light => {
-      const pointLight = new THREE.PointLight(light.color, 1, 150);
+      const pointLight = new THREE.PointLight(light.color, 200, 200);
       pointLight.position.set(...light.position);
       envScene.add(pointLight);
     });
