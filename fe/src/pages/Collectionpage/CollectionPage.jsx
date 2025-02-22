@@ -1,28 +1,31 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Slider, Checkbox, FormControlLabel, Box, Grid, Typography, Button, Rating } from "@mui/material";
+import { Slider, Checkbox, FormControlLabel, Box, Grid, Typography, Button, Rating, Divider } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import Footer from "../../layouts/Footer";
 
 const Collectionpage = () => {
   const [priceRange, setPriceRange] = useState([0, 5000]);
   const [selectedBrand, setSelectedBrand] = useState([]);
   const [appliedPriceRange, setAppliedPriceRange] = useState([0, 5000]);
+  const [selectedType, setSelectedType] = useState([]);
+  const [selectedRating, setSelectedRating] = useState(0);
 
   const [products, setProducts] = useState([
-    { id: 1, name: "Anime Blind Box", img: "/assets/blindbox1.png", price: 2999.99, brand: "Pop Mart" },
-    { id: 2, name: "Superhero Surprise Pack", img: "/assets/blindbox1.png", price: 2500, brand: "My Kingdom" },
-    { id: 3, name: "Kawaii Collectibles", img: "/assets/blindbox1.png", price: 3200, brand: "Tokidoki" },
-    { id: 4, name: "Gaming Loot Crate", img: "/assets/blindbox1.png", price: 1999.99, brand: "Funko" },
-    { id: 5, name: "Sci-Fi Mystery Box", img: "/assets/blindbox1.png", price: 4500, brand: "Mighty Jaxx" },
-    { id: 6, name: "Cartoon Nostalgia Box", img: "/assets/blindbox1.png", price: 2800, brand: "Kidrobot" },
-    { id: 7, name: "Fantasy Adventure Pack", img: "/assets/blindbox1.png", price: 3500, brand: "Pop Mart" },
-    { id: 8, name: "Retro Game Blind Box", img: "/assets/blindbox1.png", price: 4000, brand: "My Kingdom" },
-    { id: 9, name: "Limited Edition Blind Box", img: "/assets/blindbox1.png", price: 4999.99, brand: "Tokidoki" },
-    { id: 10, name: "Horror Themed Surprise", img: "/assets/blindbox1.png", price: 2700, brand: "Funko" },
-    { id: 11, name: "Marvel Blind Box", img: "/assets/blindbox1.png", price: 3300, brand: "Mighty Jaxx" },
-    { id: 12, name: "DC Comics Mystery Pack", img: "/assets/blindbox1.png", price: 3100, brand: "Kidrobot" },
-    { id: 13, name: "Anime Limited Edition Box", img: "/assets/blindbox1.png", price: 3799.99, brand: "Pop Mart" },
+    { id: 1, name: "Anime Blind Box", img: "/assets/blindbox1.png", price: 2999.99, brand: "Pop Mart", type: "Unbox", rating: 4.5 },
+    { id: 2, name: "Superhero Surprise Pack", img: "/assets/blindbox1.png", price: 2500, brand: "My Kingdom", type: "Seal", rating: 4 },
+    { id: 3, name: "Kawaii Collectibles", img: "/assets/blindbox1.png", price: 3200, brand: "Tokidoki", type: "Unbox", rating: 3 },
+    { id: 4, name: "Gaming Loot Crate", img: "/assets/blindbox1.png", price: 1999.99, brand: "Funko", type: "Seal", rating: 5 },
+    { id: 5, name: "Sci-Fi Mystery Box", img: "/assets/blindbox1.png", price: 4500, brand: "Mighty Jaxx", type: "Unbox", rating: 2 },
+    { id: 6, name: "Cartoon Nostalgia Box", img: "/assets/blindbox1.png", price: 2800, brand: "Kidrobot", type: "Unbox", rating: 3 },
+    { id: 7, name: "Fantasy Adventure Pack", img: "/assets/blindbox1.png", price: 3500, brand: "Pop Mart", type: "Seal", rating: 3.5 },
+    { id: 8, name: "Retro Game Blind Box", img: "/assets/blindbox1.png", price: 4000, brand: "My Kingdom", type: "Unbox", rating: 1 },
+    { id: 9, name: "Limited Edition Blind Box", img: "/assets/blindbox1.png", price: 4999.99, brand: "Tokidoki", type: "Seal", rating: 1.5 },
+    { id: 10, name: "Horror Themed Surprise", img: "/assets/blindbox1.png", price: 2700, brand: "Funko", type: "Unbox", rating: 2.5 },
+    { id: 11, name: "Marvel Blind Box", img: "/assets/blindbox1.png", price: 3300, brand: "Mighty Jaxx", type: "Seal", rating: 4 },
+    { id: 12, name: "DC Comics Mystery Pack", img: "/assets/blindbox1.png", price: 3100, brand: "Kidrobot", type: "Unbox", rating: 3.5 },
+    { id: 13, name: "Anime Limited Edition Box", img: "/assets/blindbox1.png", price: 3799.99, brand: "Pop Mart", type: "Seal", rating: 2 },
   ]);
 
   const handlePriceChange = (event, newValue) => {
@@ -40,6 +43,25 @@ const Collectionpage = () => {
     );
   };
 
+  const handleTypeChange = (event) => {
+    const value = event.target.value;
+    setSelectedType((prev) =>
+      prev.includes(value) ? prev.filter((t) => t !== value) : [...prev, value]
+    );
+  };
+
+  const handleRatingChange = (event, newValue) => {
+    setSelectedRating(newValue);
+  };
+
+  const handleClearFilters = () => {
+    setPriceRange([0, 5000]);
+    setAppliedPriceRange([0, 5000]);
+    setSelectedBrand([]);
+    setSelectedType([]);
+    setSelectedRating(0);
+  };
+
   const sortProducts = (order) => {
     let sortedProducts = [...products];
     if (order === "az") {
@@ -55,160 +77,220 @@ const Collectionpage = () => {
   };
 
   return (
-    <Box sx={{
+    <Box
+    sx={{
       display: "flex",
-      p: 2, bgcolor: "black",
-      paddingTop: 10,
+      flexDirection: "column",
       minHeight: "100vh",
+      bgcolor: "black",
       overflowX: "hidden",
       backgroundImage: "url(/assets/background.jpeg)",
       backgroundSize: "cover",
       backgroundPosition: "center",
-    }}>
-      {/* Sidebar Filter */}
-      <Box
-        sx={{
-          width: { xs: "100%", sm: 270 },
-          p: 2,
-          bgcolor: "#333",
-          color: "white",
-          borderRadius: 1,
-          height: "fit-content",
-          position: "sticky",
-          flexShrink: 0,
-          top: 5
-        }}
-      >
-        <Typography
-          variant="h6"
-          fontFamily="'Jersey 15', sans-serif"
-          sx={{
-            textAlign: "center",
-            width: "100%",
-            fontWeight: "bold",
-            fontSize: "1.8rem",
-          }}
-        >
-          Product Filter
-        </Typography>
-
-        {/* Price Range Filter */}
-        <Typography>Price</Typography>
-        <Slider
-          value={priceRange}
-          onChange={handlePriceChange}
-          valueLabelDisplay="auto"
-          min={0}
-          max={5000}
-          sx={{ color: "white" }}
-        />
-
-        {/* Apply Price Filter Button */}
-        <Button
-          variant="contained"
-          sx={{
-            bgcolor: "#666",
-            color: "white",
-            borderRadius: 1,
-            mt: 2,
-            width: "100%",
-            display: "block",
-            textAlign: "center",
-          }}
-          onClick={handleApplyPriceFilter}
-        >
-          Apply
-        </Button>
-
-        {/* Brand Filter */}
-        <Typography sx={{ mt: 2 }}>Brand</Typography>
-        {["Pop Mart", "My Kingdom", "Tokidoki", "Funko", "Mighty Jaxx", "Kidrobot"].map((brand) => (
-          <FormControlLabel
-            key={brand}
-            control={<Checkbox checked={selectedBrand.includes(brand)} onChange={handleBrandChange} value={brand} />}
-            label={brand}
-          />
-        ))}
-      </Box>
-
-      {/* Product Section */}
-      <Box sx={{ flexGrow: 1, ml: { xs: 0, sm: 2 }, mt: { xs: 2, sm: 0 } }}>
-        {/* Sorting Bar */}
+    }}
+  >
+    {/* Main Content */}
+    <Box sx={{ flexGrow: 1, display: "flex", p: 2, paddingTop: 10 }}>
+        {/* Sidebar Filter */}
         <Box
           sx={{
+            width: { xs: "100%", sm: 270 },
             p: 2,
             bgcolor: "#333",
             color: "white",
             borderRadius: 1,
+            height: "fit-content",
             position: "sticky",
-            width: "90%",
-            mb: 2,
+            flexShrink: 0,
             top: 5
           }}
         >
-          {/* Sorting Buttons */}
+          <Typography
+            variant="h6"
+            fontFamily="'Jersey 15', sans-serif"
+            sx={{
+              textAlign: "center",
+              width: "100%",
+              fontWeight: "bold",
+              fontSize: "1.8rem",
+            }}
+          >
+            Product Filter
+          </Typography>
+
+          {/* Price Range Filter */}
+          <Typography>Price Range</Typography>
+          <Slider
+            value={priceRange}
+            onChange={handlePriceChange}
+            valueLabelDisplay="auto"
+            min={0}
+            max={5000}
+            sx={{ color: "white" }}
+          />
+
+          {/* Show Selected Price Range Below the Slider */}
+          <Grid container justifyContent="space-between" sx={{ mt: 1 }}>
+            <Typography variant="body1">${priceRange[0]}</Typography>
+            <Typography variant="body1">${priceRange[1]}</Typography>
+          </Grid>
+
+          {/* Apply Price Filter Button */}
           <Button
             variant="contained"
-            sx={{ bgcolor: "#666", color: "white", borderRadius: 1, width: 120, height: 40, "&:hover": { bgcolor: "#888" }, "&:focus": { outline: "2px solid white" } }}
-            onClick={() => sortProducts("az")}
+            sx={{
+              bgcolor: "yellow",
+              color: "black",
+              borderRadius: 1,
+              mt: 2,
+              width: "100%",
+              display: "block",
+              textAlign: "center",
+            }}
+            onClick={handleApplyPriceFilter}
           >
-            A-Z
+            Apply
           </Button>
+
+          {/* Brand Filter */}
+          <Divider sx={{ bgcolor: "white", my: 2 }} />
+          <Typography sx={{ mt: 2 }}>Brand</Typography>
+          {["Pop Mart", "My Kingdom", "Tokidoki", "Funko", "Mighty Jaxx", "Kidrobot"].map((brand) => (
+            <FormControlLabel
+              key={brand}
+              control={
+                <Checkbox
+                  checked={selectedBrand.includes(brand)}
+                  onChange={handleBrandChange}
+                  value={brand}
+                  sx={{ color: "white", "&.Mui-checked": { color: "white" }, }} />}
+              label={brand}
+            />
+          ))}
+
+          <Divider sx={{ bgcolor: "white", my: 2 }} />
+          <Typography>Type</Typography>
+          {["Unbox", "Seal"].map((type) => (
+            <FormControlLabel
+              key={type}
+              control={
+                <Checkbox
+                  checked={selectedType.includes(type)}
+                  onChange={handleTypeChange}
+                  value={type}
+                  sx={{ color: "white", "&.Mui-checked": { color: "white" }, }} />}
+              label={type} />
+          ))}
+
+          <Divider sx={{ bgcolor: "white", my: 2 }} />
+          <Typography sx={{ mt: 2 }}>Rating</Typography>
+          <Rating
+            name="rating-filter"
+            value={selectedRating}
+            onChange={handleRatingChange}
+            precision={0.5}
+            icon={<FavoriteIcon fontSize="inherit" sx={{ color: "red", stroke: "white", strokeWidth: 1 }} />}
+            emptyIcon={<FavoriteBorderIcon fontSize="inherit" sx={{ stroke: "white", strokeWidth: 1 }} />}
+          />
 
           <Button
             variant="contained"
-            sx={{ bgcolor: "#666", color: "white", borderRadius: 1, width: 120, height: 40, ml: 1, "&:hover": { bgcolor: "#888" }, "&:focus": { outline: "2px solid white" } }}
-            onClick={() => sortProducts("za")}
+            sx={{
+              bgcolor: "yellow",
+              color: "black",
+              borderRadius: 1,
+              mt: 2,
+              width: "100%",
+              display: "block",
+              textAlign: "center",
+              "&:hover": { bgcolor: "darkyellow" },
+            }}
+            onClick={handleClearFilters}
           >
-            Z-A
+            Clear All
           </Button>
 
-          <Button
-            variant="contained"
-            sx={{ bgcolor: "#666", color: "white", borderRadius: 1, width: 200, height: 40, ml: 1, "&:hover": { bgcolor: "#888" }, "&:focus": { outline: "2px solid white" } }}
-            onClick={() => sortProducts("low-high")}
-          >
-            Lowest to Highest
-          </Button>
-
-          <Button
-            variant="contained"
-            sx={{ bgcolor: "#666", color: "white", borderRadius: 1, width: 200, height: 40, ml: 1, "&:hover": { bgcolor: "#888" }, "&:focus": { outline: "2px solid white" } }}
-            onClick={() => sortProducts("high-low")}
-          >
-            Highest to Lowest
-          </Button>
         </Box>
 
-        {/* Product Grid */}
-        <Grid container spacing={2}>
-          {products
-            .filter((product) => product.price >= appliedPriceRange[0] && product.price <= appliedPriceRange[1])
-            .filter((product) => selectedBrand.length === 0 || selectedBrand.includes(product.brand))
-            .map((product) => (
-              <Grid item xs={12} sm={6} md={4} key={product.id}>
-                <Box sx={{
-                  borderRadius: 1,
-                  p: 9,
-                  textAlign: "center",
-                  color: "white",
-                  position: "relative",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  height: "180px",
-                  width: "220px",
-                  border: "2px solid white",
-                }}>
-                  {/* Only the image is clickable */}
-                  <Link to={`/product/${product.id}`} style={{ textDecoration: "none" }}>
-                    <img 
-                      src={product.img} 
-                      alt={product.name} 
-                      style={{ width: 150, height: 150, borderRadius: "10px", marginTop: "-40px", cursor: "pointer" }} 
-                    />
-                  </Link>
-                    <Typography variant="h6" sx={{ mt: "-15px" }}>{product.name}</Typography>
+        {/* Product Section */}
+        <Box sx={{ flexGrow: 1, ml: { xs: 0, sm: 2 }, mt: { xs: 2, sm: 0 } }}>
+          {/* Sorting Bar */}
+          <Box
+            sx={{
+              p: 2,
+              bgcolor: "#333",
+              color: "white",
+              borderRadius: 1,
+              position: "sticky",
+              width: "90%",
+              mb: 2,
+              top: 5
+            }}
+          >
+            {/* Sorting Buttons */}
+            <Button
+              variant="contained"
+              sx={{ bgcolor: "#666", color: "white", borderRadius: 1, width: 120, height: 40, "&:hover": { bgcolor: "#888" }, "&:focus": { outline: "2px solid white" } }}
+              onClick={() => sortProducts("az")}
+            >
+              A-Z
+            </Button>
+
+            <Button
+              variant="contained"
+              sx={{ bgcolor: "#666", color: "white", borderRadius: 1, width: 120, height: 40, ml: 1, "&:hover": { bgcolor: "#888" }, "&:focus": { outline: "2px solid white" } }}
+              onClick={() => sortProducts("za")}
+            >
+              Z-A
+            </Button>
+
+            <Button
+              variant="contained"
+              sx={{ bgcolor: "#666", color: "white", borderRadius: 1, width: 200, height: 40, ml: 1, "&:hover": { bgcolor: "#888" }, "&:focus": { outline: "2px solid white" } }}
+              onClick={() => sortProducts("low-high")}
+            >
+              Lowest to Highest
+            </Button>
+
+            <Button
+              variant="contained"
+              sx={{ bgcolor: "#666", color: "white", borderRadius: 1, width: 200, height: 40, ml: 1, "&:hover": { bgcolor: "#888" }, "&:focus": { outline: "2px solid white" } }}
+              onClick={() => sortProducts("high-low")}
+            >
+              Highest to Lowest
+            </Button>
+          </Box>
+
+          {/* Product Grid */}
+          <Grid container spacing={1}>
+            {products
+              .filter((product) => product.price >= appliedPriceRange[0] && product.price <= appliedPriceRange[1])
+              .filter((product) => selectedBrand.length === 0 || selectedBrand.includes(product.brand))
+              .filter((product) => selectedType.length === 0 || selectedType.includes(product.type))
+              .filter((product) => selectedRating === 0 || product.rating === selectedRating)
+              .map((product) => (
+                <Grid item xs={12} sm={6} md={4} key={product.id} sx={{ p: 1}}>
+                  <Box sx={{
+                    borderRadius: 1,
+                    p: 12,
+                    textAlign: "center",
+                    color: "white",
+                    position: "relative",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    height: "120px",
+                    width: "120px",
+                    border: "2px solid white",
+                  }}>
+                    {/* Only the image is clickable */}
+                    <Link to={`/product/${product.id}`} style={{ textDecoration: "none" }}>
+                      <img
+                        src={product.img}
+                        alt={product.name}
+                        style={{ width: 200, height: 200, borderRadius: "10px", marginTop: "-85px", cursor: "pointer" }}
+                      />
+                    </Link>
                     {/* Brand & Price in Bottom Left Corner */}
                     <Box
                       sx={{
@@ -222,7 +304,8 @@ const Collectionpage = () => {
                         textAlign: "left",
                       }}
                     >
-                      <Typography variant="body2" sx={{ fontWeight: "bold", fontSize: "0.9rem" }}>
+                      <Typography variant="h6" sx={{ fontWeight: "bold", mt: "-15px" }}>{product.name}</Typography>
+                      <Typography variant="body2" sx={{ fontSize: "0.9rem" }}>
                         {product.brand}
                       </Typography>
                       <Typography variant="body1">${product.price.toFixed(2)}</Typography>
@@ -241,37 +324,21 @@ const Collectionpage = () => {
                       }}
                     >
                       <Rating
-                        name={`customized-color-${product.id}`}
-                        defaultValue={2}
+                        name={`product-rating-${product.id}`}
+                        value={product.rating} // Use the product's rating value
+                        readOnly
                         precision={0.5}
-                        icon={
-                          <FavoriteIcon
-                            fontSize="inherit"
-                            sx={{
-                              color: "red",
-                              stroke: "white", // Adds an outline to the heart icon
-                              strokeWidth: 1, // Thickness of the outline
-                              filter: "drop-shadow(0px 0px 2px white)", // Glowing effect for better visibility
-                            }}
-                          />
-                        }
-                        emptyIcon={
-                          <FavoriteBorderIcon
-                            fontSize="inherit"
-                            sx={{
-                              stroke: "white", // Outline for the empty heart
-                              strokeWidth: 1,
-                              filter: "drop-shadow(0px 0px 2px white)", // Glow effect
-                            }}
-                          />
-                        }
+                        icon={<FavoriteIcon fontSize="inherit" sx={{ color: "red", stroke: "white", strokeWidth: 1 }} />}
+                        emptyIcon={<FavoriteBorderIcon fontSize="inherit" sx={{ stroke: "white", strokeWidth: 1 }} />}
                       />
                     </Box>
                   </Box>
-              </Grid>
-            ))}
-        </Grid>
+                </Grid>
+              ))}
+          </Grid>
+        </Box>
       </Box>
+      <Footer sx={{ flexShrink: 0 }} />
     </Box>
   );
 };
