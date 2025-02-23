@@ -2,7 +2,6 @@ import { createBrowserRouter } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute';
 //Layout
 import ButtonAppBar from '../layouts/Navbar';
-import Footer from '../layouts/Footer';
 //Login
 import Login from '../pages/Login/Login';
 import ForgotPassword from '../pages/Login/ForgotPassword';
@@ -86,7 +85,7 @@ export const routes = createBrowserRouter([
   {       
     path: '/Collection-page',
     element: (
-      <Layout showHeader={true} showFooter={false}>
+      <Layout showHeader={true}>
         <Collectionpage />
       </Layout>
     ),
@@ -94,7 +93,7 @@ export const routes = createBrowserRouter([
   {
     path: '/product/:id',
     element: (
-      <Layout showHeader={true} showFooter={false}>
+      <Layout showHeader={true}>
         <Detailpage />
       </Layout>
     ),
@@ -102,7 +101,7 @@ export const routes = createBrowserRouter([
   {
     path: "*",
     element: (
-      <Layout showHeader={false} showFooter={false}>
+      <Layout showHeader={false} >
         <NotFoundPage />
       </Layout>
     ),
