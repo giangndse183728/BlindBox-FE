@@ -4,6 +4,7 @@ import { Slider, Checkbox, FormControlLabel, Box, Grid, Typography, Button, Rati
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import Footer from "../../layouts/Footer";
+import GlassCard from "../../components/Decor/GlassCard";
 
 const Collectionpage = () => {
 
@@ -254,7 +255,7 @@ const Collectionpage = () => {
               top: 5,
               display: "flex",
               alignItems: "center",
-              justifyContent: "space-between" // Ensures items are pushed to the edges
+              justifyContent: "space-between"
             }}
           >
             {/* Left Side: Title */}
@@ -268,8 +269,8 @@ const Collectionpage = () => {
             </Typography>
 
             {/* Right Side: Sort by + Select Box */}
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <Typography>Sort by</Typography>
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "flex-end", flexGrow: 1, gap: 2 }}>
+              <Typography sx={{ fontSize: '1.5rem', }}>Sort by:</Typography>
               <FormControl sx={{ width: 200 }}>
                 <Select
                   defaultValue=""
@@ -310,7 +311,6 @@ const Collectionpage = () => {
               </FormControl>
             </Box>
           </Box>
-
           {/* Product Grid */}
           <Grid container spacing={1}>
             {displayedProducts
@@ -320,69 +320,70 @@ const Collectionpage = () => {
               .filter((product) => selectedRating === 0 || product.rating >= selectedRating)
               .map((product) => (
                 <Grid item xs={12} sm={6} md={4} key={product.id} sx={{ p: 1 }}>
-                  <Box sx={{
-                    borderRadius: 1,
-                    p: 12,
-                    textAlign: "center",
-                    color: "white",
-                    position: "relative",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    height: "120px",
-                    width: "120px",
-                    border: "2px solid white",
-                  }}>
-                    {/* Only the image is clickable */}
-                    <Link to={`/product/${product.id}`} style={{ textDecoration: "none" }}>
-                      <img
-                        src={product.img}
-                        alt={product.name}
-                        style={{ width: 200, height: 200, borderRadius: "10px", marginTop: "-85px", cursor: "pointer" }}
-                      />
-                    </Link>
-                    {/* Brand & Price in Bottom Left Corner */}
-                    <Box
-                      sx={{
-                        position: "absolute",
-                        bottom: 10,
-                        left: 10,
-                        color: "white",
-                        px: 1,
-                        py: 0.5,
-                        borderRadius: 1,
-                        textAlign: "left",
-                      }}
-                    >
-                      <Typography variant="h6" sx={{ fontWeight: "bold", mt: "-15px" }}>{product.name}</Typography>
-                      <Typography variant="body2" sx={{ fontSize: "0.9rem" }}>
-                        {product.brand}
-                      </Typography>
-                      <Typography variant="body1">${product.price.toFixed(2)}</Typography>
+                  <GlassCard sx={{ width: "340px", display: "flex", justifyContent: "center", alignItems: "center", p: 2  }}>
+                    <Box sx={{
+                      borderRadius: 1,
+                      p: 12,
+                      textAlign: "center",
+                      color: "white",
+                      position: "relative",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      height: "150px",
+                      width: "180px",
+                    }}>
+                      {/* Only the image is clickable */}
+                      <Link to={`/product/${product.id}`} style={{ textDecoration: "none" }}>
+                        <img
+                          src={product.img}
+                          alt={product.name}
+                          style={{ width: 200, height: 200, borderRadius: "10px", marginTop: "-70px", cursor: "pointer" }}
+                        />
+                      </Link>
+                      {/* Brand & Price in Bottom Left Corner */}
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          bottom: 10,
+                          left: 10,
+                          color: "white",
+                          px: 1,
+                          py: 0.5,
+                          borderRadius: 1,
+                          textAlign: "left",
+                        }}
+                      >
+                        <Typography variant="h6" sx={{ fontWeight: "bold", mt: "-15px" }}>{product.name}</Typography>
+                        <Typography variant="body2" sx={{ fontSize: "0.9rem" }}>
+                          {product.brand}
+                        </Typography>
+                        <Typography variant="body1">${product.price.toFixed(2)}</Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          bottom: 10,
+                          right: 10,
+                          color: "white",
+                          px: 1,
+                          py: 0.5,
+                          borderRadius: 1,
+                          display: "flex",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Rating
+                          name={`product-rating-${product.id}`}
+                          value={product.rating} // Use the product's rating value
+                          readOnly
+                          precision={0.5}
+                          icon={<FavoriteIcon fontSize="inherit" sx={{ color: "red", stroke: "white", strokeWidth: 1 }} />}
+                          emptyIcon={<FavoriteBorderIcon fontSize="inherit" sx={{ stroke: "white", strokeWidth: 1 }} />}
+                        />
+                      </Box>
                     </Box>
-                    <Box
-                      sx={{
-                        position: "absolute",
-                        bottom: 10,
-                        right: 10,
-                        color: "white",
-                        px: 1,
-                        py: 0.5,
-                        borderRadius: 1,
-                        display: "flex",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Rating
-                        name={`product-rating-${product.id}`}
-                        value={product.rating} // Use the product's rating value
-                        readOnly
-                        precision={0.5}
-                        icon={<FavoriteIcon fontSize="inherit" sx={{ color: "red", stroke: "white", strokeWidth: 1 }} />}
-                        emptyIcon={<FavoriteBorderIcon fontSize="inherit" sx={{ stroke: "white", strokeWidth: 1 }} />}
-                      />
-                    </Box>
-                  </Box>
+                  </GlassCard>
                 </Grid>
               ))}
           </Grid>
@@ -392,8 +393,20 @@ const Collectionpage = () => {
               page={page}
               onChange={handlePageChange}
               sx={{
-                '& .MuiPaginationItem-root': { color: 'white', fontSize: '1.1rem', padding: '10px' },
-                '& .Mui-selected': { backgroundColor: 'yellow', color: 'black', fontSize: '1.1rem', fontWeight: 'bold' }
+                '& .MuiPaginationItem-root': {
+                  color: 'white',
+                  fontSize: '1.1rem',
+                  transition: 'background-color 0.3s ease' // Smooth transition
+                },
+                '& .MuiPaginationItem-root:hover': {
+                  backgroundColor: 'rgba(255, 255, 0, 0.5)', // Yellow-ish hover effect
+                  color: 'black'
+                },
+                '& .Mui-selected': {
+                  backgroundColor: 'yellow',
+                  color: 'black',
+                  fontSize: '1.1rem'
+                }
               }}
             />
           </Box>

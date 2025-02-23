@@ -23,18 +23,16 @@ const Detailpage = () => {
   }
 
   return (
-    <Box sx={{ bgcolor: "#666", minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+    <Box sx={{ bgcolor: "#666", minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center", backgroundImage: "url(/assets/background.jpeg)",
+      backgroundSize: "cover",
+      backgroundPosition: "center", }}>
       <Box sx={{
         position: "relative",
-        bgcolor: "black",
         p: 4, borderRadius: 4,
         width: 1400,
         height: 525,
         boxShadow: 3,
-        top: 30,
-        backgroundImage: "url(/assets/background.jpeg)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
+        top: 30,  
       }}>
 
         {/* Back to Collection Button - Positioned at the Top Right */}
@@ -47,7 +45,7 @@ const Detailpage = () => {
               right: 10,
               bgcolor: "black",
               color: "white",
-              "&:hover": { bgcolor: "#444" },
+              "&:hover": { bgcolor: "yellow", color:"black" },
             }}
           >
             Back to Collection
