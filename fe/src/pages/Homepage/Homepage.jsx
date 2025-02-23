@@ -316,7 +316,7 @@ export default function Home() {
 
         <Grid item xs={12} data-aos="fade-up">
 
-          <Typography fontFamily="'Jersey 15', sans-serif" variant='h4' sx={{ mt: 5, textAlign: 'center', color: 'white' }}>
+          <Typography fontFamily="'Jersey 15', sans-serif" variant='h4' sx={{ mt: 2, ml: 10, textAlign: 'left', color: 'white' }}>
 
             🔥 Trending
 
@@ -398,7 +398,7 @@ export default function Home() {
 
           {/* 🆕 New Launch Section */}
 
-          <Typography fontFamily="'Jersey 15', sans-serif" variant="h4" sx={{ mt: 15, textAlign: 'center', color: 'white' }}>
+          <Typography fontFamily="'Jersey 15', sans-serif" variant="h4" sx={{ mt: 8, ml: 10, textAlign: 'left', color: 'white' }}>
 
             🆕 New Launch
 
@@ -496,12 +496,29 @@ export default function Home() {
             </IconButton>
 
           </Box>
-
-
-
         </Grid>
-
       </Grid>
+
+      <Grid>
+        <div className="flex h-screen px-10 items-center">
+          <div className="flex-1">
+            <GlassCard className="p-8 w-full max-w-lg">
+              <p className="text-lg" style={{ color: 'white' }}>
+                Trading Information
+              </p>
+            </GlassCard>
+
+          </div>
+
+
+          <div className="col-span-1 flex justify-end" >
+            <img src="/assets/bill-cypher/giphy.gif" alt="Bill Cypher GIF" className="max-w-full h-auto" />
+          </div>
+        </div>
+      </Grid>
+
+
+
 
 
       <Footer />

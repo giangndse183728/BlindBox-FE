@@ -33,7 +33,7 @@ import ButtonCus from '../components/Button/ButtonCus';
 
 const menuItems = [
   { text: 'Home', path: '/', icon: HomeOutlinedIcon, activeIcon: HomeIcon },
-  { text: 'Collection', path: '/collection', icon: CollectionsOutlinedIcon, activeIcon: CollectionsIcon },
+  { text: 'Collection', path: '/Collection-page', icon: CollectionsOutlinedIcon, activeIcon: CollectionsIcon },
   { text: 'Trading', path: '/trading', icon: ChangeCircleOutlinedIcon, activeIcon: ChangeCircleIcon },
   { text: 'Custom Accessories', path: '/custom-accessories', icon: DesignServicesOutlinedIcon, activeIcon: DesignServicesIcon },
   { text: 'Inventory', path: '/inventory', icon: BackpackOutlinedIcon, activeIcon: BackpackIcon },
@@ -62,7 +62,22 @@ export default function ButtonAppBar() {
             <IconButton size="large" edge="start" color="inherit" aria-label="menu" onClick={toggleDrawer(true)} sx={{ mr: 2 }}>
               <MenuIcon />
             </IconButton>
-            <Typography fontFamily="'Jersey 15', sans-serif" variant="h3" sx={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', textAlign: 'center' }}>BlindB!ox</Typography>
+            <Typography
+              component={NavLink}
+              to="/"
+              fontFamily="'Jersey 15', sans-serif"
+              variant="h3"
+              sx={{
+                position: 'absolute',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                textAlign: 'center',
+                textDecoration: 'none',
+                color: 'inherit',
+              }}
+            >
+              BlindB!ox
+            </Typography>
             <NavLink to="/Login" className="nav-link" style={{ textDecoration: 'none' }}>
               <ButtonCus variant="button-1" width="60px"> Login </ButtonCus>
             </NavLink>
