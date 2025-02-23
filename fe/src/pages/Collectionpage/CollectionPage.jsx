@@ -5,6 +5,8 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import Footer from "../../layouts/Footer";
 import GlassCard from "../../components/Decor/GlassCard";
+import { FaBoxOpen } from "react-icons/fa";
+import { GiCardboardBoxClosed } from "react-icons/gi";
 
 const Collectionpage = () => {
 
@@ -29,29 +31,47 @@ const Collectionpage = () => {
   const query = new URLSearchParams(location.search);
   const page = parseInt(query.get("page")) || 1;
   const itemsPerPage = 9;
-  const totalPages = Math.ceil(products.length / itemsPerPage);
+
+  const [filteredProducts, setFilteredProducts] = useState(products);
+  const [priceRange, setPriceRange] = useState([0, 5000]);
+  const [appliedPriceRange, setAppliedPriceRange] = useState([0, 5000]);
+  const [selectedBrand, setSelectedBrand] = useState([]);
+  const [selectedType, setSelectedType] = useState([]);
+  const [selectedRating, setSelectedRating] = useState(0);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.search]);
 
+  useEffect(() => {
+    const applyFilters = () => {
+      const filtered = products
+        .filter((product) => product.price >= appliedPriceRange[0] && product.price <= appliedPriceRange[1])
+        .filter((product) => selectedBrand.length === 0 || selectedBrand.includes(product.brand))
+        .filter((product) => selectedType.length === 0 || selectedType.includes(product.type))
+        .filter((product) => selectedRating === 0 || product.rating >= selectedRating);
+      
+      setFilteredProducts(filtered);
+    };
+
+    applyFilters();
+  }, [products, appliedPriceRange, selectedBrand, selectedType, selectedRating]);
+
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const displayedProducts = filteredProducts.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+
   const handlePageChange = (event, value) => {
     navigate(`?page=${value}`);
   };
 
-  const displayedProducts = products.slice((page - 1) * itemsPerPage, page * itemsPerPage);
-
-  const [priceRange, setPriceRange] = useState([0, 5000]);
   const handlePriceChange = (event, newValue) => {
     setPriceRange(newValue);
   };
 
-  const [appliedPriceRange, setAppliedPriceRange] = useState([0, 5000]);
   const handleApplyPriceFilter = () => {
     setAppliedPriceRange(priceRange);
   };
 
-  const [selectedBrand, setSelectedBrand] = useState([]);
   const handleBrandChange = (event) => {
     const value = event.target.value;
     setSelectedBrand((prev) =>
@@ -59,7 +79,6 @@ const Collectionpage = () => {
     );
   };
 
-  const [selectedType, setSelectedType] = useState([]);
   const handleTypeChange = (event) => {
     const value = event.target.value;
     setSelectedType((prev) =>
@@ -67,7 +86,6 @@ const Collectionpage = () => {
     );
   };
 
-  const [selectedRating, setSelectedRating] = useState(0);
   const handleRatingChange = (event, newValue) => {
     setSelectedRating(newValue);
   };
@@ -81,7 +99,7 @@ const Collectionpage = () => {
   };
 
   const sortProducts = (order) => {
-    let sortedProducts = [...products];
+    let sortedProducts = [...filteredProducts];
     if (order === "az") {
       sortedProducts.sort((a, b) => a.name.localeCompare(b.name));
     } else if (order === "za") {
@@ -91,7 +109,7 @@ const Collectionpage = () => {
     } else if (order === "high-low") {
       sortedProducts.sort((a, b) => b.price - a.price);
     }
-    setProducts(sortedProducts);
+    setFilteredProducts(sortedProducts);
   };
 
   return (
@@ -320,7 +338,7 @@ const Collectionpage = () => {
               .filter((product) => selectedRating === 0 || product.rating >= selectedRating)
               .map((product) => (
                 <Grid item xs={12} sm={6} md={4} key={product.id} sx={{ p: 1 }}>
-                  <GlassCard sx={{ width: "340px", display: "flex", justifyContent: "center", alignItems: "center", p: 2  }}>
+                  <GlassCard sx={{ width: "340px", display: "flex", justifyContent: "center", alignItems: "center", p: 2 }}>
                     <Box sx={{
                       borderRadius: 1,
                       p: 12,
@@ -333,6 +351,19 @@ const Collectionpage = () => {
                       height: "150px",
                       width: "180px",
                     }}>
+                      {/* Icon display */}
+                      <Box sx={{
+                        position: "absolute",
+                        top: 10,
+                        right: 15,
+                        color: "gray",
+                      }}>
+                        {product.type === "Unbox" ? (
+                          <FaBoxOpen size={30} />
+                        ) : (
+                          <GiCardboardBoxClosed size={34} />
+                        )}
+                      </Box>
                       {/* Only the image is clickable */}
                       <Link to={`/product/${product.id}`} style={{ textDecoration: "none" }}>
                         <img
@@ -396,16 +427,15 @@ const Collectionpage = () => {
                 '& .MuiPaginationItem-root': {
                   color: 'white',
                   fontSize: '1.1rem',
-                  transition: 'background-color 0.3s ease' // Smooth transition
                 },
                 '& .MuiPaginationItem-root:hover': {
-                  backgroundColor: 'rgba(255, 255, 0, 0.5)', // Yellow-ish hover effect
-                  color: 'black'
+                  backgroundColor: 'rgba(255, 255, 0, 0.5)',
                 },
                 '& .Mui-selected': {
-                  backgroundColor: 'yellow',
-                  color: 'black',
-                  fontSize: '1.1rem'
+                  backgroundColor: 'yellow !important',
+                  color: '#333',
+                  fontSize: '1.1rem',
+                  fontWeight: 'bold'
                 }
               }}
             />
