@@ -15,7 +15,7 @@ import NotFoundPage from '../pages/Error404/NotFoundPage';
 import Dashboard from '../pages/Admin/Dashboard';
 //User
 import CustomPage from '../pages/Custom/CustomPage';
-
+import ProfilePage from '../pages/ProfilePage/profilePage';
 
 const Layout = ({ children, showHeader = true }) => {
   return (
@@ -59,8 +59,8 @@ export const routes = createBrowserRouter([
     path: '/login/oauth',
     element: (
       <AuthCallback />
-  ),
-},
+    ),
+  },
 
   {
     path: '/Dashboard',
@@ -77,12 +77,12 @@ export const routes = createBrowserRouter([
     element: (
       <Layout showHeader={true} >
         <ProtectedRoute requiredRole={1}>
-          <CustomPage/>
+          <CustomPage />
         </ProtectedRoute>
       </Layout>
     ),
   },
-  {       
+  {
     path: '/Collection-page',
     element: (
       <Layout showHeader={true}>
@@ -103,6 +103,14 @@ export const routes = createBrowserRouter([
     element: (
       <Layout showHeader={false} >
         <NotFoundPage />
+      </Layout>
+    ),
+  },
+  {
+    path: "/profile",
+    element: (
+      <Layout showHeader={true} >
+        <ProfilePage />
       </Layout>
     ),
   },
