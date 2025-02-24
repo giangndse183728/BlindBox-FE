@@ -5,6 +5,7 @@ import { fetchUserData } from "../../api/profileApi";
 import { useNavigate } from 'react-router-dom';
 import GlassCard from "../../components/Decor/GlassCard";
 
+
 const ProfilePage = () => {
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
@@ -51,7 +52,11 @@ const ProfilePage = () => {
     };
 
     return (
-        <div style={{ position: 'relative', overflow: 'hidden', width: '100%', minHeight: '100vh', display: 'flex', flexDirection: 'column', marginTop: '100px' }}>
+
+        <div style={{ position: 'relative', overflow: 'hidden', width: '100%', minHeight: '100vh', display: 'flex', flexDirection: 'column', marginTop: '80px' }}>
+            <div style={{ textAlign: 'center', marginTop: '20px' }}>
+                <img src="/assets/gif/kirby-star.gif" alt="Pacman" style={{ width: '150px', height: 'auto' }} />
+            </div>
             <Box
                 sx={{
                     position: 'fixed',
@@ -66,7 +71,7 @@ const ProfilePage = () => {
                     zIndex: -2,
                 }}
             />
-            <div style={{ flex: '1 0 auto', display: "flex", flexDirection: "column", alignItems: "center", padding: "20px", marginTop: "80px" }}>
+            <div style={{ flex: '1 0 auto', display: "flex", flexDirection: "column", alignItems: "center", padding: "20px", marginTop: "5px" }}>
                 {/* Profile Header */}
                 <GlassCard style={{ width: "80%", padding: "20px", marginBottom: "20px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
@@ -244,6 +249,7 @@ const ProfilePage = () => {
                     </GlassCard>
                 </div>
             </div>
+
             <Footer style={{ flexShrink: 0 }} />
         </div>
     );
