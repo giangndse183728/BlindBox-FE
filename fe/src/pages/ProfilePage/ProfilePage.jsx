@@ -1,25 +1,27 @@
 import { useEffect, useState } from "react";
-import { Box } from '@mui/material';
+import { Box, TextField, Button } from '@mui/material';
 import Footer from '../../layouts/Footer';
-import { fetchUserData } from "../../api/profileApi"; 
+import { fetchUserData } from "../../api/profileApi";
+import { useNavigate } from 'react-router-dom';
+import GlassCard from "../../components/Decor/GlassCard";
 
 const ProfilePage = () => {
-    const [user, setUser] = useState({
-        _id: '67aca5e59ebdb4fb6e4065ea',
-        userName: 'phuoctest',
-        password: '8ae58d58b4a6fd211cda8cd3d7e82a1f66519c209f6f6f205c73b94249e5ed78',
-        email: 'phuoc00@gmail.com',
-        phoneNumber: '0901308975',
-        address: ''
-    });
-    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
 
     useEffect(() => {
         const getUser = async () => {
+            setLoading(true);
             try {
                 const userData = await fetchUserData();
-                setUser(userData);
+                if (!userData) {
+                    setUser(null);
+                } else {
+                    setUser(userData);
+                }
             } catch (err) {
                 setError("Failed to fetch user data");
             } finally {
@@ -30,11 +32,26 @@ const ProfilePage = () => {
         getUser();
     }, []);
 
+    useEffect(() => {
+        if (!loading && user === null) {
+            navigate('/login', { replace: true });
+        }
+    }, [loading, user, navigate]);
+
     if (loading) return <p style={{ textAlign: "center", marginTop: "10px" }}>Loading...</p>;
     if (error) return <p style={{ color: "red", textAlign: "center", marginTop: "10px" }}>{error}</p>;
 
+    const handleEdit = () => {
+        setIsEditing(true);
+    };
+
+    const handleSave = () => {
+        // Add API call to save the updated user data
+        setIsEditing(false);
+    };
+
     return (
-        <div style={{ position: 'relative', overflow: 'hidden', width: '100%', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ position: 'relative', overflow: 'hidden', width: '100%', minHeight: '100vh', display: 'flex', flexDirection: 'column', marginTop: '100px' }}>
             <Box
                 sx={{
                     position: 'fixed',
@@ -50,40 +67,181 @@ const ProfilePage = () => {
                 }}
             />
             <div style={{ flex: '1 0 auto', display: "flex", flexDirection: "column", alignItems: "center", padding: "20px", marginTop: "80px" }}>
-                {/* Profile Header Section */}
-                <div style={{ width: "80%", backgroundColor: "#fff", padding: "20px", borderRadius: "10px", boxShadow: "0px 4px 10px rgba(0,0,0,0.1)", marginBottom: "20px" }}>
+                {/* Profile Header */}
+                <GlassCard style={{ width: "80%", padding: "20px", marginBottom: "20px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-                        <img src="/profile-avatar.png" alt="Profile" style={{ width: "80px", height: "80px", borderRadius: "50%", border: "3px solid #FFD700" }} />
+                        <img src="/assets/bill-cypher/pfp.jpeg" alt="Profile" style={{ width: "80px", height: "80px", borderRadius: "50%", border: "3px solid #FFD700" }} />
                         <div>
-                            <h2 style={{ margin: 0, fontSize: "22px", fontWeight: "bold" }}>{user?.userName}</h2>
+                            <h2 style={{ margin: 0, fontSize: "22px", fontWeight: "bold", color: "white" }}>{user?.userName}</h2>
                             <p style={{ margin: 0, color: "gray" }}>{user?.email}</p>
                         </div>
                     </div>
-                </div>
+                </GlassCard>
 
                 {/* Profile Details Section */}
                 <div style={{ width: "80%", display: "flex", justifyContent: "space-between", gap: "20px" }}>
                     {/* Sidebar */}
-                    <div style={{ width: "20%", backgroundColor: "#fff", padding: "15px", borderRadius: "10px", boxShadow: "0px 4px 10px rgba(0,0,0,0.1)" }}>
-                        <p style={{ fontWeight: "bold" }}>Navigation</p>
-                        <ul style={{ listStyle: "none", padding: 0 }}>
-                            <li style={{ padding: "10px 0", cursor: "pointer" }}>🏠 Home</li>
-                            <li style={{ padding: "10px 0", cursor: "pointer" }}>👥 My Network</li>
-                            <li style={{ padding: "10px 0", cursor: "pointer" }}>🔔 Notifications</li>
-                        </ul>
-                    </div>
+                    <GlassCard style={{ width: "20%", padding: "15px", marginLeft: "-20px" }}>
+                        <h3 style={{ color: "white" }}>About Me</h3>
+                        <TextField
+                            id="outlined-basic"
+                            label="Biography"
+                            variant="outlined"
+                            value={user?.aboutMe}
+                            placeholder="This is the biography section where the user can add personal details."
+                            fullWidth
+                            margin="normal"
+                            multiline
+                            rows={8.5}
+                            InputProps={{ readOnly: !isEditing, style: { color: 'white' } }}
+                            InputLabelProps={{ style: { color: 'white' } }}
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    '& fieldset': {
+                                        borderColor: 'white',
+                                    },
+                                    '&:hover fieldset': {
+                                        borderColor: 'white',
+                                    },
+                                    '&.Mui-focused fieldset': {
+                                        borderColor: 'white',
+                                    },
+                                },
+                            }}
+                        />
+                    </GlassCard>
 
                     {/* Main Content */}
-                    <div style={{ width: "75%", backgroundColor: "#fff", padding: "20px", borderRadius: "10px", boxShadow: "0px 4px 10px rgba(0,0,0,0.1)", }}>
-                        <h3>About Me</h3>
-                        <p style={{ color: "gray" }}>This is the biography section where the user can add personal details.</p>
-                        <h3>Profile Details</h3>
-                        <p><strong>ID:</strong> {user?._id}</p>
-                        <p><strong>Username:</strong> {user?.userName}</p>
-                        <p><strong>Email:</strong> {user?.email}</p>
-                        <p><strong>Phone Number:</strong> {user?.phoneNumber}</p>
-                        <p><strong>Address:</strong> {user?.address}</p>
-                    </div>
+                    <GlassCard style={{ width: "75%", padding: "20px", marginRight: "-20px" }}>
+                        <h3 style={{ color: "white" }}>Profile Details</h3>
+                        <TextField
+                            id="outlined-basic"
+                            label="ID"
+                            variant="outlined"
+                            value={user?._id}
+                            fullWidth
+                            margin="normal"
+                            InputProps={{ readOnly: !isEditing, style: { color: 'white' } }}
+                            InputLabelProps={{ style: { color: 'white' } }}
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    '& fieldset': {
+                                        borderColor: 'white',
+                                    },
+                                    '&:hover fieldset': {
+                                        borderColor: 'white',
+                                    },
+                                    '&.Mui-focused fieldset': {
+                                        borderColor: 'white',
+                                    },
+                                },
+                                width: '48%',
+                                marginRight: '4%',
+                            }}
+                        />
+                        <TextField
+                            id="outlined-basic"
+                            label="Username"
+                            variant="outlined"
+                            value={user?.userName}
+                            fullWidth
+                            margin="normal"
+                            InputProps={{ readOnly: !isEditing, style: { color: 'white' } }}
+                            InputLabelProps={{ style: { color: 'white' } }}
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    '& fieldset': {
+                                        borderColor: 'white',
+                                    },
+                                    '&:hover fieldset': {
+                                        borderColor: 'white',
+                                    },
+                                    '&.Mui-focused fieldset': {
+                                        borderColor: 'white',
+                                    },
+                                },
+                                width: '48%',
+                            }}
+                        />
+                        <TextField
+                            id="outlined-basic"
+                            label="Email"
+                            variant="outlined"
+                            value={user?.email}
+                            fullWidth
+                            margin="normal"
+                            InputProps={{ readOnly: !isEditing, style: { color: 'white' } }}
+                            InputLabelProps={{ style: { color: 'white' } }}
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    '& fieldset': {
+                                        borderColor: 'white',
+                                    },
+                                    '&:hover fieldset': {
+                                        borderColor: 'white',
+                                    },
+                                    '&.Mui-focused fieldset': {
+                                        borderColor: 'white',
+                                    },
+                                },
+                                width: '48%',
+                                marginRight: '4%',
+                            }}
+                        />
+                        <TextField
+                            id="outlined-basic"
+                            label="Phone Number"
+                            variant="outlined"
+                            value={user?.phoneNumber}
+                            fullWidth
+                            margin="normal"
+                            InputProps={{ readOnly: !isEditing, style: { color: 'white' } }}
+                            InputLabelProps={{ style: { color: 'white' } }}
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    '& fieldset': {
+                                        borderColor: 'white',
+                                    },
+                                    '&:hover fieldset': {
+                                        borderColor: 'white',
+                                    },
+                                    '&.Mui-focused fieldset': {
+                                        borderColor: 'white',
+                                    },
+                                },
+                                width: '48%',
+                            }}
+                        />
+                        <TextField
+                            id="outlined-basic"
+                            label="Address"
+                            variant="outlined"
+                            value={user?.address}
+                            fullWidth
+                            margin="normal"
+                            InputProps={{ readOnly: !isEditing, style: { color: 'white' } }}
+                            InputLabelProps={{ style: { color: 'white' } }}
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    '& fieldset': {
+                                        borderColor: 'white',
+                                    },
+                                    '&:hover fieldset': {
+                                        borderColor: 'white',
+                                    },
+                                    '&.Mui-focused fieldset': {
+                                        borderColor: 'white',
+                                    },
+                                },
+                                width: '48%',
+                                marginRight: '4%',
+                            }}
+                        />
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
+                            <Button variant="outlined" onClick={handleEdit} style={{ marginRight: '10px', color: '#FFD700', borderColor: '#FFD700' }}>Edit</Button>
+                            <Button variant="contained" onClick={handleSave} style={{ backgroundColor: '#FFD700', color: 'black' }}>Save</Button>
+                        </div>
+                    </GlassCard>
                 </div>
             </div>
             <Footer style={{ flexShrink: 0 }} />

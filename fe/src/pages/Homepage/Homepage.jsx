@@ -509,20 +509,13 @@ export default function Home() {
               <Typography variant="subtitle1" color='white' textAlign='left' sx={{ width: '100%' }}>
                 Our Trade & Sell Blindbox Platform enables users to buy, sell, and trade blind boxes through a secure marketplace with fixed-price sales,
                 auctions, and direct swaps. Sellers can list sealed or opened items with detailed descriptions, while buyers can pay via credit cards, PayPal,
-                crypto, or platform credits. 
+                crypto, or platform credits.
               </Typography>
-
               <Typography color='white' sx={{ ...yellowGlowAnimation, textAlign: 'center', width: '100%', marginTop: '10px' }} variant="h4" fontFamily="'Jersey 15', sans-serif">
                 *****************
               </Typography>
               <ButtonCus variant="button-22" width="150px"> Trade Now </ButtonCus>
-
-
             </GlassCard>
-
-
-
-
           </Box>
         </Grid>
         <Grid item xs={6} style={{ display: 'flex', height: '100vh', padding: '0 90px', alignItems: 'center', justifyContent: 'flex-start' }}>
