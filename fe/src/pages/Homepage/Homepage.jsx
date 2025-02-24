@@ -409,76 +409,29 @@ export default function Home() {
             {/* Swiper Carousel */}
 
             <Swiper
-
               slidesPerView={4}
-
               spaceBetween={0}
-
-              navigation={{
-
-                nextEl: ".swiper-button-next-launch",
-
-                prevEl: ".swiper-button-prev-launch",
-
-              }}
-
+              navigation={true}  
               modules={[Navigation]}
-
-              observer={true}
-
-              observeParents={true}
-
               onSwiper={(swiper) => {
-
-                setTimeout(() => {
-
-                  swiper.navigation.init();
-
-                  swiper.navigation.update();
-
-                }, 100);
-
+                swiper.navigation.init(); 
+                swiper.navigation.update(); 
               }}
-
             >
-
               {products.map((product, index) => (
-
                 <SwiperSlide key={index}>
                   <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-
                     <GlassCard sx={{ width: 250, textAlign: 'center' }}>
-
                       <img src="/assets/blindbox1.png" alt="Blindbox 1" height="200" />
                       <CardContent>
-
-                        <Typography variant="h6" sx={{ color: 'white' }}>
-
-                          {product.name}
-
-                        </Typography>
-
-                        <Typography variant="body2" sx={{ color: 'gray' }}>
-
-                          {product.brand}
-
-                        </Typography>
-
-                        <Typography variant="h6" sx={{ color: 'gray' }}>
-
-                          {product.price}
-
-                        </Typography>
-
+                        <Typography variant="h6" sx={{ color: 'white' }}>{product.name}</Typography>
+                        <Typography variant="body2" sx={{ color: 'gray' }}>{product.brand}</Typography>
+                        <Typography variant="h6" sx={{ color: 'gray' }}>{product.price}</Typography>
                       </CardContent>
-
                     </GlassCard>
                   </Box>
-
                 </SwiperSlide>
-
               ))}
-
             </Swiper>
 
             {/* Navigation Buttons (New Launch) */}

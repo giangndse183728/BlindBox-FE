@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Box, Typography, Button, Grid } from "@mui/material";
 import ProductNotFound from "./ProductNotFound";  // Import the new component
+import { useCart } from '../Shoppingcart/CartContext'; // Import the context
 
 const products = [
   { id: 1, name: "Anime Blind Box", img: "/assets/blindbox1.png", price: 2999.99, brand: "Pop Mart", description: "A surprise anime-themed blind box with exclusive figurines." },
@@ -11,6 +12,7 @@ const products = [
 
 const Detailpage = () => {
   const { id } = useParams();
+  const { addToCart } = useCart(); 
   const product = products.find((p) => p.id === parseInt(id));
   const [quantity, setQuantity] = useState(1);
 
@@ -19,34 +21,22 @@ const Detailpage = () => {
   }, []);
 
   if (!product) {
-    return <ProductNotFound />;  // Render the ProductNotFound component
+    return <ProductNotFound />;  
   }
 
-  return (
-    <Box sx={{ bgcolor: "#666", minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center", backgroundImage: "url(/assets/background.jpeg)",
-      backgroundSize: "cover",
-      backgroundPosition: "center", }}>
-      <Box sx={{
-        position: "relative",
-        p: 4, borderRadius: 4,
-        width: 1400,
-        height: 525,
-        boxShadow: 3,
-        top: 30,  
-      }}>
+  const handleAddToCart = () => {
+    addToCart(product);
+  };
 
+  return (
+    <Box sx={{ bgcolor: "#666", minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center", backgroundImage: "url(/assets/background.jpeg)", backgroundSize: "cover", backgroundPosition: "center", }}>
+      <Box sx={{ position: "relative", p: 4, borderRadius: 4, width: 1400, height: 525, boxShadow: 3, top: 30 }}>
+        
         {/* Back to Collection Button - Positioned at the Top Right */}
         <Link to="/Collection-page" style={{ textDecoration: "none" }}>
           <Button
             variant="contained"
-            sx={{
-              position: "absolute",
-              top: 10,
-              right: 10,
-              bgcolor: "black",
-              color: "white",
-              "&:hover": { bgcolor: "yellow", color:"black" },
-            }}
+            sx={{ position: "absolute", top: 10, right: 10, bgcolor: "black", color: "white", "&:hover": { bgcolor: "yellow", color: "black" }, }}
           >
             Back to Collection
           </Button>
@@ -55,7 +45,7 @@ const Detailpage = () => {
         <Grid container spacing={4} alignItems="center">
           {/* Product Image */}
           <Grid item xs={12} md={6} sx={{ textAlign: "center" }}>
-            <img src={product.img} alt={product.name} style={{ width: 500, height: 500, borderRadius: "10p" }} />
+            <img src={product.img} alt={product.name} style={{ width: 500, height: 500, borderRadius: "10px" }} />
           </Grid>
 
           {/* Product Details */}
@@ -86,7 +76,11 @@ const Detailpage = () => {
             </Box>
 
             {/* Add to Cart Button */}
-            <Button variant="contained" sx={{ mt: 3, bgcolor: "#ff4444", color: "white", "&:hover": { bgcolor: "#cc0000" } }}>
+            <Button
+              variant="contained"
+              sx={{ mt: 3, bgcolor: "#ff4444", color: "white", "&:hover": { bgcolor: "#cc0000" } }}
+              onClick={handleAddToCart} 
+            >
               Add to Cart
             </Button>
           </Grid>

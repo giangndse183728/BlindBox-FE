@@ -15,6 +15,7 @@ import NotFoundPage from '../pages/Error404/NotFoundPage';
 import Dashboard from '../pages/Admin/Dashboard';
 //User
 import CustomPage from '../pages/Custom/CustomPage';
+import CartPage from '../pages/Shoppingcart/CartPage';
 
 
 const Layout = ({ children, showHeader = true }) => {
@@ -95,6 +96,14 @@ export const routes = createBrowserRouter([
     element: (
       <Layout showHeader={true}>
         <Detailpage />
+      </Layout>
+    ),
+  },
+  {
+    path: '/cart',
+    element: (
+      <Layout showHeader={false}>
+        <CartPage/>
       </Layout>
     ),
   },

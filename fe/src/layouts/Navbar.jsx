@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import { useCart } from "../pages/Shoppingcart/CartContext";
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -13,6 +14,8 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
+import Badge from '@mui/material/Badge';
+import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import HomeIcon from '@mui/icons-material/Home';
 import CollectionsOutlinedIcon from '@mui/icons-material/CollectionsOutlined';
@@ -46,6 +49,8 @@ export default function ButtonAppBar() {
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
   const location = useLocation();
   const [hovered, setHovered] = React.useState(null);
+  const { cart } = useCart() || { cart: [] };
+  const cartCount = cart.length || 0;
 
   const toggleDrawer = (open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -63,9 +68,28 @@ export default function ButtonAppBar() {
               <MenuIcon />
             </IconButton>
             <Typography fontFamily="'Jersey 15', sans-serif" variant="h3" sx={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', textAlign: 'center' }}>BlindB!ox</Typography>
-            <NavLink to="/Login" className="nav-link" style={{ textDecoration: 'none' }}>
-              <ButtonCus variant="button-1" width="60px"> Login </ButtonCus>
-            </NavLink>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <NavLink to="/cart" className="nav-link">
+                <Badge
+                  badgeContent={cartCount}
+                  sx={{
+                    '& .MuiBadge-dot': {
+                      backgroundColor: 'yellow', 
+                    },
+                    '& .MuiBadge-colorSecondary': {
+                      backgroundColor: 'yellow', 
+                      color: 'black', 
+                    },
+                  }}
+                  color="secondary" 
+                >
+                  <ShoppingCartOutlinedIcon sx={{ fontSize: 30, color: 'white' }} />
+                </Badge>
+              </NavLink>
+              <NavLink to="/Login" className="nav-link" style={{ textDecoration: 'none' }}>
+                <ButtonCus variant="button-1" width="60px"> Login </ButtonCus>
+              </NavLink>
+            </Box>
           </Toolbar>
         </AppBar>
 
