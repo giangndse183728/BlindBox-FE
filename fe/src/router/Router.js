@@ -63,7 +63,7 @@ export const routes = createBrowserRouter([
   },
 
   {
-    path: '/Dashboard',
+    path: '/dashboard',
     element: (
       <Layout showHeader={true} >
         <ProtectedRoute requiredRole={0}>
@@ -73,7 +73,7 @@ export const routes = createBrowserRouter([
     ),
   },
   {
-    path: '/Custom',
+    path: '/custom-accessories',
     element: (
       <Layout showHeader={true} >
         <ProtectedRoute requiredRole={1}>
