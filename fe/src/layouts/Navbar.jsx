@@ -79,11 +79,12 @@ export default function ButtonAppBar() {
                     '& .MuiBadge-colorSecondary': {
                       backgroundColor: 'yellow', 
                       color: 'black', 
+                      fontWeight: 'bold'
                     },
                   }}
                   color="secondary" 
                 >
-                  <ShoppingCartOutlinedIcon sx={{ fontSize: 30, color: 'white' }} />
+                  <ShoppingCartOutlinedIcon sx={{ fontSize: 23, color: 'white' }} />
                 </Badge>
               </NavLink>
               <NavLink to="/Login" className="nav-link" style={{ textDecoration: 'none' }}>
