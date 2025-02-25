@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import { useCart } from "../pages/Shoppingcart/CartContext";
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -13,6 +14,8 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
+import Badge from '@mui/material/Badge';
+import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import HomeIcon from '@mui/icons-material/Home';
 import CollectionsOutlinedIcon from '@mui/icons-material/CollectionsOutlined';
@@ -47,6 +50,8 @@ export default function ButtonAppBar() {
   const [showNavbar, setShowNavbar] = React.useState(false);
   const location = useLocation();
   const [hovered, setHovered] = React.useState(null);
+  const { cart } = useCart() || { cart: [] };
+  const cartCount = cart.length || 0;
 
   const toggleDrawer = (open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -80,29 +85,13 @@ export default function ButtonAppBar() {
   return (
     <>
       <Box>
-        <AppBar
-          sx={{
-            bgcolor: 'rgba(10, 10, 10, 0.6)',
-            transition: 'opacity 0.5s ease-in-out, transform 0.5s ease-in-out',
-            opacity: showNavbar ? 1 : 0,
-            position: 'fixed',
-            top: 0,
-            width: '90%',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            borderRadius: '10px',
-            marginTop: '10px',
-            backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255, 255, 255, 0.3)',
-          }}
-        >
+        <AppBar sx={{ bgcolor: 'rgba(10, 10, 10, 0.6)', transition: 'opacity 0.5s ease-in-out', opacity: showNavbar ? 1 : 0, position: 'fixed', top: 0, width: '90%', left: '50%', transform: 'translateX(-50%)', borderRadius: '10px', marginTop: '10px', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.3)' }}>
           <Toolbar sx={{ justifyContent: 'space-between' }}>
             <IconButton size="large" edge="start" color="inherit" aria-label="menu" onClick={toggleDrawer(true)} sx={{ mr: 2 }}>
               <MenuIcon />
             </IconButton>
             <Typography
-              component={NavLink}
-              to="/"
+              component={NavLink} to="/"
               fontFamily="'Jersey 15', sans-serif"
               variant="h3"
               sx={{
@@ -111,14 +100,33 @@ export default function ButtonAppBar() {
                 transform: 'translateX(-50%)',
                 textAlign: 'center',
                 textDecoration: 'none',
-                color: 'inherit',
-              }}
-            >
+                color: 'inherit'
+              }}>
               BlindB!ox
             </Typography>
-            <NavLink to="/Login" className="nav-link" style={{ textDecoration: 'none' }}>
-              <ButtonCus variant="button-1" width="60px"> Login </ButtonCus>
-            </NavLink>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <NavLink to="/cart" className="nav-link">
+                <Badge
+                  badgeContent={cartCount}
+                  sx={{
+                    '& .MuiBadge-dot': {
+                      backgroundColor: 'yellow',
+                    },
+                    '& .MuiBadge-colorSecondary': {
+                      backgroundColor: 'yellow',
+                      color: 'black',
+                      fontWeight:"bold"
+                    },
+                  }}
+                  color="secondary"
+                >
+                  <ShoppingCartOutlinedIcon sx={{ fontSize: 22, color: 'white' }} />
+                </Badge>
+              </NavLink>
+              <NavLink to="/Login" className="nav-link" style={{ textDecoration: 'none' }}>
+                <ButtonCus variant="button-1" width="60px"> Login </ButtonCus>
+              </NavLink>
+            </Box>
           </Toolbar>
         </AppBar>
 
