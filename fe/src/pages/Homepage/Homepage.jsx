@@ -316,7 +316,7 @@ export default function Home() {
 
         <Grid item xs={12} data-aos="fade-up">
 
-          <Typography fontFamily="'Jersey 15', sans-serif" variant='h4' sx={{ mt: 5, textAlign: 'center', color: 'white' }}>
+          <Typography fontFamily="'Jersey 15', sans-serif" variant='h4' sx={{ mt: 2, ml: 10, textAlign: 'left', color: 'white' }}>
 
             🔥 Trending
 
@@ -398,7 +398,7 @@ export default function Home() {
 
           {/* 🆕 New Launch Section */}
 
-          <Typography fontFamily="'Jersey 15', sans-serif" variant="h4" sx={{ mt: 15, textAlign: 'center', color: 'white' }}>
+          <Typography fontFamily="'Jersey 15', sans-serif" variant="h4" sx={{ mt: 8, ml: 10, textAlign: 'left', color: 'white' }}>
 
             🆕 New Launch
 
@@ -449,14 +449,32 @@ export default function Home() {
             </IconButton>
 
           </Box>
-
-
-
         </Grid>
-
       </Grid>
 
-
+      <Grid container sx={{ mt: -20, mb: -20 }}>
+        <Grid item xs={6} style={{ display: 'flex', height: '100vh', padding: '0 5px', alignItems: 'center', justifyContent: 'flex-end' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', padding: '20px' }}>
+            <GlassCard style={{ padding: '60px', width: '100%', maxWidth: '500px', height: '300px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', margin: '0 auto' }}>
+              <Typography fontFamily="'Jersey 15', sans-serif" variant='h4' textAlign='left' sx={{ mb: 4, ...yellowGlowAnimation, width: '100%', color: 'white', marginTop: '15px' }}>
+                BlindBox Exchange:<br /> Trade & Collect with Confidence
+              </Typography>
+              <Typography variant="subtitle1" color='white' textAlign='left' sx={{ width: '100%' }}>
+                Our Trade & Sell Blindbox Platform enables users to buy, sell, and trade blind boxes through a secure marketplace with fixed-price sales,
+                auctions, and direct swaps. Sellers can list sealed or opened items with detailed descriptions, while buyers can pay via credit cards, PayPal,
+                crypto, or platform credits.
+              </Typography>
+              <Typography color='white' sx={{ ...yellowGlowAnimation, textAlign: 'center', width: '100%', marginTop: '10px' }} variant="h4" fontFamily="'Jersey 15', sans-serif">
+                *****************
+              </Typography>
+              <ButtonCus variant="button-22" width="150px"> Trade Now </ButtonCus>
+            </GlassCard>
+          </Box>
+        </Grid>
+        <Grid item xs={6} style={{ display: 'flex', height: '100vh', padding: '0 90px', alignItems: 'center', justifyContent: 'flex-start' }}>
+          <img src="/assets/bill-cypher/giphy.gif" alt="Bill Cypher GIF" style={{ maxWidth: '100%', height: 'auto', marginLeft: 'auto' }} />
+        </Grid>
+      </Grid>
       <Footer />
 
     </>

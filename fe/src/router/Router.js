@@ -17,6 +17,7 @@ import Dashboard from '../pages/Admin/Dashboard';
 import CustomPage from '../pages/Custom/CustomPage';
 import CartPage from '../pages/Shoppingcart/CartPage';
 
+import ProfilePage from '../pages/ProfilePage/ProfilePage';
 
 const Layout = ({ children, showHeader = true }) => {
   return (
@@ -60,11 +61,11 @@ export const routes = createBrowserRouter([
     path: '/login/oauth',
     element: (
       <AuthCallback />
-  ),
-},
+    ),
+  },
 
   {
-    path: '/Dashboard',
+    path: '/dashboard',
     element: (
       <Layout showHeader={true} >
         <ProtectedRoute requiredRole={0}>
@@ -74,16 +75,16 @@ export const routes = createBrowserRouter([
     ),
   },
   {
-    path: '/Custom',
+    path: '/custom-accessories',
     element: (
       <Layout showHeader={true} >
         <ProtectedRoute requiredRole={1}>
-          <CustomPage/>
+          <CustomPage />
         </ProtectedRoute>
       </Layout>
     ),
   },
-  {       
+  {
     path: '/Collection-page',
     element: (
       <Layout showHeader={true}>
@@ -112,6 +113,14 @@ export const routes = createBrowserRouter([
     element: (
       <Layout showHeader={false} >
         <NotFoundPage />
+      </Layout>
+    ),
+  },
+  {
+    path: "/profile",
+    element: (
+      <Layout showHeader={true} >
+        <ProfilePage />
       </Layout>
     ),
   },
