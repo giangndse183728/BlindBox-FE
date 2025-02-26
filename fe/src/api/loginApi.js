@@ -28,8 +28,6 @@ export const signup = async (userData) => {
             phoneNumber: userData.phoneNumber
         });
 
-        const accessToken = response.data.result.accessToken;
-        localStorage.setItem('token', accessToken);
         return true;
 
     } catch (error) {
@@ -48,9 +46,7 @@ export const fetchUserData = async () => {
         const userData = userResponse.data.result;
         
         // Store user details in localStorage
-        localStorage.setItem('userName', userData.userName);
-        localStorage.setItem('email', userData.email);
-        localStorage.setItem('role', userData.role);
+        localStorage.setItem("user", JSON.stringify({ name: userData.userName, email: userData.email }));
         
         return userData;
         
