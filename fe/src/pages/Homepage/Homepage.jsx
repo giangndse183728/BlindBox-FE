@@ -499,7 +499,7 @@ export default function Home() {
         </Grid>
       </Grid>
 
-      <Grid container sx={{ mt: -20, mb: -20 }}>
+      <Grid container sx={{}}>
         <Grid item xs={6} style={{ display: 'flex', height: '100vh', padding: '0 5px', alignItems: 'center', justifyContent: 'flex-end' }}>
           <Box sx={{ display: 'flex', justifyContent: 'center', padding: '20px' }}>
             <GlassCard style={{ padding: '60px', width: '100%', maxWidth: '500px', height: '300px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', margin: '0 auto' }}>
