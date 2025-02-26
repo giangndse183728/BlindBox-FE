@@ -5,7 +5,7 @@ import { fetchUserData, updateUserData } from "../../api/profileApi";
 import { useNavigate } from 'react-router-dom';
 import GlassCard from "../../components/Decor/GlassCard";
 import EditIcon from '@mui/icons-material/Edit';
-import '@fontsource/jersey-15';
+
 import { yellowGlowAnimation } from '../../components/Text/YellowEffect';
 
 const ProfilePage = () => {
