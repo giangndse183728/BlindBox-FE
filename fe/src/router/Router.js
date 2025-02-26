@@ -103,7 +103,7 @@ export const routes = createBrowserRouter([
   {
     path: '/cart',
     element: (
-      <Layout showHeader={false}>
+      <Layout showHeader={true}>
         <CartPage/>
       </Layout>
     ),

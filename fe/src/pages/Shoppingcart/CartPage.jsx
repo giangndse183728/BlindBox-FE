@@ -14,12 +14,12 @@ const CartPage = () => {
     }
   };
 
-    useEffect(() => {
-      window.scrollTo(0, 0);
-    }, []);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   return (
-    <Box sx={{ p: 4, bgcolor: "#f9f8f7", minHeight: "100vh", color: "white", backgroundImage: "url(/assets/background.jpeg)", backgroundSize: "cover", backgroundPosition: "center" }}>
+    <Box sx={{ p: 4, bgcolor: "#f9f8f7", minHeight: "100vh", color: "white", backgroundImage: "url(/assets/background.jpeg)", backgroundSize: "cover", backgroundPosition: "center", paddingTop: 15, }}>
       <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
         <Typography variant="h4" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white", fontSize: '4rem' }}>Shopping Cart</Typography>
       </Box>
@@ -32,7 +32,7 @@ const CartPage = () => {
               width: "30%",
               height: "30%",
               display: "block",
-              paddingTop:80,
+              paddingTop: 15,
               margin: "0 auto",
             }}
           />
@@ -41,7 +41,7 @@ const CartPage = () => {
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
             <Link to="/Collection-page" style={{ textDecoration: "none" }}>
               <Button
-                variant="outlined" // Use outlined variant for border
+                variant="outlined"
                 sx={{
                   color: "white",
                   border: "2px solid white",
@@ -49,60 +49,87 @@ const CartPage = () => {
                   "&:hover": { bgcolor: "yellow", color: "black" },
                 }}
               >
-                Back to Collection
+                MAGIC!!!!!
               </Button>
             </Link>
           </Box>
         </Box>
       ) : (
-        <>
-          <Grid container spacing={2} sx={{ borderBottom: '1px solid #ccc', pb: 2 }}>
-            <Grid item xs={6}><Typography variant="h6" sx={{ color: "white" }}>Product</Typography></Grid>
-            <Grid item xs={2}><Typography variant="h6" sx={{ color: "white" }}>Unit Price</Typography></Grid>
-            <Grid item xs={2}><Typography variant="h6" sx={{ color: "white" }}>Quantity</Typography></Grid>
-            <Grid item xs={2}><Typography variant="h6" sx={{ color: "white" }}>Actions</Typography></Grid>
-          </Grid>
-
-          {cart.map((item) => (
-            <Grid container spacing={2} key={item.id} sx={{ alignItems: 'center', borderBottom: '1px solid #ccc', py: 2 }}>
-              <Grid item xs={6} sx={{ display: 'flex', alignItems: 'center' }}>
-                <img
-                  src={item.img}
-                  alt={item.name}
-                  style={{ width: 80, height: 80, borderRadius: '10px', marginRight: '16px' }}
-                />
-                <Typography sx={{ color: "white" }}>{item.name}</Typography>
-              </Grid>
-              <Grid item xs={2}>
-                <Typography sx={{ color: "white" }}>${item.price.toFixed(2)}</Typography>
-              </Grid>
-              <Grid item xs={2} sx={{ display: 'flex', alignItems: 'center' }}>
-                <Button
-                  onClick={() => handleQuantityChange(item, item.quantity - 1)}
-                  disabled={item.quantity <= 1}
-                  sx={{ minWidth: "40px", color: "white" }}
-                >
-                  -
-                </Button>
-                <Typography sx={{ mx: 2, color: "white" }}>{item.quantity}</Typography>
-                <Button
-                  onClick={() => handleQuantityChange(item, item.quantity + 1)}
-                  sx={{ minWidth: "40px", color: "white" }}
-                >
-                  +
-                </Button>
-              </Grid>
-              <Grid item xs={2}>
-                <Button onClick={() => removeFromCart(item.id)} variant="contained" color="error">Delete</Button>
-              </Grid>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Box sx={{ flex: 2 }}>
+            <Grid container spacing={2} sx={{ borderBottom: '1px solid #ccc', pb: 2 }}>
+              <Grid item xs={6}><Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white", fontSize: '2rem' }}>Product</Typography></Grid>
+              <Grid item xs={2}><Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white", fontSize: '2rem' }}>Unit Price</Typography></Grid>
+              <Grid item xs={2}><Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white", fontSize: '2rem' }}>Quantity</Typography></Grid>
+              <Grid item xs={2}><Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white", fontSize: '2rem' }}>Actions</Typography></Grid>
             </Grid>
-          ))}
 
-          <Box sx={{ mt: 4, p: 3, borderRadius: 1, boxShadow: 1 }}>
-            <Typography variant="h5" sx={{ color: "white" }}>Total Price: ${totalPrice.toFixed(2)}</Typography>
-            <Button variant="contained" onClick={clearCart} sx={{ mt: 2 }}>Clear Cart</Button>
+            {cart.map((item) => (
+              <Grid container spacing={2} key={item.id} sx={{ alignItems: 'center', borderBottom: '1px solid #ccc', py: 2 }}>
+                <Grid item xs={6} sx={{ display: 'flex', alignItems: 'center' }}>
+                  <img
+                    src={item.img}
+                    alt={item.name}
+                    style={{ width: 80, height: 80, borderRadius: '10px', marginRight: '16px' }}
+                  />
+                  <Typography sx={{ color: "white" }}>{item.name}</Typography>
+                </Grid>
+                <Grid item xs={2}>
+                  <Typography sx={{ color: "white" }}>${item.price.toFixed(2)}</Typography>
+                </Grid>
+                <Grid item xs={2} sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Button
+                    onClick={() => handleQuantityChange(item, item.quantity - 1)}
+                    disabled={item.quantity <= 1}
+                    sx={{ minWidth: "40px", color: "white" }}
+                  >
+                    -
+                  </Button>
+                  <Typography sx={{ mx: 2, color: "white" }}>{item.quantity}</Typography>
+                  <Button
+                    onClick={() => handleQuantityChange(item, item.quantity + 1)}
+                    sx={{ minWidth: "40px", color: "white" }}
+                  >
+                    +
+                  </Button>
+                </Grid>
+                <Grid item xs={2}>
+                  <Button
+                    onClick={() => removeFromCart(item.id)}
+                    variant="contained" color="error"
+                    sx={{
+                      "&:hover": { bgcolor: "darkred", color: "white" },
+                    }}>
+                    Delete
+                  </Button>
+                </Grid>
+              </Grid>
+            ))}
+
+            <Box sx={{ mt: 4, p: 3, borderRadius: 1, boxShadow: 1 }}>
+              <Button variant="contained" onClick={clearCart} sx={{ mt: 2 }}>Clear Cart</Button>
+            </Box>
           </Box>
-        </>
+
+          {cart.length > 0 && (
+            <Box sx={{ flex: 1, ml: 4, p: 3, borderRadius: 1, boxShadow: 1, textAlign: "center", alignSelf: "flex-start", border: "2px solid white", }}>
+              <Typography variant="h5">Checkout</Typography>
+              <Typography>Total: ${totalPrice.toFixed(2)}</Typography>
+              <Button
+                variant="contained"
+                color="primary"
+                sx={{
+                  color: "white",
+                  border: "2px solid white",
+                  backgroundColor: "transparent",
+                  "&:hover": { bgcolor: "yellow", color: "black" },
+                }}
+              >
+                Proceed to Checkout
+              </Button>
+            </Box>
+          )}
+        </Box>
       )}
     </Box>
   );
