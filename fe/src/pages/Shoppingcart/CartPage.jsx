@@ -19,7 +19,7 @@ const CartPage = () => {
   }, []);
 
   return (
-    <Box sx={{ p: 4, bgcolor: "#f9f8f7", minHeight: "100vh", color: "white", backgroundImage: "url(/assets/background.jpeg)", backgroundSize: "cover", backgroundPosition: "center", paddingTop: 15, }}>
+    <Box sx={{ p: 4, bgcolor: "#f9f8f7", minHeight: "100vh", color: "white", backgroundImage: "url(/assets/background.jpeg)", backgroundSize: "cover", backgroundPosition: "center", paddingTop: 10, }}>
       <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
         <Typography variant="h4" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white", fontSize: '4rem' }}>Shopping Cart</Typography>
       </Box>
