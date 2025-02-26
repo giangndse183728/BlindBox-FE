@@ -4,12 +4,10 @@ import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
 import { Grid, ToggleButton, Divider } from '@mui/material';
 import Typography from '@mui/material/Typography';
-import { GoogleOAuthProvider } from "@react-oauth/google";
 import GoogleSignInButton from '../../components/Button/GoogleButton';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
@@ -19,9 +17,9 @@ import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { login, signup, fetchUserData } from '../../api/loginApi';
 import { useNavigate, NavLink } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const LazyThreeScene = lazy(() => import('./ThreeScene'));
-const clientId = "134657875841-u4mhsp6stglrfmlnvu7tji2qcpger4lo.apps.googleusercontent.com";
 
 const tabItems = [
     {
@@ -119,7 +117,6 @@ const validationSchemas = {
             .email('Invalid email address')
             .required('Required'),
         password: Yup.string()
-            .min(8, 'Password must be at least 8 characters')
             .required('Required'),
     }),
     sign: Yup.object({
@@ -196,8 +193,8 @@ export default function Login() {
                 };
                 try {
                     await signup(userData);
-                    await fetchUserData();
-                    navigate('/');
+                    setSelectedTab('login');
+                    toast.success('Sign up successful. Please log in.');
                 } catch (signupError) {
                     if (signupError.response?.data) {
                         const errorData = signupError.response.data;
@@ -210,10 +207,10 @@ export default function Login() {
                                 setFieldError('username', errorData.errors.userName.msg);
                             }
                         } else if (errorData.message) {
-                            setFieldError('email', errorData.message); // use toastify here
+                            toast.error(`${errorData.message}. Please try again.`);
                         }
                     } else {
-                        setFieldError('email', signupError.message || 'Failed to sign up. Please try again.'); // use toastify here
+                        toast.error('Failed to sign up. Please try again.');
                     }
                     return;
                 }
@@ -221,7 +218,7 @@ export default function Login() {
         } catch (error) {
 
             if (selectedTab === 'login') {
-                setFieldError('password', 'Invalid email or password'); // use toastify here
+                toast.error('Failed to login. Please try again.');
             } else {
                 setFieldError('email', 'Registration failed. Please try again.'); // use toastify here
             }
