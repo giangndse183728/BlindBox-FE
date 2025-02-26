@@ -15,7 +15,7 @@ import NotFoundPage from '../pages/Error404/NotFoundPage';
 import Dashboard from '../pages/Admin/Dashboard';
 //User
 import CustomPage from '../pages/Custom/CustomPage';
-import ProfilePage from '../pages/ProfilePage/profilePage';
+import ProfilePage from '../pages/ProfilePage/ProfilePage';
 //Seller
 import SubscriptionPage from '../pages/SubscriptionPage/SubscriptionPage';
 
