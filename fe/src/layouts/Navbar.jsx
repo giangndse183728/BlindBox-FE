@@ -1,38 +1,45 @@
-import * as React from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "../pages/Shoppingcart/CartContext";
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import Drawer from '@mui/material/Drawer';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemText from '@mui/material/ListItemText';
-import Divider from '@mui/material/Divider';
-import Badge from '@mui/material/Badge';
-import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
-import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
-import HomeIcon from '@mui/icons-material/Home';
-import CollectionsOutlinedIcon from '@mui/icons-material/CollectionsOutlined';
-import CollectionsIcon from '@mui/icons-material/Collections';
-import ChangeCircleOutlinedIcon from '@mui/icons-material/ChangeCircleOutlined';
-import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
-import BackpackOutlinedIcon from '@mui/icons-material/BackpackOutlined';
-import BackpackIcon from '@mui/icons-material/Backpack';
-import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import DesignServicesOutlinedIcon from '@mui/icons-material/DesignServicesOutlined';
-import DesignServicesIcon from '@mui/icons-material/DesignServices';
-import MonetizationOnOutlinedIcon from '@mui/icons-material/MonetizationOnOutlined';
-import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
-import ReceiptOutlinedIcon from '@mui/icons-material/ReceiptOutlined';
-import ReceiptIcon from '@mui/icons-material/Receipt';
-import ButtonCus from '../components/Button/ButtonCus';
+import {
+  AppBar,
+  Box,
+  Toolbar,
+  Avatar,
+  Popover,
+  MenuItem,
+  Typography,
+  Button,
+  IconButton,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Divider,
+  Badge,
+} from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
+import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
+import ButtonCus from "../components/Button/ButtonCus";
+import {
+  HomeOutlined as HomeOutlinedIcon,
+  Home as HomeIcon,
+  CollectionsOutlined as CollectionsOutlinedIcon,
+  Collections as CollectionsIcon,
+  ChangeCircleOutlined as ChangeCircleOutlinedIcon,
+  ChangeCircle as ChangeCircleIcon,
+  BackpackOutlined as BackpackOutlinedIcon,
+  Backpack as BackpackIcon,
+  AccountCircleOutlined as AccountCircleOutlinedIcon,
+  AccountCircle as AccountCircleIcon,
+  DesignServicesOutlined as DesignServicesOutlinedIcon,
+  DesignServices as DesignServicesIcon,
+  MonetizationOnOutlined as MonetizationOnOutlinedIcon,
+  MonetizationOn as MonetizationOnIcon,
+  ReceiptOutlined as ReceiptOutlinedIcon,
+  Receipt as ReceiptIcon,
+} from "@mui/icons-material";
 
 const menuItems = [
   { text: 'Home', path: '/', icon: HomeOutlinedIcon, activeIcon: HomeIcon },
@@ -50,9 +57,44 @@ export default function ButtonAppBar() {
   const [showNavbar, setShowNavbar] = React.useState(false);
   const location = useLocation();
   const [hovered, setHovered] = React.useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const navigate = useNavigate();
+  
   const { cart } = useCart() || { cart: [] };
   const cartCount = cart.length || 0;
 
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const storedUser = JSON.parse(localStorage.getItem("user")) || {};
+  const nameUser = storedUser.name || "Guest";
+  const email = storedUser.email || "";
+  const image = storedUser.image || "";  
+ 
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      setIsAuthenticated(true);
+    }
+    
+  }, []);
+
+
+  const handleOpen = (event) => {
+    setAnchorEl(event.currentTarget); // Set anchorEl correctly
+  };
+  
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  
+  const handleLogout = () => {
+    // Clear all localStorage
+    setIsAuthenticated(false);
+    handleClose() ;
+    localStorage.clear();
+    navigate('/');
+  };
+  
   const toggleDrawer = (open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
       return;
@@ -123,12 +165,48 @@ export default function ButtonAppBar() {
                   <ShoppingCartOutlinedIcon sx={{ fontSize: 22, color: 'white' }} />
                 </Badge>
               </NavLink>
-              <NavLink to="/Login" className="nav-link" style={{ textDecoration: 'none' }}>
-                <ButtonCus variant="button-1" width="60px"> Login </ButtonCus>
+              {isAuthenticated ? (
+              <IconButton onClick={handleOpen}>
+                <Avatar src={image} alt={nameUser}>{nameUser.charAt(0)}</Avatar>
+              </IconButton>
+            ) : (
+              <NavLink to="/Login">
+                <ButtonCus variant="button-1" width="60px">Login</ButtonCus>
               </NavLink>
+            )}
             </Box>
           </Toolbar>
         </AppBar>
+
+        <Popover
+        open={Boolean(anchorEl)}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
+        PaperProps={{
+          sx: {
+            bgcolor: "black", // Black background
+            color: "white", // White text
+            fontFamily: "'Jersey 15', sans-serif", // Apply custom font
+            borderRadius: 2, // Rounded corners
+            boxShadow: "0px 4px 20px rgba(255, 255, 255, 0.3)", // Soft glow effect
+            minWidth: 200, // Adjust width
+          },
+        }}
+      >
+        <Box sx={{ my: 1.5, px: 2 }}>
+        <Typography variant="subtitle2" noWrap sx={{ color: "white", fontFamily: "'Jersey 15', sans-serif" }}>
+         Welcome 👾
+    </Typography>
+    <Typography variant="body2" noWrap sx={{ color: "gray", fontFamily: "'Jersey 15', sans-serif" }}>
+    {nameUser}
+    </Typography>
+        </Box>
+        <Divider sx={{ bgcolor: "rgba(255,255,255,0.2)" }} /> 
+        <MenuItem onClick={handleLogout} sx={{ color: "error.main", fontFamily: "'Jersey 15', sans-serif" }}>Logout</MenuItem>
+      </Popover>
+
 
         {!showNavbar && (
           <AppBar
@@ -156,12 +234,20 @@ export default function ButtonAppBar() {
               <Typography color="black" fontFamily="Yusei Magic" variant="h4" component="div" sx={{ flexGrow: 1, textAlign: 'center' }}>
                 BlindB!ox
               </Typography>
-              <NavLink to="/Login" className="nav-link">
-                <Button sx={{ color: 'black' }}>Login</Button>
+              {isAuthenticated ? (
+              <IconButton onClick={handleOpen}>
+                <Avatar src={image} alt={nameUser}>{nameUser.charAt(0)}</Avatar>
+              </IconButton>
+            ) : (
+              <NavLink to="/Login">
+                <ButtonCus variant="button-1" width="60px">Login</ButtonCus>
               </NavLink>
+            )}
             </Toolbar>
           </AppBar>
         )}
+
+
 
         <Drawer
           anchor="left"

@@ -8,7 +8,19 @@ const REDIRECT_URI = process.env.REACT_APP_GOOGLE_REDIRECT_URI;
 const SCOPE = process.env.REACT_APP_GOOGLE_AUTH_SCOPE;
 
 const GoogleSignInButton = () => {
-    const googleAuthUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=${encodeURIComponent(SCOPE)}&access_type=offline&prompt=consent`;
+    const rootUrl = 'https://accounts.google.com/o/oauth2/v2/auth'
+    const options = {
+        redirect_uri: REDIRECT_URI,
+        client_id: CLIENT_ID,
+        access_type: 'offline',
+        response_type: 'code',
+        prompt: 'consent',
+        scope: [
+            'https://www.googleapis.com/auth/userinfo.profile',
+            'https://www.googleapis.com/auth/userinfo.email'
+          ].join(' ')
+    }
+    const googleAuthUrl = `${rootUrl}?${new URLSearchParams(options).toString()}`;
 
     const handleGoogleLogin = (e) => {
         e.preventDefault();

@@ -428,18 +428,6 @@ export default function Home() {
 
                             observeParents={true}
 
-                            onSwiper={(swiper) => {
-
-                                setTimeout(() => {
-
-                                    swiper.navigation.init();
-
-                                    swiper.navigation.update();
-
-                                }, 100);
-
-                            }}
-
                         >
 
                             {products.map((product, index) => (
@@ -506,15 +494,13 @@ export default function Home() {
                             <Typography fontFamily="'Jersey 15', sans-serif" variant='h4' textAlign='left' sx={{ mb: 4, ...yellowGlowAnimation, width: '100%', color: 'white', marginTop: '15px' }}>
                                 BlindBox Exchange:<br /> Trade & Collect with Confidence
                             </Typography>
-                            <Typography variant="subtitle1" color='white' textAlign='left' sx={{ width: '100%' }}>
+                            <Typography variant="subtitle1" color='white' textAlign='left' sx={{ width: '100%', marginBottom: '30px' }}>
                                 Our Trade & Sell Blindbox Platform enables users to buy, sell, and trade blind boxes through a secure marketplace with fixed-price sales,
                                 auctions, and direct swaps. Sellers can list sealed or opened items with detailed descriptions, while buyers can pay via credit cards, PayPal,
                                 crypto, or platform credits.
                             </Typography>
-                            <Typography color='white' sx={{ ...yellowGlowAnimation, textAlign: 'center', width: '100%', marginTop: '10px' }} variant="h4" fontFamily="'Jersey 15', sans-serif">
-                                *****************
-                            </Typography>
-                            <ButtonCus variant="button-22" width="150px"> Trade Now </ButtonCus>
+                          
+                            <ButtonCus variant="button-22" width="300px"> Trade Now </ButtonCus>
                         </GlassCard>
                     </Box>
                 </Grid>
