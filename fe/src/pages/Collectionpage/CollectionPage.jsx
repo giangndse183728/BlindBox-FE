@@ -225,7 +225,7 @@ const Collectionpage = () => {
                   checked={selectedType.includes(type)}
                   onChange={handleTypeChange}
                   value={type}
-                  sx={{ color: "white", "&.Mui-checked": { color: "white" }, }} />}
+                  sx={{ color: "white", "&.Mui-checked": { color: "yellow" }, }} />}
               label={type} />
           ))}
 
@@ -288,8 +288,8 @@ const Collectionpage = () => {
 
             {/* Right Side: Sort by + Select Box */}
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "flex-end", flexGrow: 1, gap: 2 }}>
-              <Typography sx={{ fontSize: '1.5rem', }}>Sort by:</Typography>
-              <FormControl sx={{ width: 200 }}>
+              <Typography sx={{ fontSize: '1.1rem', }}>Sort by:</Typography>
+              <FormControl sx={{ width: 120  }}>
                 <Select
                   defaultValue=""
                   onChange={(event) => sortProducts(event.target.value)}
