@@ -81,8 +81,6 @@ const ProfilePage = () => {
         }));
     };
 
-
-
     return (
         <div style={{
             position: 'relative',
@@ -114,7 +112,6 @@ const ProfilePage = () => {
                 flexDirection: "column",
                 alignItems: "center",
                 marginTop: '50px',
-
                 flex: 1,
                 minHeight: "calc(100vh - 80px)"
             }}>
@@ -135,9 +132,8 @@ const ProfilePage = () => {
                             top: '20px',
                             right: '20px',
                             display: 'flex',
-                            alignItems: 'center', 
-                            gap: '10px', 
-
+                            alignItems: 'center',
+                            gap: '10px',
                         }}
                     >
                         <Typography
@@ -150,21 +146,12 @@ const ProfilePage = () => {
                                 top: '30px',
                                 fontSize: '2rem',
                                 fontFamily: '"Jersey 15", sans-serif !important',
-
                             }}
-
                         >
                             *****************
                         </Typography>
-
                         <img src="/assets/gif/kirby-star.gif" alt="Kirby" style={{ width: '150px', height: 'auto' }} />
                     </Box>
-
-                    <div style={{ position: 'absolute', top: '20px', right: '20px' }}>
-
-                        <img src="/assets/gif/kirby-star.gif" alt="Kirby" style={{ width: '150px', height: 'auto' }} />
-
-                    </div>
                 </GlassCard>
 
                 {/* Profile Details Section */}
@@ -186,7 +173,6 @@ const ProfilePage = () => {
                             InputProps={{
                                 readOnly: !isEditing,
                                 style: { color: isEditing ? 'white' : 'rgba(255, 255, 255, 0.5)' },
-
                             }}
                             InputLabelProps={{ style: { color: isEditing ? 'white' : 'rgba(255, 255, 255, 0.5)' } }}
                             sx={{
@@ -246,7 +232,6 @@ const ProfilePage = () => {
                                 },
                                 '& .MuiInputLabel-root': {
                                     fontFamily: 'Yusei Magic',
-
                                 },
                             }}
                         />
@@ -375,8 +360,7 @@ const ProfilePage = () => {
                     </GlassCard>
                 </div>
             </div>
-            {/* 
-            <Footer style={{ flexShrink: 0, marginTop: 0, paddingTop: 0 }} /> */}
+            <Footer style={{ flexShrink: 0, marginTop: 0, paddingTop: 0 }} />
         </div>
     );
 };

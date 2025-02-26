@@ -16,6 +16,8 @@ import Dashboard from '../pages/Admin/Dashboard';
 //User
 import CustomPage from '../pages/Custom/CustomPage';
 import ProfilePage from '../pages/ProfilePage/profilePage';
+//Seller
+import SubscriptionPage from '../pages/SubscriptionPage/SubscriptionPage';
 
 const Layout = ({ children, showHeader = true }) => {
   return (
@@ -111,6 +113,14 @@ export const routes = createBrowserRouter([
     element: (
       <Layout showHeader={true} >
         <ProfilePage />
+      </Layout>
+    ),
+  },
+  {
+    path: "/subscription",
+    element: (
+      <Layout showHeader={true} >
+        <SubscriptionPage />
       </Layout>
     ),
   },
