@@ -129,7 +129,7 @@ const SubscriptionPage = () => {
                                         {plan.features.map((feature, i) => (
                                             <li key={i} style={{
                                                 display: 'flex', alignItems: 'center', marginBottom: '0.5rem',
-                                                minHeight: '30px'
+                                                minHeight: '30px', fontSize: '1rem',
                                             }}>
                                                 <img src="/assets/pixel-heart.png" alt="Star" style={{ marginRight: '8px', width: '16px', height: '16px' }} />
                                                 {feature}
@@ -149,26 +149,28 @@ const SubscriptionPage = () => {
                                 <Divider style={{ flex: 1, margin: '1rem 0', backgroundColor: 'rgba(255, 255, 255, 0.2)' }} />
                             </div>
                             <div style={{ textAlign: 'center', marginTop: 'auto' }}>
-                                <h2
-                                    style={{
+                                <Typography
+                                    variant="h2"
+                                    sx={{
                                         fontSize: '2.5rem',
                                         fontWeight: 450,
                                         marginBottom: '2rem',
                                         color: 'white',
                                         fontFamily: '"Jersey 15", sans-serif',
                                         textAlign: 'center',
-                                        ...yellowGlowAnimation,
+                                        ...yellowGlowAnimation, // Apply the glow effect
                                     }}
                                 >
                                     {plan.price}
-                                </h2>
+                                </Typography>
+
                                 <ButtonCus variant="button-22" width="300px">Join Now</ButtonCus>
                             </div>
                         </GlassCard>
                     </motion.div>
                 ))}
             </div>
-        </div>
+        </div >
     );
 };
 
