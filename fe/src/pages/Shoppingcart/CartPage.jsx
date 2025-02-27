@@ -19,7 +19,7 @@ const CartPage = () => {
   }, []);
 
   return (
-    <Box sx={{ p: 4, bgcolor: "#f9f8f7", minHeight: "100vh", color: "white", backgroundImage: "url(/assets/background.jpeg)", backgroundSize: "cover", backgroundPosition: "center", paddingTop: 10, }}>
+    <Box sx={{ p: 4, bgcolor: "#f9f8f7", minHeight: "100vh", color: "white", backgroundImage: "url(/assets/background.jpeg)", backgroundSize: "cover", backgroundPosition: "center", paddingTop: 10 }}>
       <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
         <Typography variant="h4" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white", fontSize: '4rem' }}>Shopping Cart</Typography>
       </Box>
@@ -57,6 +57,14 @@ const CartPage = () => {
       ) : (
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
           <Box sx={{ flex: 2 }}>
+            <Link to="/Collection-page" style={{ textDecoration: "none" }}>
+              <Button
+                variant="contained"
+                sx={{ position: "absolute", top: 110, right: 15, bgcolor: "black", color: "white", "&:hover": { bgcolor: "yellow", color: "black" } }}
+              >
+                Back to Collection
+              </Button>
+            </Link>
             <Grid container spacing={2} sx={{ borderBottom: '1px solid #ccc', pb: 2 }}>
               <Grid item xs={6}><Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white", fontSize: '2rem' }}>Product</Typography></Grid>
               <Grid item xs={2}><Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white", fontSize: '2rem' }}>Unit Price</Typography></Grid>
@@ -67,12 +75,14 @@ const CartPage = () => {
             {cart.map((item) => (
               <Grid container spacing={2} key={item.id} sx={{ alignItems: 'center', borderBottom: '1px solid #ccc', py: 2 }}>
                 <Grid item xs={6} sx={{ display: 'flex', alignItems: 'center' }}>
-                  <img
-                    src={item.img}
-                    alt={item.name}
-                    style={{ width: 80, height: 80, borderRadius: '10px', marginRight: '16px' }}
-                  />
-                  <Typography sx={{ color: "white" }}>{item.name}</Typography>
+                  <Link to={`/product/${item.id}`} style={{ textDecoration: "none", display: "flex", alignItems: "center" }}>
+                    <img
+                      src={item.img}
+                      alt={item.name}
+                      style={{ width: 80, height: 80, borderRadius: '10px', marginRight: '16px', cursor: "pointer" }}
+                    />
+                    <Typography sx={{ color: "white", cursor: "pointer" }}>{item.name}</Typography>
+                  </Link>
                 </Grid>
                 <Grid item xs={2}>
                   <Typography sx={{ color: "white" }}>${item.price.toFixed(2)}</Typography>
@@ -106,13 +116,26 @@ const CartPage = () => {
               </Grid>
             ))}
 
-            <Box sx={{ mt: 4, p: 3, borderRadius: 1, boxShadow: 1 }}>
-              <Button variant="contained" onClick={clearCart} sx={{ mt: 2 }}>Clear Cart</Button>
+            <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+              <Button
+                variant="contained"
+                sx={{
+                  bgcolor: "black",
+                  color: "white",
+                  "&:hover": { bgcolor: "red", color: "white" },
+                  borderRadius: 1,
+                  border: "0.5px solid white",
+                  width: "200px", // Set a specific width for consistency
+                }}
+                onClick={clearCart}
+              >
+                Clear Cart !!
+              </Button>
             </Box>
           </Box>
 
           {cart.length > 0 && (
-            <Box sx={{ flex: 1, ml: 4, p: 3, borderRadius: 1, boxShadow: 1, textAlign: "center", alignSelf: "flex-start", border: "2px solid white", }}>
+            <Box sx={{ flex: 1, ml: 4, p: 3, borderRadius: 1, boxShadow: 1, textAlign: "center", alignSelf: "flex-start", border: "0.5px solid white", }}>
               <Typography variant="h5">Checkout</Typography>
               <Typography>Total: ${totalPrice.toFixed(2)}</Typography>
               <Button
