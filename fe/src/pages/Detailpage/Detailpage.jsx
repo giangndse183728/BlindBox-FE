@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Box, Typography, Button, Grid } from "@mui/material";
 import ProductNotFound from "./ProductNotFound";  
-import { useCart } from '../Shoppingcart/CartContext'; 
+import useCartStore from '../Shoppingcart/CartStore'; 
 
 const products = [
   { id: 1, name: "Anime Blind Box", img: "/assets/blindbox1.png", price: 2999.99, brand: "Pop Mart", description: "A surprise anime-themed blind box with exclusive figurines." },
@@ -12,7 +12,7 @@ const products = [
 
 const Detailpage = () => {
   const { id } = useParams();
-  const { addToCart } = useCart(); 
+  const { cart, addToCart } = useCartStore(); 
   const product = products.find((p) => p.id === parseInt(id));
   const [quantity, setQuantity] = useState(1);
 
@@ -29,7 +29,7 @@ const Detailpage = () => {
   };
 
   return (
-    <Box sx={{ bgcolor: "#666", minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center", backgroundImage: "url(/assets/background.jpeg)", backgroundSize: "cover", backgroundPosition: "center", }}>
+    <Box sx={{ bgcolor: "#666", minHeight: "100vh", overflow: 'hidden', display: "flex", justifyContent: "center", alignItems: "center", backgroundImage: "url(/assets/background.jpeg)", backgroundSize: "cover", backgroundPosition: "center", }}>
       <Box sx={{ position: "relative", p: 4, borderRadius: 4, width: 1400, height: 525, boxShadow: 3, top: 30 }}>
         
         <Link to="/Collection-page" style={{ textDecoration: "none" }}>
