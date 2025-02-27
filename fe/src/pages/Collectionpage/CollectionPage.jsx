@@ -10,7 +10,7 @@ import { GiCardboardBoxClosed } from "react-icons/gi";
 
 const Collectionpage = () => {
 
-  const [products, setProducts] = useState([
+  const [products] = useState([
     { id: 1, name: "Anime Blind Box", img: "/assets/blindbox1.png", price: 2999.99, brand: "Pop Mart", type: "Unbox", rating: 4.5 },
     { id: 2, name: "Superhero Surprise Pack", img: "/assets/blindbox1.png", price: 2500, brand: "My Kingdom", type: "Seal", rating: 4 },
     { id: 3, name: "Kawaii Collectibles", img: "/assets/blindbox1.png", price: 3200, brand: "Tokidoki", type: "Unbox", rating: 3 },
@@ -50,10 +50,8 @@ const Collectionpage = () => {
         .filter((product) => selectedBrand.length === 0 || selectedBrand.includes(product.brand))
         .filter((product) => selectedType.length === 0 || selectedType.includes(product.type))
         .filter((product) => selectedRating === 0 || product.rating >= selectedRating);
-      
       setFilteredProducts(filtered);
     };
-
     applyFilters();
   }, [products, appliedPriceRange, selectedBrand, selectedType, selectedRating]);
 

@@ -1,29 +1,158 @@
-import React from 'react';
+import React, { useEffect } from "react";
 import { useCart } from "./CartContext";
+import { Link } from "react-router-dom";
 import { Box, Typography, Button, Grid } from "@mui/material";
+import { yellowGlowAnimation } from '../../components/Text/YellowEffect';
 
 const CartPage = () => {
-  const { cart, removeFromCart, clearCart } = useCart();
+  const { cart, removeFromCart, clearCart, addToCart } = useCart();
   const totalPrice = (cart || []).reduce((total, item) => total + item.price * item.quantity, 0);
 
+  const handleQuantityChange = (item, newQuantity) => {
+    if (newQuantity > 0) {
+      addToCart(item, newQuantity); // Update quantity directly
+    }
+  };
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
-    <Box sx={{ p: 4, bgcolor: "#666", minHeight: "100vh", color: "white" }}>
-      <Typography variant="h4" sx={{ mb: 3 }}>Shopping Cart</Typography>
+    <Box sx={{ p: 4, bgcolor: "#f9f8f7", minHeight: "100vh", color: "white", backgroundImage: "url(/assets/background.jpeg)", backgroundSize: "cover", backgroundPosition: "center", paddingTop: 10 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+        <Typography variant="h4" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white", fontSize: '4rem' }}>Shopping Cart</Typography>
+      </Box>
       {cart.length === 0 ? (
-        <Typography>Your cart is empty.</Typography>
+        <Box>
+          <img
+            src="/assets/gif/bill-cipher-Cartpage.gif"
+            alt="Collection Banner"
+            style={{
+              width: "30%",
+              height: "30%",
+              display: "block",
+              paddingTop: 15,
+              margin: "0 auto",
+            }}
+          />
+          <Typography fontFamily="'Jersey 15', sans-serif" sx={{ color: "white", textAlign: 'center', ...yellowGlowAnimation, fontSize: '4rem' }}>Your cart is empty!!</Typography>
+          <Typography fontFamily="'Jersey 15', sans-serif" sx={{ color: "white", textAlign: 'center', ...yellowGlowAnimation, fontSize: '2rem' }}>You can find what you seek with a click of a button</Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+            <Link to="/Collection-page" style={{ textDecoration: "none" }}>
+              <Button
+                variant="outlined"
+                sx={{
+                  color: "white",
+                  border: "2px solid white",
+                  backgroundColor: "transparent",
+                  "&:hover": { bgcolor: "yellow", color: "black" },
+                }}
+              >
+                MAGIC!!!!!
+              </Button>
+            </Link>
+          </Box>
+        </Box>
       ) : (
-        <>
-          <Grid container spacing={2}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Box sx={{ flex: 2 }}>
+            <Link to="/Collection-page" style={{ textDecoration: "none" }}>
+              <Button
+                variant="contained"
+                sx={{ position: "absolute", top: 110, right: 15, bgcolor: "black", color: "white", "&:hover": { bgcolor: "yellow", color: "black" } }}
+              >
+                Back to Collection
+              </Button>
+            </Link>
+            <Grid container spacing={2} sx={{ borderBottom: '1px solid #ccc', pb: 2 }}>
+              <Grid item xs={6}><Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white", fontSize: '2rem' }}>Product</Typography></Grid>
+              <Grid item xs={2}><Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white", fontSize: '2rem' }}>Unit Price</Typography></Grid>
+              <Grid item xs={2}><Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white", fontSize: '2rem' }}>Quantity</Typography></Grid>
+              <Grid item xs={2}><Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white", fontSize: '2rem' }}>Actions</Typography></Grid>
+            </Grid>
+
             {cart.map((item) => (
-              <Grid item xs={12} key={item.id}>
-                <Typography>{item.name} - ${item.price.toFixed(2)} x {item.quantity}</Typography>
-                <Button onClick={() => removeFromCart(item.id)} variant="contained" color="error">Remove</Button>
+              <Grid container spacing={2} key={item.id} sx={{ alignItems: 'center', borderBottom: '1px solid #ccc', py: 2 }}>
+                <Grid item xs={6} sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Link to={`/product/${item.id}`} style={{ textDecoration: "none", display: "flex", alignItems: "center" }}>
+                    <img
+                      src={item.img}
+                      alt={item.name}
+                      style={{ width: 80, height: 80, borderRadius: '10px', marginRight: '16px', cursor: "pointer" }}
+                    />
+                    <Typography sx={{ color: "white", cursor: "pointer" }}>{item.name}</Typography>
+                  </Link>
+                </Grid>
+                <Grid item xs={2}>
+                  <Typography sx={{ color: "white" }}>${item.price.toFixed(2)}</Typography>
+                </Grid>
+                <Grid item xs={2} sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Button
+                    onClick={() => handleQuantityChange(item, item.quantity - 1)}
+                    disabled={item.quantity <= 1}
+                    sx={{ minWidth: "40px", color: "white" }}
+                  >
+                    -
+                  </Button>
+                  <Typography sx={{ mx: 2, color: "white" }}>{item.quantity}</Typography>
+                  <Button
+                    onClick={() => handleQuantityChange(item, item.quantity + 1)}
+                    sx={{ minWidth: "40px", color: "white" }}
+                  >
+                    +
+                  </Button>
+                </Grid>
+                <Grid item xs={2}>
+                  <Button
+                    onClick={() => removeFromCart(item.id)}
+                    variant="contained" color="error"
+                    sx={{
+                      "&:hover": { bgcolor: "darkred", color: "white" },
+                    }}>
+                    Delete
+                  </Button>
+                </Grid>
               </Grid>
             ))}
-          </Grid>
-          <Typography variant="h5">Total: ${totalPrice.toFixed(2)}</Typography>
-          <Button variant="contained" onClick={clearCart}>Clear Cart</Button>
-        </>
+
+            <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+              <Button
+                variant="contained"
+                sx={{
+                  bgcolor: "black",
+                  color: "white",
+                  "&:hover": { bgcolor: "red", color: "white" },
+                  borderRadius: 1,
+                  border: "0.5px solid white",
+                  width: "200px", // Set a specific width for consistency
+                }}
+                onClick={clearCart}
+              >
+                Clear Cart !!
+              </Button>
+            </Box>
+          </Box>
+
+          {cart.length > 0 && (
+            <Box sx={{ flex: 1, ml: 4, p: 3, borderRadius: 1, boxShadow: 1, textAlign: "center", alignSelf: "flex-start", border: "0.5px solid white", }}>
+              <Typography variant="h5">Checkout</Typography>
+              <Typography>Total: ${totalPrice.toFixed(2)}</Typography>
+              <Button
+                variant="contained"
+                color="primary"
+                sx={{
+                  color: "white",
+                  border: "2px solid white",
+                  backgroundColor: "transparent",
+                  "&:hover": { bgcolor: "yellow", color: "black" },
+                }}
+              >
+                Proceed to Checkout
+              </Button>
+            </Box>
+          )}
+        </Box>
       )}
     </Box>
   );
