@@ -25,7 +25,8 @@
     "swiper": "^11.2.4",
     "three": "^0.173.0",
     "three-stdlib": "^2.35.13",
-    "yup": "^1.6.1"
+    "yup": "^1.6.1",
+    "zustand": "^5.0.3"
   },
   "scripts": {
     "start": "react-scripts start",

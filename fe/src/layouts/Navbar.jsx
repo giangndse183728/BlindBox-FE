@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { useCart } from "../pages/Shoppingcart/CartContext";
+import useCartStore from '../pages/Shoppingcart/CartStore';
 import {
   AppBar,
   Box,
@@ -59,42 +59,42 @@ export default function ButtonAppBar() {
   const [hovered, setHovered] = React.useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
-  
-  const { cart } = useCart() || { cart: [] };
+
+  const { cart, addToCart, removeFromCart } = useCartStore();
   const cartCount = cart.length || 0;
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const storedUser = JSON.parse(localStorage.getItem("user")) || {};
   const nameUser = storedUser.name || "Guest";
   const email = storedUser.email || "";
-  const image = storedUser.image || "";  
- 
+  const image = storedUser.image || "";
+
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
       setIsAuthenticated(true);
     }
-    
+
   }, []);
 
 
   const handleOpen = (event) => {
     setAnchorEl(event.currentTarget); // Set anchorEl correctly
   };
-  
+
   const handleClose = () => {
     setAnchorEl(null);
   };
-  
+
   const handleLogout = () => {
     // Clear all localStorage
     setIsAuthenticated(false);
-    handleClose() ;
+    handleClose();
     localStorage.clear();
     navigate('/');
   };
-  
+
   const toggleDrawer = (open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
       return;
@@ -146,7 +146,7 @@ export default function ButtonAppBar() {
               }}>
               BlindB!ox
             </Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
               <NavLink to="/cart" className="nav-link">
                 <Badge
                   badgeContent={cartCount}
@@ -157,7 +157,7 @@ export default function ButtonAppBar() {
                     '& .MuiBadge-colorSecondary': {
                       backgroundColor: 'yellow',
                       color: 'black',
-                      fontWeight:"bold"
+                      fontWeight: "bold"
                     },
                   }}
                   color="secondary"
@@ -166,46 +166,46 @@ export default function ButtonAppBar() {
                 </Badge>
               </NavLink>
               {isAuthenticated ? (
-              <IconButton onClick={handleOpen}>
-                <Avatar src={image} alt={nameUser}>{nameUser.charAt(0)}</Avatar>
-              </IconButton>
-            ) : (
-              <NavLink to="/Login">
-                <ButtonCus variant="button-1" width="60px">Login</ButtonCus>
-              </NavLink>
-            )}
+                <IconButton onClick={handleOpen}>
+                  <Avatar src={image} alt={nameUser}>{nameUser.charAt(0)}</Avatar>
+                </IconButton>
+              ) : (
+                <NavLink to="/Login">
+                  <ButtonCus variant="button-1" width="60px">Login</ButtonCus>
+                </NavLink>
+              )}
             </Box>
           </Toolbar>
         </AppBar>
 
         <Popover
-        open={Boolean(anchorEl)}
-        anchorEl={anchorEl}
-        onClose={handleClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        transformOrigin={{ vertical: "top", horizontal: "right" }}
-        PaperProps={{
-          sx: {
-            bgcolor: "black", // Black background
-            color: "white", // White text
-            fontFamily: "'Jersey 15', sans-serif", // Apply custom font
-            borderRadius: 2, // Rounded corners
-            boxShadow: "0px 4px 20px rgba(255, 255, 255, 0.3)", // Soft glow effect
-            minWidth: 200, // Adjust width
-          },
-        }}
-      >
-        <Box sx={{ my: 1.5, px: 2 }}>
-        <Typography variant="subtitle2" noWrap sx={{ color: "white", fontFamily: "'Jersey 15', sans-serif" }}>
-         Welcome 👾
-    </Typography>
-    <Typography variant="body2" noWrap sx={{ color: "gray", fontFamily: "'Jersey 15', sans-serif" }}>
-    {nameUser}
-    </Typography>
-        </Box>
-        <Divider sx={{ bgcolor: "rgba(255,255,255,0.2)" }} /> 
-        <MenuItem onClick={handleLogout} sx={{ color: "error.main", fontFamily: "'Jersey 15', sans-serif" }}>Logout</MenuItem>
-      </Popover>
+          open={Boolean(anchorEl)}
+          anchorEl={anchorEl}
+          onClose={handleClose}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          transformOrigin={{ vertical: "top", horizontal: "right" }}
+          PaperProps={{
+            sx: {
+              bgcolor: "black", // Black background
+              color: "white", // White text
+              fontFamily: "'Jersey 15', sans-serif", // Apply custom font
+              borderRadius: 2, // Rounded corners
+              boxShadow: "0px 4px 20px rgba(255, 255, 255, 0.3)", // Soft glow effect
+              minWidth: 200, // Adjust width
+            },
+          }}
+        >
+          <Box sx={{ my: 1.5, px: 2 }}>
+            <Typography variant="subtitle2" noWrap sx={{ color: "white", fontFamily: "'Jersey 15', sans-serif" }}>
+              Welcome 👾
+            </Typography>
+            <Typography variant="body2" noWrap sx={{ color: "gray", fontFamily: "'Jersey 15', sans-serif" }}>
+              {nameUser}
+            </Typography>
+          </Box>
+          <Divider sx={{ bgcolor: "rgba(255,255,255,0.2)" }} />
+          <MenuItem onClick={handleLogout} sx={{ color: "error.main", fontFamily: "'Jersey 15', sans-serif" }}>Logout</MenuItem>
+        </Popover>
 
 
         {!showNavbar && (
@@ -235,14 +235,14 @@ export default function ButtonAppBar() {
                 BlindB!ox
               </Typography>
               {isAuthenticated ? (
-              <IconButton onClick={handleOpen}>
-                <Avatar src={image} alt={nameUser}>{nameUser.charAt(0)}</Avatar>
-              </IconButton>
-            ) : (
-              <NavLink to="/Login">
-                <ButtonCus variant="button-1" width="60px">Login</ButtonCus>
-              </NavLink>
-            )}
+                <IconButton onClick={handleOpen}>
+                  <Avatar src={image} alt={nameUser}>{nameUser.charAt(0)}</Avatar>
+                </IconButton>
+              ) : (
+                <NavLink to="/Login" className="nav-link">
+                  <Button sx={{ color: 'black' }}>Login</Button>
+                </NavLink>
+              )}
             </Toolbar>
           </AppBar>
         )}
