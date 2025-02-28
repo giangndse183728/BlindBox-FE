@@ -1,17 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { Box, TextField, Button, Typography } from '@mui/material';
 import Footer from '../../layouts/Footer';
 import { fetchUserData, updateUserData } from "../../api/profileApi";
 import { useNavigate } from 'react-router-dom';
 import GlassCard from "../../components/Decor/GlassCard";
 import EditIcon from '@mui/icons-material/Edit';
-
+import LoadingScreen from '../../components/Loading/LoadingScreen';
 import { yellowGlowAnimation } from '../../components/Text/YellowEffect';
+
 
 const ProfilePage = () => {
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [editedUser, setEditedUser] = useState({});
@@ -25,7 +26,7 @@ const ProfilePage = () => {
 
     useEffect(() => {
         const getUser = async () => {
-            setLoading(true);
+            setIsLoading(true);
             try {
                 const userData = await fetchUserData();
                 if (!userData) {
@@ -36,20 +37,23 @@ const ProfilePage = () => {
             } catch (err) {
                 setError("Failed to fetch user data");
             } finally {
-                setLoading(false);
+                setIsLoading(false);
             }
         };
 
         getUser();
     }, []);
 
+
     useEffect(() => {
-        if (!loading && user === null) {
+        if (!isLoading && user === null) {
             navigate('/login', { replace: true });
         }
-    }, [loading, user, navigate]);
+    }, [isLoading, user, navigate]);
 
-    if (loading) return <p style={{ textAlign: "center", marginTop: "10px", fontFamily: 'Yusei Magic' }}>Loading...</p>;
+    if (isLoading) {
+        return <LoadingScreen />;
+    }
     if (error) return <p style={{ color: "red", textAlign: "center", marginTop: "10px", fontFamily: 'Yusei Magic' }}>{error}</p>;
 
     const handleEdit = () => {
@@ -58,7 +62,9 @@ const ProfilePage = () => {
     };
 
     const handleSave = async () => {
+
         try {
+
             if (JSON.stringify(user) === JSON.stringify(editedUser)) {
                 setIsEditing(false);
                 return;
@@ -82,6 +88,7 @@ const ProfilePage = () => {
     };
 
     return (
+
         <div style={{
             position: 'relative',
             overflow: 'hidden',
@@ -93,6 +100,7 @@ const ProfilePage = () => {
             justifyContent: 'space-between',
             fontFamily: 'Yusei Magic',
         }}>
+            {isLoading && <LoadingScreen />}
             <Box
                 sx={{
                     position: 'fixed',
@@ -107,6 +115,9 @@ const ProfilePage = () => {
                     zIndex: -2,
                 }}
             />
+            <Suspense fallback={<LoadingScreen />}>
+
+            </Suspense>
             <div style={{
                 display: "flex",
                 flexDirection: "column",
@@ -361,7 +372,9 @@ const ProfilePage = () => {
                 </div>
             </div>
             <Footer style={{ flexShrink: 0, marginTop: 0, paddingTop: 0 }} />
+
         </div>
+
     );
 };
 
