@@ -21,6 +21,7 @@ import ProfilePage from '../pages/ProfilePage/ProfilePage';
 import SubscriptionPage from '../pages/SubscriptionPage/SubscriptionPage';
 
 import CartPage from '../pages/Shoppingcart/CartPage';
+import Tradingpage from '../pages/Tradingpage/Trandingpage';
 
 
 
@@ -109,7 +110,7 @@ export const routes = createBrowserRouter([
     path: '/cart',
     element: (
       <Layout showHeader={true}>
-        <CartPage/>
+        <CartPage />
       </Layout>
     ),
   },
@@ -134,6 +135,14 @@ export const routes = createBrowserRouter([
     element: (
       <Layout showHeader={true} >
         <SubscriptionPage />
+      </Layout>
+    ),
+  },
+  {
+    path: "/trading",
+    element: (
+      <Layout showHeader={true} >
+        <Tradingpage />
       </Layout>
     ),
   },
