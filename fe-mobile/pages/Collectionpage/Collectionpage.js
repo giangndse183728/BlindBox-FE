@@ -43,7 +43,7 @@ const CollectionPage = () => {
         product.rating >= selectedRating
     );
     setFilteredProducts(filtered);
-    setShowFilters(false); // Close the modal after applying
+    setShowFilters(false); 
   };
 
   const renderProduct = ({ item }) => (
