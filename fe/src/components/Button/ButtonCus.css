@@ -290,5 +290,99 @@
   filter: hue-rotate(250deg);
 }
 
+.button-pixel {
+  font-size: 14px;
+  color: white;
+  position: relative;
+  background-color: #333;
+  border: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.1s ease;
+  box-shadow: 
+    inset -4px -4px 0px 0px #1f1f1f,
+    inset 4px 4px 0px 0px #555;
+}
+
+.button-pixel:hover {
+  background-color: #444;
+}
+
+.button-pixel:active {
+  box-shadow: 
+    inset 4px 4px 0px 0px #1f1f1f,
+    inset -4px -4px 0px 0px #555;
+}
+
+/* Alternative color variants */
+.button-pixel-red {
+  background-color: #e76e55;
+  box-shadow: 
+    inset -4px -4px 0px 0px #8c2022,
+    inset 4px 4px 0px 0px #ff9a8b;
+}
+
+.button-pixel-red:hover {
+  background-color: #f17f66;
+}
+
+.button-pixel-red:active {
+  box-shadow: 
+    inset 4px 4px 0px 0px #8c2022,
+    inset -4px -4px 0px 0px #ff9a8b;
+}
+
+.button-pixel-blue {
+  background-color: #209cee;
+  box-shadow: 
+    inset -4px -4px 0px 0px #006bb3,
+    inset 4px 4px 0px 0px #73c5ff;
+}
+
+.button-pixel-blue:hover {
+  background-color: #31a9f5;
+}
+
+.button-pixel-blue:active {
+  box-shadow: 
+    inset 4px 4px 0px 0px #006bb3,
+    inset -4px -4px 0px 0px #73c5ff;
+}
+
+.button-pixel-green {
+  background-color: #48c774;
+  box-shadow: 
+    inset -4px -4px 0px 0px #257942,
+    inset 4px 4px 0px 0px #85ffa7;
+}
+
+.button-pixel-green:hover {
+  background-color: #59d885;
+}
+
+.button-pixel-green:active {
+  box-shadow: 
+    inset 4px 4px 0px 0px #257942,
+    inset -4px -4px 0px 0px #85ffa7;
+}
+
+/* Add this after your other button-pixel variants */
+.button-pixel-yellow {
+  background-color: #ffd43b;
+  box-shadow: 
+    inset -4px -4px 0px 0px #b8860b,
+    inset 4px 4px 0px 0px #fff176;
+}
+
+.button-pixel-yellow:hover {
+  background-color: #ffe066;
+}
+
+.button-pixel-yellow:active {
+  box-shadow: 
+    inset 4px 4px 0px 0px #b8860b,
+    inset -4px -4px 0px 0px #fff176;
+}
+
 
 

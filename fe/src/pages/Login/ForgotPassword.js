@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Grid, Typography, Card, CardMedia, CardContent, Box, Paper, TextField, Link} from '@mui/material';
+import { Button, Grid, Typography, Box, Paper, TextField, Link} from '@mui/material';
 import Footer from '../../layouts/Footer';
 
 export default function ForgotPassword() {
