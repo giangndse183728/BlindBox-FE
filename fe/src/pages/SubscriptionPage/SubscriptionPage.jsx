@@ -65,13 +65,14 @@ const SubscriptionPage = () => {
                         textAlign: 'center',
                         pl: '1.5rem',
                         fontFamily: '"Jersey 15", sans-serif',
-                        textShadow: '0 0 10px rgba(255,255,0,0.7), 0 0 20px rgba(255,255,0,0.5), 0 0 30px rgba(255,255,0,0.3)',
+                        color: "white",
+                        // textShadow: '0 0 10px rgba(255,255,0,0.7), 0 0 20px rgba(255,255,0,0.5), 0 0 30px rgba(255,255,0,0.3)',
                     }}
                 >
                     Available Plans
                 </Typography>
 
-                <img src="/assets/gif/star.gif" alt="Kirby Umbrella" style={{ width: '50px', height: 'auto', marginLeft: '10px' }} />
+                <img src="/assets/gif/star.gif" alt="Stars" style={{ width: '50px', height: 'auto', marginLeft: '10px' }} />
             </div>
             <div style={{ display: 'flex', gap: '9rem', justifyContent: 'center', flexWrap: 'wrap', width: '100%' }}>
                 {plans.map((plan, index) => (
@@ -158,7 +159,7 @@ const SubscriptionPage = () => {
                                         color: 'white',
                                         fontFamily: '"Jersey 15", sans-serif',
                                         textAlign: 'center',
-                                        ...yellowGlowAnimation, // Apply the glow effect
+                                        ...yellowGlowAnimation,
                                     }}
                                 >
                                     {plan.price}
