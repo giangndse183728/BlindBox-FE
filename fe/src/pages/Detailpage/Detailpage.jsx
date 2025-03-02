@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Box, Typography, Button, Grid } from "@mui/material";
-import ProductNotFound from "./ProductNotFound";  
-import useCartStore from '../Shoppingcart/CartStore'; 
+import ProductNotFound from "./ProductNotFound";
+import useCartStore from '../Shoppingcart/CartStore';
+import ButtonCus from "../../components/Button/ButtonCus";
 
 const products = [
   { id: 1, name: "Anime Blind Box", img: "/assets/blindbox1.png", price: 2999.99, brand: "Pop Mart", description: "A surprise anime-themed blind box with exclusive figurines." },
@@ -12,7 +13,7 @@ const products = [
 
 const Detailpage = () => {
   const { id } = useParams();
-  const { cart, addToCart } = useCartStore(); 
+  const { cart, addToCart } = useCartStore();
   const product = products.find((p) => p.id === parseInt(id));
   const [quantity, setQuantity] = useState(1);
 
@@ -21,23 +22,25 @@ const Detailpage = () => {
   }, []);
 
   if (!product) {
-    return <ProductNotFound />;  
+    return <ProductNotFound />;
   }
 
   const handleAddToCart = () => {
-    addToCart(product, quantity); 
+    addToCart(product, quantity);
   };
 
   return (
     <Box sx={{ bgcolor: "#666", minHeight: "100vh", overflow: 'hidden', display: "flex", justifyContent: "center", alignItems: "center", backgroundImage: "url(/assets/background.jpeg)", backgroundSize: "cover", backgroundPosition: "center", }}>
       <Box sx={{ position: "relative", p: 4, borderRadius: 4, width: 1400, height: 525, boxShadow: 3, top: 30 }}>
-        
+
         <Link to="/Collection-page" style={{ textDecoration: "none" }}>
           <Button
             variant="contained"
             sx={{ position: "absolute", top: 10, right: 10, bgcolor: "black", color: "white", "&:hover": { bgcolor: "yellow", color: "black" } }}
           >
-            Back to Collection
+            <Typography fontFamily="'Jersey 15', sans-serif">
+              Back to Collection
+            </Typography>
           </Button>
         </Link>
 
@@ -70,13 +73,16 @@ const Detailpage = () => {
                 </Button>
               </Box>
             </Box>
-            <Button
-              variant="contained"
-              sx={{ mt: 3, bgcolor: "#ff4444", color: "white", "&:hover": { bgcolor: "#cc0000" } }}
-              onClick={handleAddToCart} 
+            <ButtonCus
+              variant="button-pixel-red"
+              width="20%"
+              height="40px"
+              onClick={handleAddToCart}
             >
-              Add to Cart
-            </Button>
+              <Typography variant="h5" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
+                Add to Cart
+              </Typography>
+            </ButtonCus>
           </Grid>
         </Grid>
       </Box>
