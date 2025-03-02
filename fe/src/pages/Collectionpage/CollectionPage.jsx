@@ -286,7 +286,7 @@ const Collectionpage = () => {
 
             {/* Right Side: Sort by + Select Box */}
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "flex-end", flexGrow: 1, gap: 2 }}>
-              <Typography sx={{ fontSize: '1.1rem', }}>Sort by:</Typography>
+              <Typography fontFamily="'Jersey 15', sans-serif" sx={{ fontSize: '1.5rem', }}>Sort by:</Typography>
               <FormControl sx={{ width: 120  }}>
                 <Select
                   defaultValue=""

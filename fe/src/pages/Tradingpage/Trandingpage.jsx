@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Typography, Box, Grid, Card, CardContent, CardMedia, Fab, Modal, TextField, IconButton } from "@mui/material";
+import { Typography, Box, Grid, Card, CardContent, CardMedia, Fab, Modal, TextField, IconButton, } from "@mui/material";
 import { Add, PhotoCamera } from "@mui/icons-material";
 import ButtonCus from "../../components/Button/ButtonCus";
 
@@ -78,6 +78,15 @@ const TradingPage = () => {
         setImagePreview("");
     };
 
+    const [sortOrder, setSortOrder] = useState("recent");
+    const sortedPosts = [...tradePosts].sort((a, b) => {
+        if (sortOrder === "recent") {
+            return new Date(b.createdAt) - new Date(a.createdAt); // Sort by recent
+        } else {
+            return new Date(a.createdAt) - new Date(b.createdAt); // Sort by oldest
+        }
+    });
+
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
@@ -111,8 +120,33 @@ const TradingPage = () => {
                     Trading Center
                 </Typography>
             </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+                <ButtonCus
+                    variant="button-pixel-yellow"
+                    width="100%"
+                    height="40px"
+                    onClick={() => setSortOrder("recent")}
+                    sx={{
+                        border: sortOrder === "recent" ? "1px solid white" : "none",
+                        marginRight: 1,
+                    }}
+                >
+                    Recently Added
+                </ButtonCus>
+                <ButtonCus
+                    variant="button-pixel-yellow"
+                    width="100%"
+                    height="40px"
+                    onClick={() => setSortOrder("oldest")}
+                    sx={{
+                        border: sortOrder === "oldest" ? "1px solid white" : "none",
+                    }}
+                >
+                    Oldest
+                </ButtonCus>
+            </Box>
             <Grid container spacing={2} sx={{ maxWidth: "1200px", width: "100%", }}>
-                {tradePosts.map((post, index) => (
+                {sortedPosts.map((post, index) => (
                     <Grid item xs={12} key={index}>
                         <Card sx={{ display: "flex", bgcolor: "transparent", border: "1px solid white", overflow: "hidden" }}>
                             <CardMedia
@@ -144,6 +178,7 @@ const TradingPage = () => {
                     </Grid>
                 ))}
             </Grid>
+
             <Fab
                 color="primary"
                 aria-label="add"
@@ -157,7 +192,6 @@ const TradingPage = () => {
                 }} onClick={handleOpen}>
                 <Add />
             </Fab>
-
             <Modal open={open} onClose={handleClose}>
                 <Box
                     sx={{
@@ -210,10 +244,10 @@ const TradingPage = () => {
                                         borderColor: 'white',
                                     },
                                     "&:hover fieldset": {
-                                        borderColor: 'yellow', 
+                                        borderColor: 'yellow',
                                     },
                                     "&.Mui-focused fieldset": {
-                                        borderColor: 'yellow', 
+                                        borderColor: 'yellow',
                                     },
                                 },
                             }}
@@ -234,13 +268,13 @@ const TradingPage = () => {
                             sx={{
                                 "& .MuiOutlinedInput-root": {
                                     "& fieldset": {
-                                        borderColor: 'white', 
+                                        borderColor: 'white',
                                     },
                                     "&:hover fieldset": {
-                                        borderColor: 'yellow', 
+                                        borderColor: 'yellow',
                                     },
                                     "&.Mui-focused fieldset": {
-                                        borderColor: 'yellow', 
+                                        borderColor: 'yellow',
                                     },
                                 },
                             }}
@@ -255,7 +289,7 @@ const TradingPage = () => {
                             />
                             <label htmlFor="upload-image">
                                 <IconButton color="primary" component="span">
-                                    <PhotoCamera sx={{ color: "white" }} /> 
+                                    <PhotoCamera sx={{ color: "white" }} />
                                 </IconButton>
                             </label>
                             <Typography variant="body2" sx={{ ml: 2, color: "white" }}>
