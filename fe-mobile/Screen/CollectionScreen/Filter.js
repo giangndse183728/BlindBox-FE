@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, StyleSheet, Text } from "react-native";
 import { Button, Checkbox, Title } from "react-native-paper";
 import Slider from "@react-native-community/slider";
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const Filter = ({ onApplyFilters, onClose }) => {
   const [priceRange, setPriceRange] = useState([0, 5000]);
@@ -26,7 +27,7 @@ const Filter = ({ onApplyFilters, onClose }) => {
 
   const handleApply = () => {
     onApplyFilters({ priceRange, selectedBrand, selectedType, selectedRating });
-    onClose(); // Close the filter modal after applying
+    onClose();
   };
 
   const handleClearAll = () => {
@@ -34,21 +35,19 @@ const Filter = ({ onApplyFilters, onClose }) => {
     setSelectedBrand([]);
     setSelectedType([]);
     setSelectedRating(0);
-    // Call onApplyFilters with cleared values
     onApplyFilters({
       priceRange: [0, 5000],
       selectedBrand: [],
       selectedType: [],
       selectedRating: 0,
     });
-    onClose(); // Close the filter modal
+    onClose();
   };
 
   return (
     <View style={styles.container}>
       <Title style={styles.title}>Filters</Title>
 
-      {/* Price Range Filter */}
       <Text style={styles.filterHeader}>Price Range</Text>
       <Slider
         minimumValue={0}
@@ -61,7 +60,6 @@ const Filter = ({ onApplyFilters, onClose }) => {
       <Text>${priceRange[0]} - ${priceRange[1]}</Text>
       <View style={styles.divider} />
 
-      {/* Brand Filter */}
       <Text style={styles.filterHeader}>Brand</Text>
       {brands.map((brand) => (
         <Checkbox.Item
@@ -73,7 +71,6 @@ const Filter = ({ onApplyFilters, onClose }) => {
       ))}
       <View style={styles.divider} />
 
-      {/* Type Filter */}
       <Text style={styles.filterHeader}>Type</Text>
       {types.map((type) => (
         <Checkbox.Item
@@ -85,14 +82,24 @@ const Filter = ({ onApplyFilters, onClose }) => {
       ))}
       <View style={styles.divider} />
 
-      {/* Rating Filter */}
-      <Text style={styles.filterHeader}>Minimum Rating</Text>
-      <Rating
-        ratingCount={5}
-        imageSize={20}
-        startingValue={selectedRating}
-        onFinishRating={setSelectedRating}
-      />
+      <Text style={styles.filterHeader}>Rating</Text>
+      <View style={styles.ratingContainer}>
+        {Array.from({ length: 5 }, (_, index) => {
+          const heartValue = index + 1;
+          const isFullHeart = selectedRating >= heartValue;
+
+          return (
+            <Icon
+              key={index}
+              name="heart"
+              size={30}
+              color={isFullHeart ? "red" : "lightgrey"}
+              onPress={() => setSelectedRating(heartValue)}
+              style={styles.heartIcon}
+            />
+          );
+        })}
+      </View>
       <View style={styles.divider} />
 
       <Button 
@@ -103,7 +110,6 @@ const Filter = ({ onApplyFilters, onClose }) => {
         Clear All Filters
       </Button>
 
-      {/* Apply and Close Buttons */}
       <Button mode="contained" onPress={handleApply} style={styles.button}>
         Apply
       </Button>
@@ -138,6 +144,14 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: 'lightgrey',
     marginVertical: 10,
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  heartIcon: {
+    marginHorizontal: 5,
   },
   button: {
     marginTop: 10,
