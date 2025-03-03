@@ -1,21 +1,33 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import CollectionPage from '../pages/Collectionpage/Collectionpage';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import CollectionScreen from '../screen/CollectionScreen/CollectionScreen';
+import DetailScreen from '../screen/DetailScreen/DetailScreen';
 
 const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
+
+const StackNavigator = () => {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Collection" component={CollectionScreen} />
+      <Stack.Screen name="Detail" component={DetailScreen} />
+    </Stack.Navigator>
+  );
+};
 
 export default function App() {
   return (
     <NavigationContainer>
       <Tab.Navigator
         screenOptions={{
-          headerShown: false, 
+          headerShown: false,
         }}
       >
         <Tab.Screen
-          name="Collection"
-          component={CollectionPage}
+          name="Home" 
+          component={StackNavigator}
         />
       </Tab.Navigator>
     </NavigationContainer>
