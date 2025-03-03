@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Box, Typography, Button, Grid } from "@mui/material";
+import { Box, Typography, Button, Grid, Rating } from "@mui/material";
 import ProductNotFound from "./ProductNotFound";
 import useCartStore from '../Shoppingcart/CartStore';
 import ButtonCus from "../../components/Button/ButtonCus";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 
 const products = [
-  { id: 1, name: "Anime Blind Box", img: "/assets/blindbox1.png", price: 2999.99, brand: "Pop Mart", description: "A surprise anime-themed blind box with exclusive figurines." },
-  { id: 2, name: "Superhero Surprise Pack", img: "/assets/blindbox1.png", price: 2500, brand: "My Kingdom", description: "Unleash the hero inside you with this mystery superhero box." },
-  { id: 3, name: "Kawaii Collectibles", img: "/assets/blindbox1.png", price: 3200, brand: "Tokidoki", description: "A collection of adorable kawaii items to brighten your day." },
+  { id: 1, name: "Anime Blind Box", img: "/assets/blindbox1.png", price: 2999.99, brand: "Pop Mart", description: "A surprise anime-themed blind box with exclusive figurines.", rating: 4.5 },
+  { id: 2, name: "Superhero Surprise Pack", img: "/assets/blindbox1.png", price: 2500, brand: "My Kingdom", description: "Unleash the hero inside you with this mystery superhero box.", rating: 4 },
+  { id: 3, name: "Kawaii Collectibles", img: "/assets/blindbox1.png", price: 3200, brand: "Tokidoki", description: "A collection of adorable kawaii items to brighten your day.", rating: 3.5 },
 ];
 
 const Detailpage = () => {
@@ -54,6 +56,18 @@ const Detailpage = () => {
             <Typography variant="h6" sx={{ mt: 1 }}>Brand: {product.brand}</Typography>
             <Typography variant="h5" sx={{ mt: 1, color: "#ff4444" }}>Price: ${product.price.toFixed(2)}</Typography>
             <Typography sx={{ mt: 2 }}>{product.description}</Typography>
+            <Box sx={{ mt: 2, display: "flex", alignItems: "center" }}>
+              <Typography variant="h6" sx={{ mr: 2 }}>Rating:</Typography>
+              <Rating
+                name="product-rating"
+                value={product.rating}
+                readOnly
+                precision={0.1}
+                icon={<FavoriteIcon sx={{ color: "red" }} />}
+                emptyIcon={<FavoriteBorderIcon sx={{ color: "red" }} />}
+              />
+              <Typography sx={{ ml: 1, color: "white" }}>{product.rating.toFixed(1)}</Typography>
+            </Box>
 
             <Box sx={{ display: "flex", alignItems: "center", mt: 3 }}>
               <Typography variant="h6" sx={{ mr: 2 }}>Quantity:</Typography>
@@ -73,16 +87,18 @@ const Detailpage = () => {
                 </Button>
               </Box>
             </Box>
-            <ButtonCus
-              variant="button-pixel-red"
-              width="20%"
-              height="40px"
-              onClick={handleAddToCart}
-            >
-              <Typography variant="h5" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
-                Add to Cart
-              </Typography>
-            </ButtonCus>
+            <Box sx={{ mt: 3 }}> 
+              <ButtonCus
+                variant="button-pixel-red"
+                width="20%"
+                height="40px"
+                onClick={handleAddToCart}
+              >
+                <Typography variant="h5" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
+                  Add to Cart
+                </Typography>
+              </ButtonCus>
+            </Box>
           </Grid>
         </Grid>
       </Box>

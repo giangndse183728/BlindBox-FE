@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Slider, Checkbox, FormControlLabel, Box, Grid, Typography, Button, Rating, Divider, Pagination, Select, MenuItem, FormControl } from "@mui/material";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-import Footer from "../../layouts/Footer";
-import GlassCard from "../../components/Decor/GlassCard";
 import { FaBoxOpen } from "react-icons/fa";
 import { GiCardboardBoxClosed } from "react-icons/gi";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import Autocomplete from "@mui/material/Autocomplete";
+import TextField from "@mui/material/TextField";
+import GlassCard from "../../components/Decor/GlassCard";
+import Footer from "../../layouts/Footer";
+
 
 const Collectionpage = () => {
 
@@ -284,10 +287,69 @@ const Collectionpage = () => {
               BLINDBOXES
             </Typography>
 
+            {/* Search Bar */}
+            <Autocomplete
+              freeSolo
+              options={products.map((product) => product.name)}
+              onInputChange={(event, value) => {
+                const filtered = products.filter((product) =>
+                  product.name.toLowerCase().includes(value.toLowerCase())
+                );
+                setFilteredProducts(filtered);
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  variant="outlined"
+                  placeholder="Search..."
+                  sx={{
+                    color: "white", 
+                    border: "0.5px solid white",
+                    borderRadius: 2,
+                    "& .MuiOutlinedInput-root": {
+                      borderColor: "white", 
+                      borderRadius: 2,
+                      "&:hover fieldset": {
+                        borderColor: "yellow", 
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "yellow", 
+                      },
+                    },
+                    "& .MuiInputBase-input": {
+                      color: "white", 
+                    },
+                    "& .MuiInputBase-input::placeholder": {
+                      color: "white", 
+                    },
+                  }}
+                />
+              )}
+              sx={{
+                width: 325,
+                mx: 2,
+                "& .MuiAutocomplete-option": {
+                  bgcolor: "black", 
+                  color: "white", 
+                  borderRadius: 1,
+                  "&:hover": {
+                    backgroundColor: "rgba(255, 255, 0, 0.5)", 
+                  },
+                },
+                "& .MuiAutocomplete-popupIndicator": {
+                  color: "white", 
+                },
+                "& .MuiAutocomplete-listbox": {
+                  backgroundColor: "black", 
+                  color: "white", 
+                  borderRadius: 1,
+                },
+              }}
+            />
             {/* Right Side: Sort by + Select Box */}
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "flex-end", flexGrow: 1, gap: 2 }}>
               <Typography fontFamily="'Jersey 15', sans-serif" sx={{ fontSize: '1.5rem', }}>Sort by:</Typography>
-              <FormControl sx={{ width: 120  }}>
+              <FormControl sx={{ width: 120 }}>
                 <Select
                   defaultValue=""
                   onChange={(event) => sortProducts(event.target.value)}

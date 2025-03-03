@@ -131,7 +131,7 @@ const TradingPage = () => {
                         marginRight: 1,
                     }}
                 >
-                    Recently Added
+                    Recent
                 </ButtonCus>
                 <ButtonCus
                     variant="button-pixel-yellow"
