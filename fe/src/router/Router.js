@@ -22,8 +22,7 @@ import SubscriptionPage from '../pages/SubscriptionPage/SubscriptionPage';
 
 import CartPage from '../pages/Shoppingcart/CartPage';
 import Tradingpage from '../pages/Tradingpage/Trandingpage';
-
-
+import OrdersPage from '../pages/MyOrders/OrdersPage';
 
 const Layout = ({ children, showHeader = true }) => {
   return (
@@ -84,9 +83,9 @@ export const routes = createBrowserRouter([
     path: '/custom-accessories',
     element: (
       <Layout showHeader={true} >
-      
-          <CustomPage />
-      
+
+        <CustomPage />
+
       </Layout>
     ),
   },
@@ -143,6 +142,14 @@ export const routes = createBrowserRouter([
     element: (
       <Layout showHeader={true} >
         <Tradingpage />
+      </Layout>
+    ),
+  },
+  {
+    path: "/order",
+    element: (
+      <Layout showHeader={true} >
+        <OrdersPage />
       </Layout>
     ),
   },
