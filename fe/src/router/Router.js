@@ -84,9 +84,9 @@ export const routes = createBrowserRouter([
     path: '/custom-accessories',
     element: (
       <Layout showHeader={true} >
-        <ProtectedRoute requiredRole={1}>
+      
           <CustomPage />
-        </ProtectedRoute>
+      
       </Layout>
     ),
   },

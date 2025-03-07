@@ -1,9 +1,10 @@
+import React, { useEffect, useRef, useState } from "react";
 import { CustomBoard, BeadInfo} from "./CustomBoard"; 
 import GlassCard from "../../components/Decor/GlassCard";
-import React, { useEffect, useRef, useState } from "react";
+import html2canvas from 'html2canvas';
 import * as THREE from "three";
 import { OrbitControls } from "three-stdlib";
-import { Grid, Typography, LinearProgress, Box } from '@mui/material';
+import { Grid, Typography, LinearProgress, Box, Dialog, DialogTitle, DialogContent, DialogActions, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import { yellowGlowAnimation } from "../../components/Text/YellowEffect";
 import ButtonCus from "../../components/Button/ButtonCus";;
 
@@ -19,6 +20,9 @@ const ThreeCustom = () => {
   const [numberOfModels, setNumberOfModels] = useState(0); 
   const [modelGroups, setModelGroups] = useState([]);
   const [sphereType, setSphereType] = useState('low');
+  const [openModal, setOpenModal] = useState(false);
+  const [beadDetails, setBeadDetails] = useState({ solid: [], low: [], spike: [] });
+  const [screenshot, setScreenshot] = useState(null);
 
   const baseRadius = 0.2; 
   
@@ -46,6 +50,7 @@ const ThreeCustom = () => {
     const renderer = new THREE.WebGLRenderer({ 
       antialias: true,
       alpha: true,
+      preserveDrawingBuffer: true
     });
     renderer.setSize(700, 550);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -232,8 +237,27 @@ const ThreeCustom = () => {
     if (newTotal <= 120) {
       setNumberOfModels(prev => prev + count);
       setModelGroups(prev => [...prev, { color, count, type: sphereType }]);
+
+      // Update bead details
+      setBeadDetails(prev => {
+        const updatedDetails = { ...prev };
+        const beadType = sphereType; 
+
+        // Check if the bead already exists
+        const existingBeadIndex = updatedDetails[beadType].findIndex(bead => bead.color === color);
+        
+        if (existingBeadIndex !== -1) {
+          // If it exists, increase the quantity
+          updatedDetails[beadType][existingBeadIndex].quantity += count;
+        } else {
+          // If it doesn't exist, add a new entry
+          updatedDetails[beadType].push({ color, quantity: count });
+        }
+        
+        return updatedDetails;
+      });
     } else {
-      // Optionally show an alert or message to the user that the limit is reached
+
       alert('You can create a maximum of 120 models!');
     }
   };
@@ -241,6 +265,7 @@ const ThreeCustom = () => {
   const handleRemoveAll = () => {
     setNumberOfModels(0);
     setModelGroups([]);
+    setBeadDetails({ solid: [], low: [], spike: [] }); // Reset bead details
   };
 
   const handleRemoveLast = () => {
@@ -248,7 +273,32 @@ const ThreeCustom = () => {
       const lastGroup = modelGroups[modelGroups.length - 1];
       setNumberOfModels(prev => Math.max(0, prev - lastGroup.count));
       setModelGroups(prev => prev.slice(0, -1));
+
+      // Update bead details to remove the last added bead
+      setBeadDetails(prev => {
+        const updatedDetails = { ...prev };
+        const beadType = lastGroup.type; // Get the type of the last added bead
+        const existingBeadIndex = updatedDetails[beadType].findIndex(bead => bead.color === lastGroup.color);
+        
+        if (existingBeadIndex !== -1) {
+          // Decrease the quantity or remove if it reaches zero
+          updatedDetails[beadType][existingBeadIndex].quantity -= lastGroup.count;
+          if (updatedDetails[beadType][existingBeadIndex].quantity <= 0) {
+            updatedDetails[beadType].splice(existingBeadIndex, 1); // Remove bead if quantity is zero
+          }
+        }
+        
+        return updatedDetails;
+      });
     }
+  };
+
+  const handlePreview = () => {
+    // Capture the screenshot of the 3D scene
+    html2canvas(containerRef.current, { backgroundColor: null ,  width: 700, height: 600, }).then(canvas => {
+      setScreenshot(canvas.toDataURL("image/png"));
+    });
+    setOpenModal(true);
   };
 
   return (
@@ -274,7 +324,7 @@ const ThreeCustom = () => {
         <BeadInfo/>
 
     
-        <ButtonCus variant="button-02" width="250px" sx={{display: 'flex', justifyContent: 'center'}}> Saving</ButtonCus>
+        <ButtonCus variant="button-02" width="250px" onClick={handlePreview} sx={{display: 'flex', justifyContent: 'center'}}> Preview</ButtonCus>
         
         </Grid>
         <Grid item xs={6}>
@@ -312,6 +362,64 @@ const ThreeCustom = () => {
           </GlassCard>
         </Grid>
       </Grid>
+
+      {/* Modal for Preview */}
+      <Dialog open={openModal} onClose={() => setOpenModal(false)} sx={{ '& .MuiDialog-paper': { backgroundColor: 'black', border: '2px solid white' } }}>
+        <DialogTitle sx={{ color: 'white', fontFamily:"'Jersey 15', sans-serif" }}>Accessory Information</DialogTitle>
+        <DialogContent>
+          {/* Screenshot of the 3D scene */}
+          {screenshot && (
+            <img src={screenshot} alt="3D Scene Screenshot" style={{ width: '100%', marginBottom: '16px' }} />
+          )}
+          {/* Table for Bead Information */}
+          <TableContainer>
+            <Table sx={{ minWidth: 500 }} aria-label="bead information table">
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ color: 'white' }}>Type</TableCell>
+                  <TableCell sx={{ color: 'white' }}>Color</TableCell>
+                  <TableCell sx={{ color: 'white' }}>Quantity</TableCell>
+                  <TableCell sx={{ color: 'white' }}>Price</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {beadDetails.solid.map((bead, index) => (
+                  <TableRow key={index}>
+                    <TableCell sx={{ color: 'white' }}>Solid</TableCell>
+                    <TableCell sx={{ color: bead.color }}>{bead.color}</TableCell>
+                    <TableCell sx={{ color: 'white' }}>{bead.quantity}</TableCell>
+                    <TableCell sx={{ color: 'white' }}>$</TableCell>
+                  </TableRow>
+                ))}
+                {beadDetails.low.map((bead, index) => (
+                  <TableRow key={index}>
+                    <TableCell sx={{ color: 'white' }}>Low-Poly</TableCell>
+                    <TableCell sx={{ color: bead.color }}>{bead.color}</TableCell>
+                    <TableCell sx={{ color: 'white' }}>{bead.quantity}</TableCell>
+                    <TableCell sx={{ color: 'white' }}>$</TableCell>
+                  </TableRow>
+                ))}
+                {beadDetails.spike.map((bead, index) => (
+                  <TableRow key={index}>
+                    <TableCell sx={{ color: 'white' }}>Spike</TableCell>
+                    <TableCell sx={{ color: bead.color }}>{bead.color}</TableCell>
+                    <TableCell sx={{ color: 'white' }}>{bead.quantity}</TableCell>
+                    <TableCell sx={{ color: 'white' }}>$</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </DialogContent>
+        <DialogActions>
+          <ButtonCus variant="button-pixel-green" height={40} onClick={() => setOpenModal(false)} sx={{ color: 'white'}}>
+          <Typography fontFamily="'Jersey 15', sans-serif" variant="h6" sx={{ color: "white" }}>
+             Add to cart
+            </Typography>
+          </ButtonCus>
+          
+        </DialogActions>
+      </Dialog>
     </>
   );
 };

@@ -102,7 +102,7 @@ const ThreeCus = () => {
     
     modelGroups.forEach(group => {
       for (let i = 0; i < group.count; i++) {
-        const geometry = new THREE.SphereGeometry(0.5, 64, 64);
+        const geometry = new THREE.SphereGeometry(0.5, 32, 32);
      
         const position = geometry.attributes.position;
 
