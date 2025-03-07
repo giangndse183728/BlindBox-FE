@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import LoadingScreen from "../../components/Loading/LoadingScreen";
-import { fetchUserData } from "../../api/loginApi";
+import { fetchUserData } from "../../services/loginApi";
 
 const AuthCallback = () => {
     const navigate = useNavigate();

@@ -46,13 +46,25 @@ export const fetchUserData = async () => {
         const userData = userResponse.data.result;
         
         // Store user details in localStorage
-        localStorage.setItem("user", JSON.stringify({ name: userData.userName, email: userData.email }));
+        localStorage.setItem("user", JSON.stringify({ name: userData.userName, email: userData.email, role: userData.role }));
         
         return userData;
         
     } catch (error) {
         console.error('Error fetching user data:', error);
         throw new Error('Failed to fetch user data');
+    }
+};
+
+export const logout = async () => {
+    try {
+        await api.post('/accounts/logout', {}, { withCredentials: true });
+        // Clear all stored data
+        localStorage.clear();
+        window.location.href = '/'; 
+    } catch (error) {
+        console.error('Error logging out:', error);
+        throw new Error('Failed to logout');
     }
 };
 

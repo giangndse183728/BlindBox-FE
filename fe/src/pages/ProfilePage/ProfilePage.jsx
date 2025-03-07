@@ -1,7 +1,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { Box, TextField, Button, Typography } from '@mui/material';
 import Footer from '../../layouts/Footer';
-import { fetchUserData, updateUserData } from "../../api/profileApi";
+import { fetchUserData, updateUserData } from "../../services/profileApi";
 import { useNavigate } from 'react-router-dom';
 import GlassCard from "../../components/Decor/GlassCard";
 import EditIcon from '@mui/icons-material/Edit';

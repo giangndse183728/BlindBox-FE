@@ -39,17 +39,18 @@ import {
   MonetizationOn as MonetizationOnIcon,
   ReceiptOutlined as ReceiptOutlinedIcon,
   Receipt as ReceiptIcon,
+  Logout as LogoutIcon,
 } from "@mui/icons-material";
+import { logout } from '../services/loginApi';
+import { toast } from 'react-toastify';
 
 const menuItems = [
   { text: 'Home', path: '/', icon: HomeOutlinedIcon, activeIcon: HomeIcon },
   { text: 'Collection', path: '/Collection-page', icon: CollectionsOutlinedIcon, activeIcon: CollectionsIcon },
   { text: 'Trading', path: '/trading', icon: ChangeCircleOutlinedIcon, activeIcon: ChangeCircleIcon },
   { text: 'Custom Accessories', path: '/custom-accessories', icon: DesignServicesOutlinedIcon, activeIcon: DesignServicesIcon },
-  { text: 'Inventory', path: '/inventory', icon: BackpackOutlinedIcon, activeIcon: BackpackIcon },
-  { text: 'Profile', path: '/profile', icon: AccountCircleOutlinedIcon, activeIcon: AccountCircleIcon },
   { text: 'Sales', path: '/sales', icon: MonetizationOnOutlinedIcon, activeIcon: MonetizationOnIcon },
-  { text: 'Orders', path: '/orders', icon: ReceiptOutlinedIcon, activeIcon: ReceiptIcon },
+  { text: 'Subscriptions', path: '/subscription', icon: BackpackOutlinedIcon, activeIcon: BackpackIcon },
 ];
 
 export default function ButtonAppBar() {
@@ -87,12 +88,13 @@ export default function ButtonAppBar() {
     setAnchorEl(null);
   };
 
-  const handleLogout = () => {
-    // Clear all localStorage
-    setIsAuthenticated(false);
-    handleClose();
-    localStorage.clear();
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+        await logout();
+        // The redirect is handled in the logout function
+    } catch (error) {
+        toast.error('Failed to logout. Please try again.');
+    }
   };
 
   const toggleDrawer = (open) => (event) => {
@@ -186,12 +188,12 @@ export default function ButtonAppBar() {
           transformOrigin={{ vertical: "top", horizontal: "right" }}
           PaperProps={{
             sx: {
-              bgcolor: "black", // Black background
-              color: "white", // White text
-              fontFamily: "'Jersey 15', sans-serif", // Apply custom font
-              borderRadius: 2, // Rounded corners
-              boxShadow: "0px 4px 20px rgba(255, 255, 255, 0.3)", // Soft glow effect
-              minWidth: 200, // Adjust width
+              bgcolor: "black",
+              color: "white",
+              fontFamily: "'Jersey 15', sans-serif",
+              borderRadius: 2,
+              boxShadow: "0px 4px 20px rgba(255, 255, 255, 0.3)",
+              minWidth: 200,
             },
           }}
         >
@@ -204,7 +206,54 @@ export default function ButtonAppBar() {
             </Typography>
           </Box>
           <Divider sx={{ bgcolor: "rgba(255,255,255,0.2)" }} />
-          <MenuItem onClick={handleLogout} sx={{ color: "error.main", fontFamily: "'Jersey 15', sans-serif" }}>Logout</MenuItem>
+          
+          <MenuItem 
+            onClick={() => {
+              navigate('/profile');
+              handleClose();
+            }}
+            sx={{ 
+              fontFamily: "'Jersey 15', sans-serif",
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1
+            }}
+          >
+            <AccountCircleOutlinedIcon fontSize="small" />
+             Profile
+          </MenuItem>
+
+          <MenuItem 
+            onClick={() => {
+              navigate('/orders');
+              handleClose();
+            }}
+            sx={{ 
+              fontFamily: "'Jersey 15', sans-serif",
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1
+            }}
+          >
+            <ReceiptOutlinedIcon fontSize="small" />
+            My Orders
+          </MenuItem>
+
+          <Divider sx={{ bgcolor: "rgba(255,255,255,0.2)" }} />
+          
+          <MenuItem 
+            onClick={handleLogout} 
+            sx={{ 
+              color: "error.main", 
+              fontFamily: "'Jersey 15', sans-serif",
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1
+            }}
+          >
+            <LogoutIcon fontSize="small" />
+            Logout
+          </MenuItem>
         </Popover>
 
 
@@ -257,7 +306,7 @@ export default function ButtonAppBar() {
             '& .MuiDrawer-paper': {
               marginTop: '90px',
               marginLeft: '20px',
-              height: 600,
+              height: 500,
               borderRadius: 10,
               bgcolor: 'rgba(10, 10, 10, 0.6)',
               backdropFilter: 'blur(10px)',
@@ -291,7 +340,7 @@ export default function ButtonAppBar() {
                 </NavLink>
               ))}
             </List>
-            <Divider sx={{ m: 1 }} />
+         
           </Box>
         </Drawer>
       </Box>
