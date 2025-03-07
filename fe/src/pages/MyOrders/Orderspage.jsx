@@ -1,4 +1,6 @@
 import React from 'react';
+import GlassCard from '../../components/Decor/GlassCard';
+import { Box } from '@mui/material';
 
 const OrdersPage = () => {
     // Hardcoded blindbox orders data
@@ -53,8 +55,15 @@ const OrdersPage = () => {
     const orders = getAllOrders();
 
     // Inline styles for the table
-    const tableStyle = {
+    const tableContainerStyle = {
+        display: 'flex',
+        justifyContent: 'center',
         width: '100%',
+    };
+
+    const tableStyle = {
+        width: '80%',
+        maxWidth: '1200px',
         borderCollapse: 'collapse',
         fontFamily: 'Arial, sans-serif',
         backgroundColor: '#f9fafc',
@@ -121,7 +130,6 @@ const OrdersPage = () => {
         borderRadius: '50%',
     });
 
-    // Format date to match the style in the original image
     const formatDate = (date) => {
         return date.toLocaleString('en-US', {
             month: 'short',
@@ -134,84 +142,101 @@ const OrdersPage = () => {
     };
 
     return (
-        <div style={{ padding: '20px', backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-            <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '20px' }}>Orders</h1>
+        <>
+            <Box
+                sx={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    backgroundImage: `url(/assets/background.jpeg)`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    overflow: 'hidden',
+                    zIndex: -2,
+                }}
+            />
+            <div style={{ padding: '20px', backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+                <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '20px' }}>Orders</h1>
 
-            {/* Navigation Tabs */}
-            <div style={{ marginBottom: '20px' }}>
-                <button style={{ marginRight: '10px', padding: '8px 16px', backgroundColor: '#3b82f6', color: '#fff', border: 'none', borderRadius: '5px' }}>
-                    All Orders
-                </button>
-                <button style={{ marginRight: '10px', padding: '8px 16px', backgroundColor: '#e5e7eb', color: '#111827', border: 'none', borderRadius: '5px' }}>
-                    Coupons
-                </button>
-                <button style={{ marginRight: '10px', padding: '8px 16px', backgroundColor: '#e5e7eb', color: '#111827', border: 'none', borderRadius: '5px' }}>
-                    Shipping Rates
-                </button>
-                <button style={{ marginRight: '10px', padding: '8px 16px', backgroundColor: '#e5e7eb', color: '#111827', border: 'none', borderRadius: '5px' }}>
-                    Tax Rates
-                </button>
-                <button style={{ padding: '8px 16px', backgroundColor: '#e5e7eb', color: '#111827', border: 'none', borderRadius: '5px' }}>
-                    Pricing Tables
-                </button>
+                {/* Navigation Tabs */}
+                <div style={{ marginBottom: '20px' }}>
+                    <button style={{ marginRight: '10px', padding: '8px 16px', backgroundColor: '#3b82f6', color: '#fff', border: 'none', borderRadius: '5px' }}>
+                        All Orders
+                    </button>
+                    <button style={{ marginRight: '10px', padding: '8px 16px', backgroundColor: '#e5e7eb', color: '#111827', border: 'none', borderRadius: '5px' }}>
+                        Coupons
+                    </button>
+                    <button style={{ marginRight: '10px', padding: '8px 16px', backgroundColor: '#e5e7eb', color: '#111827', border: 'none', borderRadius: '5px' }}>
+                        Shipping Rates
+                    </button>
+                    <button style={{ marginRight: '10px', padding: '8px 16px', backgroundColor: '#e5e7eb', color: '#111827', border: 'none', borderRadius: '5px' }}>
+                        Tax Rates
+                    </button>
+                    <button style={{ padding: '8px 16px', backgroundColor: '#e5e7eb', color: '#111827', border: 'none', borderRadius: '5px' }}>
+                        Pricing Tables
+                    </button>
+                </div>
+
+                {/* Filters */}
+                <div style={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
+                    <button style={{ padding: '8px 16px', backgroundColor: '#e5e7eb', color: '#111827', border: 'none', borderRadius: '5px' }}>
+                        ALL 5
+                    </button>
+                    <select style={{ padding: '8px', borderRadius: '5px', border: '1px solid #e5e7eb' }}>
+                        <option>Status</option>
+                        <option>Pending</option>
+                        <option>Processing</option>
+                        <option>Shipped</option>
+                        <option>Delivered</option>
+                    </select>
+                    <input type="text" placeholder="Search" style={{ padding: '8px', borderRadius: '5px', border: '1px solid #e5e7eb', flex: 1 }} />
+                </div>
+
+                <div style={tableContainerStyle}>
+                    <table style={tableStyle}>
+                        <thead>
+                            <tr>
+                                <th style={headerStyle}>ORDER ID</th>
+                                <th style={headerStyle}>ACCOUNT ID</th>
+                                <th style={headerStyle}>TOTAL PRICE</th>
+                                <th style={headerStyle}>PROMOTION ID</th>
+                                <th style={headerStyle}>STATUS</th>
+                                <th style={headerStyle}>CREATED AT</th>
+                                <th style={headerStyle}>UPDATED AT</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {orders.map((order, index) => (
+                                <tr key={index} style={rowStyle}>
+                                    <td style={productCellStyle}>
+                                        <img src="/assets/blindbox1.png" alt="Blindbox" style={imageStyle} />
+                                        {order._id}
+                                    </td>
+                                    <td style={cellStyle}>{order.accountId}</td>
+                                    <td style={cellStyle}>${order.totalPrice.toFixed(2)}</td>
+                                    <td style={cellStyle}>{order.promotionId}</td>
+                                    <td style={statusStyle(order.status)}>
+                                        <span style={statusIconStyle(order.status)}></span>
+                                        {order.status}
+                                    </td>
+                                    <td style={cellStyle}>{formatDate(order.createdAt)}</td>
+                                    <td style={cellStyle}>{formatDate(order.updatedAt)}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Load More Button */}
+                <div style={{ textAlign: 'center', marginTop: '20px' }}>
+                    <button style={{ padding: '8px 16px', backgroundColor: '#e5e7eb', color: '#111827', border: 'none', borderRadius: '5px' }}>
+                        LOAD MORE
+                    </button>
+                </div>
             </div>
-
-            {/* Filters */}
-            <div style={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
-                <button style={{ padding: '8px 16px', backgroundColor: '#e5e7eb', color: '#111827', border: 'none', borderRadius: '5px' }}>
-                    ALL 5
-                </button>
-                <select style={{ padding: '8px', borderRadius: '5px', border: '1px solid #e5e7eb' }}>
-                    <option>Status</option>
-                    <option>Pending</option>
-                    <option>Processing</option>
-                    <option>Shipped</option>
-                    <option>Delivered</option>
-                </select>
-                <input type="text" placeholder="Search" style={{ padding: '8px', borderRadius: '5px', border: '1px solid #e5e7eb', flex: 1 }} />
-            </div>
-
-            {/* Table */}
-            <table style={tableStyle}>
-                <thead>
-                    <tr>
-                        <th style={headerStyle}>ORDER ID</th>
-                        <th style={headerStyle}>ACCOUNT ID</th>
-                        <th style={headerStyle}>TOTAL PRICE</th>
-                        <th style={headerStyle}>PROMOTION ID</th>
-                        <th style={headerStyle}>STATUS</th>
-                        <th style={headerStyle}>CREATED AT</th>
-                        <th style={headerStyle}>UPDATED AT</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {orders.map((order, index) => (
-                        <tr key={index} style={rowStyle}>
-                            <td style={productCellStyle}>
-                                <img src="/assets/blindbox1.png" alt="Blindbox" style={imageStyle} />
-                                {order._id}
-                            </td>
-                            <td style={cellStyle}>{order.accountId}</td>
-                            <td style={cellStyle}>${order.totalPrice.toFixed(2)}</td>
-                            <td style={cellStyle}>{order.promotionId}</td>
-                            <td style={statusStyle(order.status)}>
-                                <span style={statusIconStyle(order.status)}></span>
-                                {order.status}
-                            </td>
-                            <td style={cellStyle}>{formatDate(order.createdAt)}</td>
-                            <td style={cellStyle}>{formatDate(order.updatedAt)}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-
-            {/* Load More Button */}
-            <div style={{ textAlign: 'center', marginTop: '20px' }}>
-                <button style={{ padding: '8px 16px', backgroundColor: '#e5e7eb', color: '#111827', border: 'none', borderRadius: '5px' }}>
-                    LOAD MORE
-                </button>
-            </div>
-        </div>
+        </>
     );
 };
 
