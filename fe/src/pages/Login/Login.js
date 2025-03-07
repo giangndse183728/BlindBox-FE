@@ -522,7 +522,7 @@ export default function Login() {
                         component="h1"
                         variant="h5"
                         sx={{ mt: 1, mb: 2, color: 'white' }}
-                        data-aos="fade-up"
+                        data-aos="fade-up"  
                         data-aos-delay="600"
                     >
                         BlindB!ox
