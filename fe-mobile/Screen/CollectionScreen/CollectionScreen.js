@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, ImageBackground } from "react-native";
-import { Appbar, Card, Title, Paragraph, Provider as PaperProvider } from "react-native-paper";
+import { Appbar, Card, Title, Provider as PaperProvider } from "react-native-paper";
 import Icon from 'react-native-vector-icons/FontAwesome'; 
 import { useNavigation } from "@react-navigation/native";
 import Filter from "./Filter"; 
@@ -51,7 +51,7 @@ const CollectionScreen = () => {
         <Card.Cover source={item.img} style={styles.productImage} />
         <Card.Content>
           <Title style={styles.productName}>{truncateName(item.name, 1)}</Title>
-          <Paragraph style={styles.productBrand}>{item.brand}</Paragraph>
+          <Text style={styles.productBrand}>{item.brand}</Text>
           <Text style={styles.productPrice}>${item.price.toFixed(2)}</Text>
           <View style={styles.ratingContainer}>
             {Array.from({ length: 5 }, (_, index) => (

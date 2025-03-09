@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
-import { CustomBoard, BeadInfo} from "./CustomBoard"; 
+import { CustomBoard, BeadInfo } from "./CustomBoard";
 import GlassCard from "../../components/Decor/GlassCard";
 import html2canvas from 'html2canvas';
 import * as THREE from "three";
 import { OrbitControls } from "three-stdlib";
-import { Grid, Typography, LinearProgress, Box, Dialog, DialogTitle, DialogContent, DialogActions, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { Grid, Typography, LinearProgress, Dialog, DialogTitle, DialogContent, DialogActions, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import { yellowGlowAnimation } from "../../components/Text/YellowEffect";
 import ButtonCus from "../../components/Button/ButtonCus";;
 
@@ -17,16 +17,16 @@ const ThreeCustom = () => {
   const animationFrameRef = useRef(null);
   const modelsRef = useRef([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [numberOfModels, setNumberOfModels] = useState(0); 
+  const [numberOfModels, setNumberOfModels] = useState(0);
   const [modelGroups, setModelGroups] = useState([]);
   const [sphereType, setSphereType] = useState('low');
   const [openModal, setOpenModal] = useState(false);
   const [beadDetails, setBeadDetails] = useState({ solid: [], low: [], spike: [] });
   const [screenshot, setScreenshot] = useState(null);
 
-  const baseRadius = 0.2; 
-  
-  
+  const baseRadius = 0.2;
+
+
   // Calculate the radius based on numberOfModels instead of totalModels
   const radius = baseRadius + numberOfModels * 0.18;
 
@@ -47,7 +47,7 @@ const ThreeCustom = () => {
     camera.position.set(40, 35, 1);
     cameraRef.current = camera;
 
-    const renderer = new THREE.WebGLRenderer({ 
+    const renderer = new THREE.WebGLRenderer({
       antialias: true,
       alpha: true,
       preserveDrawingBuffer: true
@@ -106,12 +106,12 @@ const ThreeCustom = () => {
 
     // Create spheres
     let currentIndex = 0;
-    
+
     modelGroups.forEach(group => {
       for (let i = 0; i < group.count; i++) {
         let geometry;
-        
-        switch(group.type) {
+
+        switch (group.type) {
           case 'solid':
             geometry = new THREE.SphereGeometry(0.5, 32, 32);
             break;
@@ -130,6 +130,9 @@ const ThreeCustom = () => {
             }
             geometry.attributes.position.needsUpdate = true;
             geometry.computeVertexNormals();
+            break;
+          default:
+            geometry = new THREE.SphereGeometry(0.5, 32, 32);
             break;
         }
 
@@ -151,16 +154,16 @@ const ThreeCustom = () => {
         });
 
         const sphere = new THREE.Mesh(geometry, gemMaterial);
-        
+
         // Calculate position with spacing
         const angleStep = (Math.PI * 2) / numberOfModels;
         const currentAngle = currentIndex * angleStep;
         const x = radius * Math.cos(currentAngle);
         const z = radius * Math.sin(currentAngle);
-        
+
         sphere.position.set(x, 0, z);
         sphere.rotation.y = -currentAngle;
-        
+
         scene.add(sphere);
         modelsRef.current.push(sphere);
         currentIndex++;
@@ -215,10 +218,10 @@ const ThreeCustom = () => {
       modelsRef.current.forEach((model, index) => {
         const angleOffset = (index / numberOfModels) * Math.PI * 2;
         const currentAngle = time * speed + angleOffset;
-        
+
         const x = radius * Math.cos(currentAngle);
         const z = radius * Math.sin(currentAngle);
-        
+
         model.position.x = x;
         model.position.z = z;
         model.rotation.y = -currentAngle;
@@ -233,7 +236,7 @@ const ThreeCustom = () => {
   // Update handlers to modify numberOfModels
   const handleAddModels = (color, count) => {
     const newTotal = numberOfModels + count;
-  
+
     if (newTotal <= 120) {
       setNumberOfModels(prev => prev + count);
       setModelGroups(prev => [...prev, { color, count, type: sphereType }]);
@@ -241,11 +244,11 @@ const ThreeCustom = () => {
       // Update bead details
       setBeadDetails(prev => {
         const updatedDetails = { ...prev };
-        const beadType = sphereType; 
+        const beadType = sphereType;
 
         // Check if the bead already exists
         const existingBeadIndex = updatedDetails[beadType].findIndex(bead => bead.color === color);
-        
+
         if (existingBeadIndex !== -1) {
           // If it exists, increase the quantity
           updatedDetails[beadType][existingBeadIndex].quantity += count;
@@ -253,7 +256,7 @@ const ThreeCustom = () => {
           // If it doesn't exist, add a new entry
           updatedDetails[beadType].push({ color, quantity: count });
         }
-        
+
         return updatedDetails;
       });
     } else {
@@ -279,7 +282,7 @@ const ThreeCustom = () => {
         const updatedDetails = { ...prev };
         const beadType = lastGroup.type; // Get the type of the last added bead
         const existingBeadIndex = updatedDetails[beadType].findIndex(bead => bead.color === lastGroup.color);
-        
+
         if (existingBeadIndex !== -1) {
           // Decrease the quantity or remove if it reaches zero
           updatedDetails[beadType][existingBeadIndex].quantity -= lastGroup.count;
@@ -287,7 +290,7 @@ const ThreeCustom = () => {
             updatedDetails[beadType].splice(existingBeadIndex, 1); // Remove bead if quantity is zero
           }
         }
-        
+
         return updatedDetails;
       });
     }
@@ -295,7 +298,7 @@ const ThreeCustom = () => {
 
   const handlePreview = () => {
     // Capture the screenshot of the 3D scene
-    html2canvas(containerRef.current, { backgroundColor: null ,  width: 700, height: 600, }).then(canvas => {
+    html2canvas(containerRef.current, { backgroundColor: null, width: 700, height: 600, }).then(canvas => {
       setScreenshot(canvas.toDataURL("image/png"));
     });
     setOpenModal(true);
@@ -303,69 +306,69 @@ const ThreeCustom = () => {
 
   return (
     <>
-      <Grid container data-aos="fade-up" sx={{ mt: 5}}>
+      <Grid container data-aos="fade-up" sx={{ mt: 5 }}>
         <Grid item xs={3} >
-        <Typography 
-          fontFamily="'Jersey 15', sans-serif" 
-          variant='h4' 
-          sx={{ 
-            mt: 5, 
-            mb: 3, 
-            ml: 6, 
-            color: "white",
-            ...yellowGlowAnimation
-          }} 
-          data-aos="fade-up" 
-          data-aos-delay="200"
-        >  
-          Personalized Accessories  <br /> Your Way 
-        </Typography>
-       
-        <BeadInfo/>
+          <Typography
+            fontFamily="'Jersey 15', sans-serif"
+            variant='h4'
+            sx={{
+              mt: 5,
+              mb: 3,
+              ml: 6,
+              color: "white",
+              ...yellowGlowAnimation
+            }}
+            data-aos="fade-up"
+            data-aos-delay="200"
+          >
+            Personalized Accessories  <br /> Your Way
+          </Typography>
 
-    
-        <ButtonCus variant="button-02" width="250px" onClick={handlePreview} sx={{display: 'flex', justifyContent: 'center'}}> Preview</ButtonCus>
-        
+          <BeadInfo />
+
+
+          <ButtonCus variant="button-02" width="250px" onClick={handlePreview} sx={{ display: 'flex', justifyContent: 'center' }}> Preview</ButtonCus>
+
         </Grid>
         <Grid item xs={6}>
           <div
             ref={containerRef}
             style={{
-                width: "700px",
-                height: "550px",
-                overflow: "hidden",
-                margin: "0 auto",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center"
+              width: "700px",
+              height: "550px",
+              overflow: "hidden",
+              margin: "0 auto",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center"
             }}
           />
         </Grid>
         <Grid item xs={3} sx={{ mt: 4 }}>
           <GlassCard>
             <CustomBoard
-              onAddModels={handleAddModels} 
+              onAddModels={handleAddModels}
               onRemoveAll={handleRemoveAll}
               onRemoveLast={handleRemoveLast}
               isLoading={isLoading}
               onTypeChange={(type) => setSphereType(type)}
             />
-                <Typography fontFamily="'Jersey 15', sans-serif" variant="h6" sx={{ mt: 1, textAlign: "center", color: "white" }}>
-      Total Models: {numberOfModels}
-    </Typography>
-    <LinearProgress 
-            variant="determinate" 
-            value={(numberOfModels / 120) * 100} 
-            sx={{ height: 10, borderRadius: 5 }}
-          />
-    
+            <Typography fontFamily="'Jersey 15', sans-serif" variant="h6" sx={{ mt: 1, textAlign: "center", color: "white" }}>
+              Total Models: {numberOfModels}
+            </Typography>
+            <LinearProgress
+              variant="determinate"
+              value={(numberOfModels / 120) * 100}
+              sx={{ height: 10, borderRadius: 5 }}
+            />
+
           </GlassCard>
         </Grid>
       </Grid>
 
       {/* Modal for Preview */}
       <Dialog open={openModal} onClose={() => setOpenModal(false)} sx={{ '& .MuiDialog-paper': { backgroundColor: 'black', border: '2px solid white' } }}>
-        <DialogTitle sx={{ color: 'white', fontFamily:"'Jersey 15', sans-serif" }}>Accessory Information</DialogTitle>
+        <DialogTitle sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Accessory Information</DialogTitle>
         <DialogContent>
           {/* Screenshot of the 3D scene */}
           {screenshot && (
@@ -412,12 +415,12 @@ const ThreeCustom = () => {
           </TableContainer>
         </DialogContent>
         <DialogActions>
-          <ButtonCus variant="button-pixel-green" height={40} onClick={() => setOpenModal(false)} sx={{ color: 'white'}}>
-          <Typography fontFamily="'Jersey 15', sans-serif" variant="h6" sx={{ color: "white" }}>
-             Add to cart
+          <ButtonCus variant="button-pixel-green" height={40} onClick={() => setOpenModal(false)} sx={{ color: 'white' }}>
+            <Typography fontFamily="'Jersey 15', sans-serif" variant="h6" sx={{ color: "white" }}>
+              Add to cart
             </Typography>
           </ButtonCus>
-          
+
         </DialogActions>
       </Dialog>
     </>

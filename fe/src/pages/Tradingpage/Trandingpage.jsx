@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Typography, Box, Grid, Card, CardContent, CardMedia, Fab, Modal, TextField, IconButton, } from "@mui/material";
 import { Add, PhotoCamera } from "@mui/icons-material";
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { tradingPostSchema } from '../../utils/validationSchemas';
 import ButtonCus from "../../components/Button/ButtonCus";
 
 const tradePosts = [
@@ -201,139 +203,166 @@ const TradingPage = () => {
                         height: '100%',
                     }}
                 >
-                    <Box
-                        sx={{
-                            bgcolor: 'black',
-                            border: '2px solid white',
-                            boxShadow: 24,
-                            p: 4,
-                            borderRadius: 2,
-                            width: '600px',
-                            height: 'auto',
-                            maxHeight: '500px',
-                            overflowY: 'auto',
+                    <Formik
+                        initialValues={newPost}
+                        validationSchema={tradingPostSchema}
+                        onSubmit={(values) => {
+                            console.log(values);
+                            handleSubmit();
                         }}
                     >
-                        <Typography
-                            variant="h6"
-                            component="h2"
-                            fontFamily="'Jersey 15', sans-serif"
-                            sx={{
-                                textAlign: "center",
-                                mb: 2,
-                                color: "white",
-                                fontSize: '2rem',
-                            }}>
-                            Add a New Trade Post
-                        </Typography>
-                        <TextField
-                            autoFocus
-                            margin="dense"
-                            name="title"
-                            label="Title"
-                            placeholder="Write your title here"
-                            fullWidth
-                            variant="outlined"
-                            value={newPost.title}
-                            onChange={handleInputChange}
-                            InputLabelProps={{ style: { color: 'white' } }}
-                            InputProps={{ style: { color: 'white' } }}
-                            sx={{
-                                "& .MuiOutlinedInput-root": {
-                                    "& fieldset": {
-                                        borderColor: 'white',
-                                    },
-                                    "&:hover fieldset": {
-                                        borderColor: 'yellow',
-                                    },
-                                    "&.Mui-focused fieldset": {
-                                        borderColor: 'yellow',
-                                    },
-                                },
-                            }}
-                        />
-                        <TextField
-                            margin="dense"
-                            name="description"
-                            label="Description"
-                            placeholder="Tell us about your description"
-                            multiline
-                            rows={4}
-                            fullWidth
-                            variant="outlined"
-                            value={newPost.description}
-                            onChange={handleInputChange}
-                            InputLabelProps={{ style: { color: 'white' } }}
-                            InputProps={{ style: { color: 'white' } }}
-                            sx={{
-                                "& .MuiOutlinedInput-root": {
-                                    "& fieldset": {
-                                        borderColor: 'white',
-                                    },
-                                    "&:hover fieldset": {
-                                        borderColor: 'yellow',
-                                    },
-                                    "&.Mui-focused fieldset": {
-                                        borderColor: 'yellow',
-                                    },
-                                },
-                            }}
-                        />
-                        <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
-                            <input
-                                accept="image/*"
-                                id="upload-image"
-                                type="file"
-                                style={{ display: 'none' }}
-                                onChange={handleImageChange}
-                            />
-                            <label htmlFor="upload-image">
-                                <IconButton color="primary" component="span">
-                                    <PhotoCamera sx={{ color: "white" }} />
-                                </IconButton>
-                            </label>
-                            <Typography variant="body2" sx={{ ml: 2, color: "white" }}>
-                                {imagePreview ? "Image Uploaded" : "Upload Image"}
-                            </Typography>
-                        </Box>
+                        {({ setFieldValue }) => (
+                            <Form>
+                                <Box
+                                    sx={{
+                                        bgcolor: 'black',
+                                        border: '2px solid white',
+                                        boxShadow: 24,
+                                        p: 4,
+                                        borderRadius: 2,
+                                        width: '600px',
+                                        height: 'auto',
+                                        maxHeight: '500px',
+                                        overflowY: 'auto',
+                                    }}
+                                >
+                                    <Typography
+                                        variant="h6"
+                                        component="h2"
+                                        fontFamily="'Jersey 15', sans-serif"
+                                        sx={{
+                                            textAlign: "center",
+                                            mb: 2,
+                                            color: "white",
+                                            fontSize: '2rem',
+                                        }}
+                                    >
+                                        Add a New Trade Post
+                                    </Typography>
+                                    <Field
+                                        name="title"
+                                        as={TextField}
+                                        autoFocus
+                                        margin="dense"
+                                        label="Title"
+                                        placeholder="Write your title here"
+                                        fullWidth
+                                        variant="outlined"
+                                        InputLabelProps={{ style: { color: 'white' } }}
+                                        InputProps={{ style: { color: 'white' } }}
+                                        sx={{
+                                            "& .MuiOutlinedInput-root": {
+                                                "& fieldset": {
+                                                    borderColor: 'white',
+                                                },
+                                                "&:hover fieldset": {
+                                                    borderColor: 'yellow',
+                                                },
+                                                "&.Mui-focused fieldset": {
+                                                    borderColor: 'yellow',
+                                                },
+                                            },
+                                        }}
+                                    />
+                                    <ErrorMessage name="title" component="div" style={{ color: 'red' }} />
 
-                        {/* Image Preview */}
-                        {imagePreview && (
-                            <Box sx={{ mt: 2 }}>
-                                <img
-                                    src={imagePreview}
-                                    alt="Preview"
-                                    style={{
-                                        maxWidth: '100%',
-                                        borderRadius: '4px'
-                                    }} />
-                            </Box>
+                                    <Field
+                                        name="description"
+                                        as={TextField}
+                                        margin="dense"
+                                        label="Description"
+                                        placeholder="Tell us about your description"
+                                        multiline
+                                        rows={4}
+                                        fullWidth
+                                        variant="outlined"
+                                        InputLabelProps={{ style: { color: 'white' } }}
+                                        InputProps={{ style: { color: 'white' } }}
+                                        sx={{
+                                            "& .MuiOutlinedInput-root": {
+                                                "& fieldset": {
+                                                    borderColor: 'white',
+                                                },
+                                                "&:hover fieldset": {
+                                                    borderColor: 'yellow',
+                                                },
+                                                "&.Mui-focused fieldset": {
+                                                    borderColor: 'yellow',
+                                                },
+                                            },
+                                        }}
+                                    />
+                                    <ErrorMessage name="description" component="div" style={{ color: 'red' }} />
+
+                                    <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
+                                        <input
+                                            accept="image/*"
+                                            id="upload-image"
+                                            type="file"
+                                            style={{ display: 'none' }}
+                                            onChange={(e) => {
+                                                const file = e.target.files[0];
+                                                if (file) {
+                                                    const reader = new FileReader();
+                                                    reader.onloadend = () => {
+                                                        setImagePreview(reader.result);
+                                                        setFieldValue('image', reader.result); 
+                                                    };
+                                                    reader.readAsDataURL(file);
+                                                }
+                                            }}
+                                        />
+                                        <label htmlFor="upload-image">
+                                            <IconButton color="primary" component="span">
+                                                <PhotoCamera sx={{ color: "white" }} />
+                                            </IconButton>
+                                        </label>
+                                        <Typography variant="body2" sx={{ ml: 2, color: "white" }}>
+                                            {imagePreview ? "Image Uploaded" : "Upload Image"}
+                                        </Typography>
+                                    </Box>
+                                    <ErrorMessage name="image" component="div" style={{ color: 'red' }} />
+
+                                    {/* Image Preview */}
+                                    {imagePreview && (
+                                        <Box sx={{ mt: 2 }}>
+                                            <img
+                                                src={imagePreview}
+                                                alt="Preview"
+                                                style={{
+                                                    maxWidth: '100%',
+                                                    borderRadius: '4px'
+                                                }} />
+                                        </Box>
+                                    )}
+
+                                    <Box justifyContent="space-between" sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                                        <ButtonCus
+                                            variant="button-pixel-red"
+                                            width="100%"
+                                            height="40px"
+                                            onClick={handleClose}
+                                            sx={{ mr: 1 }}
+                                        >
+                                            <Typography variant="h5" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
+                                                Cancel
+                                            </Typography>
+                                        </ButtonCus>
+                                        <ButtonCus
+                                            variant="button-pixel-green"
+                                            width="100%"
+                                            height="40px"
+                                            type="submit" 
+                                        >
+                                            <Typography variant="h5" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
+                                                Submit
+                                            </Typography>
+                                        </ButtonCus>
+                                    </Box>
+                                </Box>
+                            </Form>
                         )}
-
-                        <Box justifyContent="space-between" sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-                            <ButtonCus
-                                variant="button-pixel-red"
-                                width="100%"
-                                height="40px"
-                                onClick={handleClose}
-                                sx={{ mr: 1 }}
-                            >
-                                <Typography variant="h5" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
-                                    Cancel
-                                </Typography>
-                            </ButtonCus>
-                            <ButtonCus
-                                variant="button-pixel-green"
-                                width="100%"
-                                height="40px"
-                                onClick={handleSubmit}
-                            >
-                                <Typography variant="h5" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
-                                    Submit
-                                </Typography>
-                            </ButtonCus>
-                        </Box>
-                    </Box>
+                    </Formik>
                 </Box>
             </Modal>
         </Box>
