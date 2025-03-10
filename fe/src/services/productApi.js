@@ -12,9 +12,11 @@ export const fetchBlindboxData = async () => {
 };
 
 // Fetch blindbox detail
-export const fetchBlindboxDetails = async (slug) => {
+export const fetchBlindboxDetails = async (slug, id) => {
     try {
-        const response = await api.get(`/products/blind-boxes/${slug}`);
+        const response = await api.get(`/products/blind-boxes/${slug}`, {
+            params: { id } 
+        });
         return response.data;
     } catch (error) {
         console.error('Error fetching blindbox details:', error.response ? error.response.data : error.message);

@@ -111,7 +111,7 @@ export const routes = createBrowserRouter([
   {
     path: '/product/:slug',
     element: (
-      <Layout showHeader={false}>
+      <Layout showHeader={true}>
         <Detailpage />
       </Layout>
     ),

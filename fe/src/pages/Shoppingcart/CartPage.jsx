@@ -150,7 +150,7 @@ const CartPage = () => {
                     <Typography sx={{ color: "white" }}>user</Typography>
                   </Grid>
                   <Grid item xs={2} sx={{ textAlign: 'center' }}>
-                    <Typography sx={{ color: "white" }}>${item.price.toFixed(2)}</Typography>
+                  <Typography sx={{ color: "white" }}>${parseFloat(item.price).toFixed(2) || "N/A"}</Typography>
                   </Grid>
                   <Grid item xs={2} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <ButtonCus variant="button-pixel" onClick={() => handleQuantityChange(item, item.quantity - 1)} width="30px" height="30px">-</ButtonCus>

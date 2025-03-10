@@ -24,6 +24,7 @@ import TextField from "@mui/material/TextField";
 import GlassCard from "../../components/Decor/GlassCard";
 import Footer from "../../layouts/Footer";
 import { fetchBlindboxData } from '../../services/productApi';
+import LoadingScreen from '../../components/Loading/LoadingScreen'; // Import your loading component
 
 const Collectionpage = () => {
   const [products, setProducts] = useState([]);
@@ -38,9 +39,11 @@ const Collectionpage = () => {
   const query = new URLSearchParams(location.search);
   const page = parseInt(query.get("page")) || 1;
   const itemsPerPage = 9;
+  const [loading, setLoading] = useState(true); // Add loading state
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true); // Set loading to true before fetching data
       try {
         const data = await fetchBlindboxData();
         console.log("Fetched Data:", data);
@@ -53,6 +56,8 @@ const Collectionpage = () => {
         }
       } catch (error) {
         console.error("Error fetching blindbox data:", error);
+      } finally {
+        setLoading(false); // Set loading to false after fetching
       }
     };
 
@@ -190,7 +195,7 @@ const Collectionpage = () => {
           </Button>
           <Divider sx={{ bgcolor: "white", my: 2 }} />
           <Typography sx={{ mt: 2 }}>Brand</Typography>
-          {["Pop Mart", "My Kingdom", "Tokidoki", "Funko", "Mighty Jaxx", "Kidrobot"].map((brand) => (
+          {["fpt"].map((brand) => (
             <FormControlLabel
               key={brand}
               control={
@@ -288,62 +293,69 @@ const Collectionpage = () => {
             </Box>
           </Box>
 
-          {/* Product Grid */}
-          <Grid container spacing={1}>
-            {displayedProducts.length === 0 ? (
-              <Typography variant="h6" color="white">No products available.</Typography>
-            ) : (
-              displayedProducts.map((product) => (
-                <Grid item xs={12} sm={6} md={4} key={product.slug} sx={{ p: 1 }}>
-                  <Link to={`/product/${product.slug}`} style={{ textDecoration: "none", width: "100%" }}>
-                    <GlassCard sx={{ width: "340px", display: "flex", justifyContent: "center", alignItems: "center", p: 2 }}>
-                      <Box
-                        sx={{
-                          borderRadius: 1,
-                          p: 12,
-                          textAlign: "center",
-                          color: "white",
-                          position: "relative",
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          height: "150px",
-                          width: "180px"
-                        }}
-                      >
-                        <Box sx={{ position: "absolute", top: 10, right: 15, color: "gray" }}>
-                          {product.type === "Unbox" ? <FaBoxOpen size={30} /> : <GiCardboardBoxClosed size={34} />}
-                        </Box>
-                        <img
-                          src={product.img}
-                          alt={product.name}
-                          style={{ width: 200, height: 200, borderRadius: "10px", marginTop: "-70px", cursor: "pointer" }}
-                        />
-                        <Box sx={{ position: "absolute", bottom: 10, left: 10, color: "white", px: 1, py: 0.5, borderRadius: 1, textAlign: "left" }}>
-                          <Typography variant="h6" sx={{ fontWeight: "bold", mt: "-15px" }}>{product.name}</Typography>
-                          <Typography variant="body2" sx={{ fontSize: "0.9rem" }}>{product.brand}</Typography>
-                          <Typography variant="body1">
-                            ${isNaN(parseFloat(product.price)) ? "N/A" : parseFloat(product.price).toFixed(2)}
-                          </Typography>
-                        </Box>
-                        <Box sx={{ position: "absolute", bottom: 10, right: 10, color: "white", px: 1, py: 0.5, borderRadius: 1, display: "flex", alignItems: "center" }}>
-                          <Rating
-                            name={`product-rating-${product.slug}`}
-                            value={product.rating}
-                            readOnly
-                            precision={0.5}
-                            icon={<FavoriteIcon fontSize="inherit" sx={{ color: "red" }} />}
-                            emptyIcon={<FavoriteBorderIcon fontSize="inherit" />}
+          {/* Loading Screen */}
+          {loading ? (
+            <LoadingScreen />
+          ) : (
+            <Grid container spacing={1}>
+              {displayedProducts.length === 0 ? (
+                <Typography variant="h6" color="white">No products available.</Typography>
+              ) : (
+                displayedProducts.map((product) => (
+                  <Grid item xs={12} sm={6} md={4} key={product.slug} sx={{ p: 1 }}>
+                    <Link
+                      to={`/product/${product.slug}?id=${product._id}`}
+                      style={{ textDecoration: "none", width: "100%" }}
+                    >
+                      <GlassCard sx={{ width: "340px", display: "flex", justifyContent: "center", alignItems: "center", p: 2 }}>
+                        <Box
+                          sx={{
+                            borderRadius: 1,
+                            p: 12,
+                            textAlign: "center",
+                            color: "white",
+                            position: "relative",
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            height: "150px",
+                            width: "180px"
+                          }}
+                        >
+                          <Box sx={{ position: "absolute", top: 10, right: 15, color: "gray" }}>
+                            {product.type === "Unbox" ? <FaBoxOpen size={30} /> : <GiCardboardBoxClosed size={34} />}
+                          </Box>
+                          <img
+                            src={product.img}
+                            alt={product.name}
+                            style={{ width: 200, height: 200, borderRadius: "10px", marginTop: "-70px", cursor: "pointer" }}
                           />
+                          <Box sx={{ position: "absolute", bottom: 10, left: 10, color: "white", px: 1, py: 0.5, borderRadius: 1, textAlign: "left" }}>
+                            <Typography variant="h6" sx={{ fontWeight: "bold", mt: "-15px" }}>{product.name}</Typography>
+                            <Typography variant="body2" sx={{ fontSize: "0.9rem" }}>{product.brand}</Typography>
+                            <Typography variant="body1">
+                              ${isNaN(parseFloat(product.price)) ? "N/A" : parseFloat(product.price).toFixed(2)}
+                            </Typography>
+                          </Box>
+                          <Box sx={{ position: "absolute", bottom: 10, right: 10, color: "white", px: 1, py: 0.5, borderRadius: 1, display: "flex", alignItems: "center" }}>
+                            <Rating
+                              name={`product-rating-${product.slug}`}
+                              value={product.rating}
+                              readOnly
+                              precision={0.5}
+                              icon={<FavoriteIcon fontSize="inherit" sx={{ color: "red" }} />}
+                              emptyIcon={<FavoriteBorderIcon fontSize="inherit" />}
+                            />
+                          </Box>
                         </Box>
-                      </Box>
-                    </GlassCard>
-                  </Link>
-                </Grid>
-              ))
-            )}
-          </Grid>
-
+                      </GlassCard>
+                    </Link>
+                  </Grid>
+                ))
+              )}
+            </Grid>
+          )}
+          
           <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
             <Pagination
               count={totalPages}
