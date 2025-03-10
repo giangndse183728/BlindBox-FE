@@ -84,9 +84,9 @@ export const routes = createBrowserRouter([
     path: '/custom-accessories',
     element: (
       <Layout showHeader={true} >
-      
-          <CustomPage />
-      
+
+        <CustomPage />
+
       </Layout>
     ),
   },
@@ -99,9 +99,9 @@ export const routes = createBrowserRouter([
     ),
   },
   {
-    path: '/product/:id',
+    path: '/product/:slug',
     element: (
-      <Layout showHeader={true}>
+      <Layout showHeader={false}>
         <Detailpage />
       </Layout>
     ),
