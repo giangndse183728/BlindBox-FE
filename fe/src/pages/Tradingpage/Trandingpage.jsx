@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Typography, Box, Grid, Card, CardContent, CardMedia, Fab, Modal, TextField, IconButton, } from "@mui/material";
-import { Add, PhotoCamera } from "@mui/icons-material";
+import { Typography, Box, Grid, Card, CardContent, CardMedia, Fab, Modal, TextField, IconButton } from "@mui/material";
+import { Add, PhotoCamera, Message } from "@mui/icons-material";
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { tradingPostSchema } from '../../utils/validationSchemas';
 import ButtonCus from "../../components/Button/ButtonCus";
@@ -48,6 +48,8 @@ const TradingPage = () => {
     const [open, setOpen] = useState(false);
     const [newPost, setNewPost] = useState({ title: "", author: "", description: "", image: "" });
     const [imagePreview, setImagePreview] = useState("");
+    const [chatOpen, setChatOpen] = useState(false); 
+    const [sortOrder, setSortOrder] = useState("recent"); 
 
     const handleOpen = () => setOpen(true);
     const handleClose = () => {
@@ -56,21 +58,8 @@ const TradingPage = () => {
         setImagePreview("");
     };
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setNewPost({ ...newPost, [name]: value });
-    };
-
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreview(reader.result);
-                setNewPost({ ...newPost, image: reader.result });
-            };
-            reader.readAsDataURL(file);
-        }
+    const handleChatToggle = () => {
+        setChatOpen(prev => !prev);
     };
 
     const handleSubmit = () => {
@@ -80,19 +69,15 @@ const TradingPage = () => {
         setImagePreview("");
     };
 
-    const [sortOrder, setSortOrder] = useState("recent");
     const sortedPosts = [...tradePosts].sort((a, b) => {
-        if (sortOrder === "recent") {
-            return new Date(b.createdAt) - new Date(a.createdAt); // Sort by recent
-        } else {
-            return new Date(a.createdAt) - new Date(b.createdAt); // Sort by oldest
-        }
+        return sortOrder === "recent"
+            ? new Date(b.createdAt) - new Date(a.createdAt) 
+            : new Date(a.createdAt) - new Date(b.createdAt); 
     });
 
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
-
 
     return (
         <Box
@@ -122,11 +107,11 @@ const TradingPage = () => {
                     Trading Center
                 </Typography>
             </Box>
+
+            {/* Sorting Buttons */}
             <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
                 <ButtonCus
                     variant="button-pixel-yellow"
-                    width="100%"
-                    height="40px"
                     onClick={() => setSortOrder("recent")}
                     sx={{
                         border: sortOrder === "recent" ? "1px solid white" : "none",
@@ -137,8 +122,6 @@ const TradingPage = () => {
                 </ButtonCus>
                 <ButtonCus
                     variant="button-pixel-yellow"
-                    width="100%"
-                    height="40px"
                     onClick={() => setSortOrder("oldest")}
                     sx={{
                         border: sortOrder === "oldest" ? "1px solid white" : "none",
@@ -147,7 +130,9 @@ const TradingPage = () => {
                     Oldest
                 </ButtonCus>
             </Box>
-            <Grid container spacing={2} sx={{ maxWidth: "1200px", width: "100%", }}>
+
+            {/* Card Grid */}
+            <Grid container spacing={2} sx={{ maxWidth: "1200px", width: "100%" }}>
                 {sortedPosts.map((post, index) => (
                     <Grid item xs={12} key={index}>
                         <Card sx={{ display: "flex", bgcolor: "transparent", border: "1px solid white", overflow: "hidden" }}>
@@ -175,6 +160,19 @@ const TradingPage = () => {
                                     <Typography>Created At: {post.createdAt}</Typography>
                                     <Typography>Updated At: {post.updatedAt}</Typography>
                                 </Box>
+                                <Box sx={{ display: "flex", justifyContent: "flex-end", marginTop: 1 }}>
+                                    <ButtonCus
+                                        variant="button-pixel-green"
+                                        onClick={handleChatToggle}
+                                        sx={{
+                                            color: "white",
+                                            bgcolor: "rgba(0, 0, 0, 0.5)",
+                                            '&:hover': { bgcolor: "yellow", color: "black" }
+                                        }}
+                                    >
+                                        Message
+                                    </ButtonCus>
+                                </Box>
                             </CardContent>
                         </Card>
                     </Grid>
@@ -187,13 +185,37 @@ const TradingPage = () => {
                 sx={{
                     position: "fixed",
                     bottom: 20,
-                    right: 20,
+                    left: 20, 
                     border: "1px solid white",
                     bgcolor: "rgba(0, 0, 0, 0.5)",
                     '&:hover': { bgcolor: "yellow", color: "black" }
                 }} onClick={handleOpen}>
                 <Add />
             </Fab>
+
+            {/* Chat Box */}
+            {chatOpen && (
+                <Box sx={{
+                    position: "fixed",
+                    right: 0,
+                    bottom: 10,
+                    width: 300,
+                    height: 400,
+                    bgcolor: "white",
+                    border: "2px solid black",
+                    borderRadius: 2,
+                    padding: 2,
+                    boxShadow: 3,
+                    zIndex: 10,
+                }}>
+                    <Typography variant="h6">Chat</Typography>
+                    <Box sx={{ mt: 2 }}>
+                        <Typography variant="body2">This is the chat box. You can chat here!</Typography>
+                    </Box>
+                </Box>
+            )}
+
+            {/* Modal for New Post */}
             <Modal open={open} onClose={handleClose}>
                 <Box
                     sx={{
