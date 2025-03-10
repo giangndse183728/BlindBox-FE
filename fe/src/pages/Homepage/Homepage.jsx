@@ -44,7 +44,6 @@ const products = [
 export default function Home() {
     const [isLoading, setIsLoading] = useState(true);
     const [videoLoaded, setVideoLoaded] = useState(false);
-    const [fontsLoaded, setFontsLoaded] = useState(false);
 
     useEffect(() => {
         // Initialize AOS
@@ -53,37 +52,15 @@ export default function Home() {
             once: true
         });
 
-        // Load fonts using Web Font Loader
-        window.WebFontConfig = {
-            custom: {
-                families: ['Stalinist One', 'Jersey 15', 'RocknRoll One', 'Yusei Magic'],
-                urls: [
-                    'https://fonts.googleapis.com/css2?family=Stalinist+One&display=swap',
-                    // Add other font URLs as needed
-                ]
-            },
-            active: () => {
-                setFontsLoaded(true);
-            },
-            inactive: () => {
-                // Fallback in case fonts fail to load
-                setFontsLoaded(true);
-            }
-        };
-
-        // Load WebFontLoader script
-        const wf = document.createElement('script');
-        wf.src = 'https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js';
-        wf.async = true;
-        document.head.appendChild(wf);
+       
     }, []);
 
     // Update loading state when both video and fonts are loaded
     useEffect(() => {
-        if (videoLoaded && fontsLoaded) {
+        if (videoLoaded ) {
             setIsLoading(false);
         }
-    }, [videoLoaded, fontsLoaded]);
+    }, [videoLoaded]);
 
     // Add new state and effect for scroll handling
     const [scale, setScale] = React.useState(1);

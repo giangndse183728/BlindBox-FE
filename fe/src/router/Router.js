@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, Outlet } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute';
 //Layout
 import ButtonAppBar from '../layouts/Navbar';
@@ -12,18 +12,15 @@ import Collectionpage from '../pages/Collectionpage/CollectionPage';
 import Detailpage from '../pages/Detailpage/Detailpage';
 import NotFoundPage from '../pages/Error404/NotFoundPage';
 //Admin
-import Dashboard from '../pages/Admin/Dashboard';
+import Dashboard from '../pages/Admin/dashboard/Dashboard';
+import ManageUsers from '../pages/Admin/dashboard/pages/ManageUsers';
 //User
 import CustomPage from '../pages/Custom/CustomPage';
-
 import ProfilePage from '../pages/ProfilePage/ProfilePage';
 //Seller
 import SubscriptionPage from '../pages/SubscriptionPage/SubscriptionPage';
-
 import CartPage from '../pages/Shoppingcart/CartPage';
 import Tradingpage from '../pages/Tradingpage/Trandingpage';
-
-
 
 const Layout = ({ children, showHeader = true }) => {
   return (
@@ -33,8 +30,6 @@ const Layout = ({ children, showHeader = true }) => {
     </div>
   );
 };
-
-
 
 export const routes = createBrowserRouter([
   {
@@ -70,26 +65,40 @@ export const routes = createBrowserRouter([
     ),
   },
 
+ 
   {
     path: '/dashboard',
     element: (
-      <Layout showHeader={true} >
-        <ProtectedRoute requiredRole={0}>
+      <Layout showHeader={false}>
+        <ProtectedRoute requiredRoles={[0]}>
           <Dashboard />
         </ProtectedRoute>
       </Layout>
     ),
+    children: [
+      { 
+        index: true,
+        element: null
+      },
+      { 
+        path: 'users', 
+        element: <ManageUsers /> 
+      },
+    ],
   },
+
+ 
   {
     path: '/custom-accessories',
     element: (
-      <Layout showHeader={true} >
-
-        <CustomPage />
-
+      <Layout showHeader={true}>
+        <ProtectedRoute requiredRoles={[0, 1]}>
+          <CustomPage />
+        </ProtectedRoute>
       </Layout>
     ),
   },
+  
   {
     path: '/Collection-page',
     element: (
@@ -98,6 +107,7 @@ export const routes = createBrowserRouter([
       </Layout>
     ),
   },
+  
   {
     path: '/product/:slug',
     element: (
@@ -106,14 +116,19 @@ export const routes = createBrowserRouter([
       </Layout>
     ),
   },
+  
+
   {
     path: '/cart',
     element: (
       <Layout showHeader={true}>
-        <CartPage />
+        <ProtectedRoute requiredRoles={[0, 1]}>
+          <CartPage />
+        </ProtectedRoute>
       </Layout>
     ),
   },
+  
   {
     path: "*",
     element: (
@@ -122,27 +137,39 @@ export const routes = createBrowserRouter([
       </Layout>
     ),
   },
+  
+
   {
     path: "/profile",
     element: (
       <Layout showHeader={true} >
-        <ProfilePage />
+        <ProtectedRoute requiredRoles={[0, 1]}>
+          <ProfilePage />
+        </ProtectedRoute>
       </Layout>
     ),
   },
+  
+
   {
     path: "/subscription",
     element: (
       <Layout showHeader={true} >
-        <SubscriptionPage />
+        <ProtectedRoute requiredRoles={[0]}>
+          <SubscriptionPage />
+        </ProtectedRoute>
       </Layout>
     ),
   },
+  
+
   {
     path: "/trading",
     element: (
       <Layout showHeader={true} >
-        <Tradingpage />
+        <ProtectedRoute requiredRoles={[0, 1]}>
+          <Tradingpage />
+        </ProtectedRoute>
       </Layout>
     ),
   },

@@ -41,7 +41,7 @@ import {
   Receipt as ReceiptIcon,
   Logout as LogoutIcon,
 } from "@mui/icons-material";
-import { logout } from '../services/loginApi';
+import { logout } from '../services/userApi';
 import { toast } from 'react-toastify';
 
 const menuItems = [
