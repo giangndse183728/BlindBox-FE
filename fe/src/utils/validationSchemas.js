@@ -38,9 +38,21 @@ export const signupSchema = Yup.object({
         .required('Required'),
 });
 
+export const tradingPostSchema = Yup.object({
+    title: Yup.string()
+        .required('Title is required')
+        .max(100, 'Title cannot exceed 100 characters'),
+    description: Yup.string()
+        .required('Description is required')
+        .max(500, 'Description cannot exceed 500 characters'),
+    image: Yup.string()
+        .required('Image is required'), 
+});
+
 export const validationSchemas = {
     login: loginSchema,
     sign: signupSchema,
+    tradingPost: tradingPostSchema,
 };
 
 export default validationSchemas;

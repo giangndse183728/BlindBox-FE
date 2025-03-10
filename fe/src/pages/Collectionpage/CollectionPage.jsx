@@ -301,7 +301,7 @@ const Collectionpage = () => {
                 <TextField
                   {...params}
                   variant="outlined"
-                  placeholder="Search..."
+                  placeholder="Search B!indbox name"
                   sx={{
                     color: "white", 
                     border: "0.5px solid white",
@@ -466,10 +466,10 @@ const Collectionpage = () => {
                       >
                         <Rating
                           name={`product-rating-${product.id}`}
-                          value={product.rating} // Use the product's rating value
+                          value={product.rating} 
                           readOnly
                           precision={0.5}
-                          icon={<FavoriteIcon fontSize="inherit" sx={{ color: "red", stroke: "white", strokeWidth: 1 }} />}
+                          icon={<FavoriteIcon fontSize="inherit" sx={{ color: "red" }} />}
                           emptyIcon={<FavoriteBorderIcon fontSize="inherit" sx={{ stroke: "white", strokeWidth: 1 }} />}
                         />
                       </Box>
