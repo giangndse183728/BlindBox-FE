@@ -1,12 +1,12 @@
 import { useEffect, useState, Suspense } from "react";
 import { Box, TextField, Button, Typography } from '@mui/material';
 import Footer from '../../layouts/Footer';
-import { fetchUserData, updateUserData } from "../../services/profileApi";
 import { useNavigate } from 'react-router-dom';
 import GlassCard from "../../components/Decor/GlassCard";
 import EditIcon from '@mui/icons-material/Edit';
 import LoadingScreen from '../../components/Loading/LoadingScreen';
 import { yellowGlowAnimation } from '../../components/Text/YellowEffect';
+import { fetchProfile, updateUserData } from '../../services/userApi';
 
 
 const ProfilePage = () => {
@@ -28,7 +28,7 @@ const ProfilePage = () => {
         const getUser = async () => {
             setIsLoading(true);
             try {
-                const userData = await fetchUserData();
+                const userData = await fetchProfile();
                 if (!userData) {
                     setUser(null);
                 } else {
@@ -71,6 +71,7 @@ const ProfilePage = () => {
             }
 
             await updateUserData(editedUser);
+            console.log("Updated user:", editedUser);
             setUser(editedUser);
             setIsEditing(false);
         } catch (error) {
