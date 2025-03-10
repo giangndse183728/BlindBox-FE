@@ -16,12 +16,12 @@ import Dashboard from '../pages/Admin/dashboard/Dashboard';
 import ManageUsers from '../pages/Admin/dashboard/pages/ManageUsers';
 //User
 import CustomPage from '../pages/Custom/CustomPage';
-import ProfilePage from '../pages/Profile/ProfilePage';
+import ProfilePage from '../pages/ProfilePage/ProfilePage';
 //Seller
 import SubscriptionPage from '../pages/SubscriptionPage/SubscriptionPage';
 import CartPage from '../pages/Shoppingcart/CartPage';
 import Tradingpage from '../pages/Tradingpage/Trandingpage';
-import OrdersPage from '../pages/MyOrders/Orderspage';
+import OrdersPage from '../pages/MyOrders/OrdersPage';
 
 const Layout = ({ children, showHeader = true }) => {
   return (
@@ -66,7 +66,7 @@ export const routes = createBrowserRouter([
     ),
   },
 
- 
+
   {
     path: '/dashboard',
     element: (
@@ -77,18 +77,18 @@ export const routes = createBrowserRouter([
       </Layout>
     ),
     children: [
-      { 
+      {
         index: true,
         element: null
       },
-      { 
-        path: 'users', 
-        element: <ManageUsers /> 
+      {
+        path: 'users',
+        element: <ManageUsers />
       },
     ],
   },
 
- 
+
   {
     path: '/custom-accessories',
     element: (
@@ -99,7 +99,7 @@ export const routes = createBrowserRouter([
       </Layout>
     ),
   },
-  
+
   {
     path: '/Collection-page',
     element: (
@@ -108,7 +108,7 @@ export const routes = createBrowserRouter([
       </Layout>
     ),
   },
-  
+
   {
     path: '/product/:id',
     element: (
@@ -117,7 +117,7 @@ export const routes = createBrowserRouter([
       </Layout>
     ),
   },
-  
+
 
   {
     path: '/cart',
@@ -129,7 +129,7 @@ export const routes = createBrowserRouter([
       </Layout>
     ),
   },
-  
+
   {
     path: "*",
     element: (
@@ -138,7 +138,7 @@ export const routes = createBrowserRouter([
       </Layout>
     ),
   },
-  
+
 
   {
     path: "/profile",
@@ -150,7 +150,7 @@ export const routes = createBrowserRouter([
       </Layout>
     ),
   },
-  
+
 
   {
     path: "/subscription",
@@ -162,7 +162,7 @@ export const routes = createBrowserRouter([
       </Layout>
     ),
   },
-  
+
 
   {
     path: "/trading",
