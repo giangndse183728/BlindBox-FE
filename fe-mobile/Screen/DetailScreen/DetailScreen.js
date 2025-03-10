@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, Button, ImageBackground } from "react-native";
-import { Appbar, Card, Paragraph } from "react-native-paper";
+import { Appbar, Card } from "react-native-paper";
 import Icon from 'react-native-vector-icons/FontAwesome'; // Import heart icon
 import { useNavigation, useRoute } from "@react-navigation/native";
 
@@ -37,9 +37,9 @@ const DetailScreen = () => {
           <Card.Cover source={product.img} style={styles.productImage} />
           <Card.Content>
             <Text style={styles.productName}>{product.name}</Text>
-            <Paragraph style={styles.productBrand}>Brand: {product.brand}</Paragraph>
+            <Text style={styles.productBrand}>Brand: {product.brand}</Text>
             <Text style={styles.productPrice}>${product.price.toFixed(2)}</Text>
-            <Paragraph style={styles.productDescription}>{product.description}</Paragraph>
+            <Text style={styles.productDescription}>{product.description}</Text>
             <View style={styles.ratingContainer}>
               <Text style={styles.ratingLabel}>Rating:</Text>
               <View style={styles.heartRating}>

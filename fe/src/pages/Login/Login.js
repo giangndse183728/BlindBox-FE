@@ -15,7 +15,7 @@ import Copyright from '../../components/Text/Copyright';
 import LoadingScreen from '../../components/Loading/LoadingScreen';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
-import { login, signup, fetchUserData } from '../../services/loginApi';
+import { login, signup, fetchUserData } from '../../services/userApi';
 import { useNavigate, NavLink } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import {loginSchema , signupSchema } from '../../utils/validationSchemas';
@@ -140,7 +140,7 @@ export default function Login() {
                 await login(values.email, values.password);
                 const userData = await fetchUserData();
                 if (userData.role === 0) {
-                    navigate('/Dashboard');
+                    navigate('/dashboard');
                 } else {
                     navigate('/');
                 }
