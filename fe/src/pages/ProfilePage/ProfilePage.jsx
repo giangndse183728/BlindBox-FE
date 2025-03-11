@@ -1,5 +1,5 @@
 import { useEffect, useState, Suspense } from "react";
-import { Box, TextField, Button, Typography } from '@mui/material';
+import { Box, TextField, Button, Typography, Grid } from '@mui/material';
 import Footer from '../../layouts/Footer';
 import { useNavigate } from 'react-router-dom';
 import GlassCard from "../../components/Decor/GlassCard";
@@ -7,7 +7,53 @@ import EditIcon from '@mui/icons-material/Edit';
 import LoadingScreen from '../../components/Loading/LoadingScreen';
 import { yellowGlowAnimation } from '../../components/Text/YellowEffect';
 import { fetchProfile, updateUserData } from '../../services/userApi';
+import { Formik } from 'formik';
+import { profileSchema } from '../../utils/validationSchemas';
+import { toast } from 'react-toastify';
+import { useAddressManagement, AddressForm } from '../../components/Address/AddressComponents';
 
+// Extracted reusable components
+const FormTextField = ({ id, label, value, isEditing, handleChange, handleBlur, errors, touched, readOnly = false, multiline = false, rows = 1, placeholder = "" }) => {
+    const isReadOnly = readOnly || !isEditing;
+
+    return (
+        <TextField
+            id={id}
+            name={id}
+            label={label}
+            variant="outlined"
+            value={value || ''}
+            placeholder={placeholder}
+            fullWidth
+            margin="normal"
+            multiline={multiline}
+            rows={rows}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={touched[id] && Boolean(errors[id])}
+            helperText={touched[id] && errors[id]}
+            InputProps={{
+                readOnly: isReadOnly,
+                style: { color: isEditing && !readOnly ? 'white' : 'rgba(255, 255, 255, 0.5)' },
+                endAdornment: isEditing && !readOnly ? <EditIcon /> : null
+            }}
+            InputLabelProps={{ style: { color: isEditing && !readOnly ? 'white' : 'rgba(255, 255, 255, 0.5)' } }}
+            sx={{
+                '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                        borderColor: isEditing && !readOnly ? 'white' : 'rgba(255, 255, 255, 0.5)',
+                    },
+                    '&:hover fieldset': {
+                        borderColor: isEditing && !readOnly ? 'white' : 'rgba(255, 255, 255, 0.5)',
+                    },
+                    '&.Mui-focused fieldset': {
+                        borderColor: isEditing && !readOnly ? 'white' : 'rgba(255, 255, 255, 0.5)',
+                    },
+                },
+            }}
+        />
+    );
+};
 
 const ProfilePage = () => {
     const navigate = useNavigate();
@@ -15,15 +61,11 @@ const ProfilePage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
-    const [editedUser, setEditedUser] = useState({});
 
-    useEffect(() => {
-        document.body.style.overflow = "hidden";
-        return () => {
-            document.body.style.overflow = "auto";
-        };
-    }, []);
+    const addressData = useAddressManagement(user?.address);
+    const { generateFullAddress, parseAddress, setIsLoading: setAddressIsLoading } = addressData;
 
+    // Fetch user data
     useEffect(() => {
         const getUser = async () => {
             setIsLoading(true);
@@ -33,73 +75,79 @@ const ProfilePage = () => {
                     setUser(null);
                 } else {
                     setUser(userData);
+                    if (userData.address) {
+                        await parseAddress(userData.address);
+                    }
                 }
             } catch (err) {
                 setError("Failed to fetch user data");
             } finally {
                 setIsLoading(false);
+                setAddressIsLoading(false);
             }
         };
 
         getUser();
     }, []);
 
-
+    // Redirect if not logged in
     useEffect(() => {
         if (!isLoading && user === null) {
             navigate('/login', { replace: true });
         }
     }, [isLoading, user, navigate]);
 
-    if (isLoading) {
-        return <LoadingScreen />;
-    }
+    if (isLoading) return <LoadingScreen />;
     if (error) return <p style={{ color: "red", textAlign: "center", marginTop: "10px", fontFamily: 'Yusei Magic' }}>{error}</p>;
 
-    const handleEdit = () => {
-        setEditedUser(user);
-        setIsEditing(true);
-    };
+    const handleEdit = () => setIsEditing(true);
+    const handleCancel = () => setIsEditing(false);
 
-    const handleSave = async () => {
-
+    const handleSubmit = async (values, { setSubmitting }) => {
         try {
+            const fullAddress = generateFullAddress();
 
-            if (JSON.stringify(user) === JSON.stringify(editedUser)) {
+            const changedFields = {};
+            Object.keys(values).forEach(key => {
+                if (key !== 'address' && values[key] !== user[key]) {
+                    changedFields[key] = values[key];
+                }
+            });
+
+            if (fullAddress !== user.address && fullAddress.trim() !== '') {
+                changedFields.address = fullAddress;
+            }
+
+            if (Object.keys(changedFields).length === 0) {
                 setIsEditing(false);
+                setSubmitting(false);
                 return;
             }
 
-            await updateUserData(editedUser);
-            console.log("Updated user:", editedUser);
-            setUser(editedUser);
+            await updateUserData(changedFields);
+
+            setUser({ ...user, ...changedFields });
             setIsEditing(false);
+            toast.success('Update profile successfully!');
         } catch (error) {
             console.error("Error updating user:", error);
             setError("Failed to update profile. Please try again.");
+        } finally {
+            setSubmitting(false);
         }
     };
 
-    const handleChange = (event) => {
-        const { name, value } = event.target;
-        setEditedUser((prevUser) => ({
-            ...prevUser,
-            [name]: value || '', // Ensures the field can be cleared
-        }));
-    };
-
     return (
-
         <div style={{
             position: 'relative',
-            overflow: 'hidden',
             width: '100%',
-            height: '100vh',
+            height: '100%',
             display: 'flex',
             flexDirection: 'column',
-            marginTop: '80px',
+            marginTop: '60px',
             justifyContent: 'space-between',
             fontFamily: 'Yusei Magic',
+            overflowY: 'auto',
         }}>
             {isLoading && <LoadingScreen />}
             <Box
@@ -116,14 +164,14 @@ const ProfilePage = () => {
                     zIndex: -2,
                 }}
             />
-            <Suspense fallback={<LoadingScreen />}>
+            <Suspense fallback={<LoadingScreen />} />
 
-            </Suspense>
             <div style={{
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
                 marginTop: '50px',
+                marginBottom: '50px',
                 flex: 1,
                 minHeight: "calc(100vh - 80px)"
             }}>
@@ -153,7 +201,6 @@ const ProfilePage = () => {
                             sx={{
                                 ...yellowGlowAnimation,
                                 textAlign: 'right',
-                                fontSize: '1.5rem',
                                 position: 'relative',
                                 top: '30px',
                                 fontSize: '2rem',
@@ -166,216 +213,140 @@ const ProfilePage = () => {
                     </Box>
                 </GlassCard>
 
-                {/* Profile Details Section */}
-                <div style={{ width: "80%", display: "flex", justifyContent: "space-between", gap: "20px" }}>
-                    {/* Sidebar */}
-                    <GlassCard style={{ width: "20%", padding: "15px", marginLeft: "-20px", position: 'relative' }}>
-                        <h3 style={{ color: "white" }}>About Me</h3>
-                        <TextField
-                            id="outlined-basic"
-                            label="Biography"
-                            variant="outlined"
-                            value={user?.biography}
-                            placeholder="This is the biography section where the user can add personal details."
-                            fullWidth
-                            margin="normal"
-                            multiline
-                            rows={8.5}
-                            onChange={handleChange}
-                            InputProps={{
-                                readOnly: !isEditing,
-                                style: { color: isEditing ? 'white' : 'rgba(255, 255, 255, 0.5)' },
-                            }}
-                            InputLabelProps={{ style: { color: isEditing ? 'white' : 'rgba(255, 255, 255, 0.5)' } }}
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    '& fieldset': {
-                                        borderColor: isEditing ? 'white' : 'rgba(255, 255, 255, 0.5)',
-                                    },
-                                    '&:hover fieldset': {
-                                        borderColor: isEditing ? 'white' : 'rgba(255, 255, 255, 0.5)',
-                                    },
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: isEditing ? 'white' : 'rgba(255, 255, 255, 0.5)',
-                                    },
-                                },
-                                '& .MuiInputBase-input': {
-                                    fontFamily: 'Yusei Magic',
-                                },
-                                '& .MuiInputLabel-root': {
-                                    fontFamily: 'Yusei Magic',
-                                },
-                            }}
-                        />
-                    </GlassCard>
+                {/* Formik Form */}
+                <Formik
+                    initialValues={{
+                        userName: user?.userName || '',
+                        email: user?.email || '',
+                        fullName: user?.fullName || '',
+                        phoneNumber: user?.phoneNumber || '',
+                        address: user?.address || '',
+                        biography: user?.biography || '',
+                    }}
+                    validationSchema={profileSchema}
+                    onSubmit={handleSubmit}
+                    enableReinitialize
+                >
+                    {({ values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting }) => (
+                        <form onSubmit={handleSubmit} style={{ width: "80%", display: "flex", justifyContent: "space-between", gap: "20px" }}>
+                            {/* Sidebar */}
+                            <GlassCard style={{ width: "20%", padding: "15px", marginLeft: "-20px", position: 'relative' }}>
+                                <h3 style={{ color: "white" }}>About Me</h3>
+                                <FormTextField
+                                    id="biography"
+                                    label="Biography"
+                                    value={values.biography}
+                                    isEditing={isEditing}
+                                    handleChange={handleChange}
+                                    handleBlur={handleBlur}
+                                    errors={errors}
+                                    touched={touched}
+                                    multiline={true}
+                                    rows={8.5}
+                                    placeholder="This is the biography section where the user can add personal details."
+                                />
+                            </GlassCard>
 
-                    {/* Main Content */}
-                    <GlassCard style={{ width: "75%", padding: "20px", marginRight: "-20px" }}>
-                        <h3 style={{ color: "white" }}>Profile Details</h3>
+                            {/* Main Content */}
+                            <GlassCard theme="dark" style={{ width: "75%", padding: "20px", marginRight: "-20px" }}>
+                                <h3 style={{ color: "white" }}>Profile Details</h3>
 
-                        <TextField
-                            id="outlined-basic"
-                            label="Username"
-                            variant="outlined"
-                            name="userName"
-                            value={isEditing ? editedUser?.userName || '' : user?.userName || ''}
-                            fullWidth
-                            margin="normal"
-                            onChange={handleChange}
-                            InputProps={{ readOnly: !isEditing, style: { color: isEditing ? 'white' : 'rgba(255, 255, 255, 0.5)' }, endAdornment: isEditing ? <EditIcon /> : null }}
-                            InputLabelProps={{ style: { color: isEditing ? 'white' : 'gray' } }}
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    '& fieldset': {
-                                        borderColor: isEditing ? 'white' : 'gray',
-                                    },
-                                    '&:hover fieldset': {
-                                        borderColor: isEditing ? 'white' : 'gray',
-                                    },
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: isEditing ? 'white' : 'gray',
-                                    },
-                                },
-                                width: '48%',
-                                marginRight: '4%',
+                                <Grid container spacing={2}>
+                                    {/* Email and Username row */}
+                                    <Grid item xs={12} sm={6}>
+                                        <FormTextField
+                                            id="email"
+                                            label="Email"
+                                            value={values.email}
+                                            isEditing={isEditing}
+                                            handleChange={handleChange}
+                                            handleBlur={handleBlur}
+                                            errors={errors}
+                                            touched={touched}
+                                            readOnly={true}
+                                        />
+                                    </Grid>
 
-                                '& .MuiInputBase-input': {
-                                    fontFamily: 'Yusei Magic',
-                                },
-                                '& .MuiInputLabel-root': {
-                                    fontFamily: 'Yusei Magic',
-                                },
-                            }}
-                        />
-                        <TextField
-                            id="outlined-basic"
-                            label="Email"
-                            variant="outlined"
-                            name="email"
-                            value={isEditing ? editedUser?.email || '' : user?.email || ''}
-                            fullWidth
-                            margin="normal"
-                            InputProps={{ readOnly: true, style: { color: 'rgba(255, 255, 255, 0.5)' }, }}
-                            InputLabelProps={{ style: { color: 'rgba(255, 255, 255, 0.5)' } }}
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    '& fieldset': {
-                                        borderColor: 'rgba(255, 255, 255, 0.5)',
-                                    },
-                                    '&:hover fieldset': {
-                                        borderColor: 'rgba(255, 255, 255, 0.5)',
-                                    },
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: 'rgba(255, 255, 255, 0.5)',
-                                    },
-                                },
-                                width: '48%',
+                                    <Grid item xs={12} sm={6}>
+                                        <FormTextField
+                                            id="userName"
+                                            label="Username"
+                                            value={values.userName}
+                                            isEditing={isEditing}
+                                            handleChange={handleChange}
+                                            handleBlur={handleBlur}
+                                            errors={errors}
+                                            touched={touched}
+                                            readOnly={true}
+                                        />
+                                    </Grid>
 
-                                '& .MuiInputBase-input': {
-                                    fontFamily: 'Yusei Magic',
-                                },
-                                '& .MuiInputLabel-root': {
-                                    fontFamily: 'Yusei Magic',
-                                },
-                            }}
-                        />
-                        <TextField
-                            id="outlined-basic"
-                            label="Phone Number"
-                            variant="outlined"
-                            name="phoneNumber"
-                            value={isEditing ? editedUser?.phoneNumber || '' : user?.phoneNumber || ''}
-                            fullWidth
-                            margin="normal"
-                            onChange={handleChange}
-                            InputProps={{ readOnly: !isEditing, style: { color: isEditing ? 'white' : 'rgba(255, 255, 255, 0.5)' }, endAdornment: isEditing ? <EditIcon /> : null }}
-                            InputLabelProps={{ style: { color: isEditing ? 'white' : 'rgba(255, 255, 255, 0.5)' } }}
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    '& fieldset': {
-                                        borderColor: isEditing ? 'white' : 'rgba(255, 255, 255, 0.5)',
-                                    },
-                                    '&:hover fieldset': {
-                                        borderColor: isEditing ? 'white' : 'rgba(255, 255, 255, 0.5)',
-                                    },
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: isEditing ? 'white' : 'rgba(255, 255, 255, 0.5)',
-                                    },
-                                },
-                                width: '48%',
-                                marginRight: '4%',
+                                    {/* Full Name and Phone Number row */}
+                                    <Grid item xs={12} sm={6}>
+                                        <FormTextField
+                                            id="fullName"
+                                            label="Full Name"
+                                            value={values.fullName}
+                                            isEditing={isEditing}
+                                            handleChange={handleChange}
+                                            handleBlur={handleBlur}
+                                            errors={errors}
+                                            touched={touched}
+                                        />
+                                    </Grid>
 
-                                '& .MuiInputBase-input': {
-                                    fontFamily: 'Yusei Magic',
-                                },
-                                '& .MuiInputLabel-root': {
-                                    fontFamily: 'Yusei Magic',
-                                },
-                            }}
-                        />
-                        <TextField
-                            id="outlined-basic"
-                            label="Address"
-                            variant="outlined"
-                            name="address"
-                            value={isEditing ? editedUser?.address || '' : user?.address || ''}
-                            placeholder="Enter your address"
-                            fullWidth
-                            margin="normal"
-                            onChange={handleChange}
-                            InputProps={{ readOnly: !isEditing, style: { color: isEditing ? 'white' : 'rgba(255, 255, 255, 0.5)' }, endAdornment: isEditing ? <EditIcon /> : null }}
-                            InputLabelProps={{ style: { color: isEditing ? 'white' : 'rgba(255, 255, 255, 0.5)' } }}
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    '& fieldset': {
-                                        borderColor: isEditing ? 'white' : 'rgba(255, 255, 255, 0.5)',
-                                    },
-                                    '&:hover fieldset': {
-                                        borderColor: isEditing ? 'white' : 'rgba(255, 255, 255, 0.5)',
-                                    },
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: isEditing ? 'white' : 'rgba(255, 255, 255, 0.5)',
-                                    },
-                                },
-                                width: '48%',
+                                    <Grid item xs={12} sm={6}>
+                                        <FormTextField
+                                            id="phoneNumber"
+                                            label="Phone Number"
+                                            value={values.phoneNumber}
+                                            isEditing={isEditing}
+                                            handleChange={handleChange}
+                                            handleBlur={handleBlur}
+                                            errors={errors}
+                                            touched={touched}
+                                        />
+                                    </Grid>
 
+                                    <AddressForm isEditing={isEditing} addressData={addressData} />
+                                </Grid>
 
-                                '& .MuiInputBase-input': {
-                                    fontFamily: 'Yusei Magic',
-                                },
-                                '& .MuiInputLabel-root': {
-                                    fontFamily: 'Yusei Magic',
-                                },
-                            }}
-                        />
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
-                            {isEditing ? (
-                                <Button variant="outlined" onClick={() => setIsEditing(false)} style={{ marginRight: '10px', color: '#FFD700', borderColor: '#FFD700' }}>
-                                    Cancel
-                                </Button>
-                            ) : (
-                                <Button variant="outlined" onClick={handleEdit} style={{ marginRight: '10px', color: '#FFD700', borderColor: '#FFD700' }}>
-                                    Edit
-                                </Button>
-                            )}
-                            {isEditing && (
-                                <Button
-                                    variant="contained"
-                                    onClick={handleSave}
-                                    style={{ backgroundColor: '#FFD700', color: 'black' }}
-                                    disabled={JSON.stringify(user) === JSON.stringify(editedUser)}
-                                >
-                                    Save Changes
-                                </Button>
-                            )}
-                        </div>
-                    </GlassCard>
-                </div>
+                                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+                                    {isEditing ? (
+                                        <Button
+                                            variant="outlined"
+                                            onClick={handleCancel}
+                                            style={{ marginRight: '10px', color: '#FFD700', borderColor: '#FFD700' }}
+                                        >
+                                            Cancel
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            variant="outlined"
+                                            onClick={handleEdit}
+                                            style={{ marginRight: '10px', color: '#FFD700', borderColor: '#FFD700' }}
+                                        >
+                                            Edit
+                                        </Button>
+                                    )}
+                                    {isEditing && (
+                                        <Button
+                                            variant="contained"
+                                            type="submit"
+                                            style={{ backgroundColor: '#FFD700', color: 'black' }}
+                                            disabled={isSubmitting || Object.keys(errors).length > 0}
+                                        >
+                                            Save Changes
+                                        </Button>
+                                    )}
+                                </Box>
+                            </GlassCard>
+                        </form>
+                    )}
+                </Formik>
             </div>
-            <Footer style={{ flexShrink: 0, marginTop: 0, paddingTop: 0 }} />
-
+            <Footer style={{ flexShrink: 0, paddingTop: 0 }} />
         </div>
-
     );
 };
 
