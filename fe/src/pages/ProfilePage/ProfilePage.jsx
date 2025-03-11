@@ -236,38 +236,49 @@ const ProfilePage = () => {
                                     padding: "15px",
                                     marginLeft: "-20px",
                                     position: "relative",
-                                    minHeight: "500px", 
+                                    minHeight: "500px",
                                     maxHeight: "600px",
-                                    overflowY: "auto", 
+                                    overflowY: "auto",
                                     scrollbarWidth: "thin",
-                                    scrollbarColor: "rgba(255, 255, 255, 0.5) transparent", 
+                                    scrollbarColor: "rgba(255, 255, 255, 0.5) transparent",
                                 }}
                             >
                                 <h3 style={{ color: "white" }}>Policy</h3>
-                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", marginBottom: "10px" }}>
+                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", marginBottom: "10px", fontSize: "14px", lineHeight: "1.4" }}>
                                     By toggling <b>Sale Blindbox</b>, users become sellers and must follow these rules:
                                 </h4>
 
-                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "bold" }}>Verified users only</h4>
-                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "normal" }}>Approval required.</h4>
+                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "bold", fontSize: "14px" }}>Verified users only</h4>
+                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontSize: "13px", marginBottom: "8px" }}>Approval required.</h4>
 
-                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "bold" }}>Accurate listings</h4>
-                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "normal" }}>No fraud or misleading info.</h4>
+                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "bold", fontSize: "14px" }}>Accurate listings</h4>
+                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontSize: "13px", marginBottom: "8px" }}>No fraud or misleading info.</h4>
 
-                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "bold" }}>Pricing & fees</h4>
-                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "normal" }}>Sellers set prices; platform takes a fee.</h4>
+                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "bold", fontSize: "14px" }}>Pricing & Fees</h4>
+                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontSize: "13px", marginBottom: "8px" }}>
+                                    Sellers set prices. Platform takes a fee.
+                                </h4>
 
-                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "bold" }}>Secure payments</h4>
-                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "normal" }}>Payouts after confirmation.</h4>
+                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "bold", fontSize: "14px" }}>Secure Payments</h4>
+                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontSize: "13px", marginBottom: "8px" }}>
+                                    Payouts after confirmation.
+                                </h4>
 
-                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "bold" }}>Order fulfillment</h4>
-                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "normal" }}>Late or canceled orders may be penalized.</h4>
+                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "bold", fontSize: "14px" }}>Order Fulfillment</h4>
+                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontSize: "13px", marginBottom: "8px" }}>
+                                    Late/canceled orders may be penalized.
+                                </h4>
 
-                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "bold" }}>Compliance</h4>
-                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "normal" }}>No illegal items; violations lead to removal or bans.</h4>
+                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "bold", fontSize: "14px" }}>Compliance</h4>
+                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontSize: "13px", marginBottom: "8px" }}>
+                                    No illegal items. Violations may lead to removal or bans.
+                                </h4>
 
-                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "bold" }}>Account control</h4>
-                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "normal" }}>Sellers can disable selling anytime.</h4>
+                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "bold", fontSize: "14px" }}>Account Control</h4>
+                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontSize: "13px", marginBottom: "8px" }}>
+                                    Sellers can disable selling anytime.
+                                </h4>
+
                             </GlassCard>
 
 
