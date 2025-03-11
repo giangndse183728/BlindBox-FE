@@ -111,7 +111,7 @@ export const routes = createBrowserRouter([
   },
 
   {
-    path: '/product/:id',
+    path: '/product/:slug',
     element: (
       <Layout showHeader={true}>
         <Detailpage />
@@ -124,7 +124,7 @@ export const routes = createBrowserRouter([
     path: '/cart',
     element: (
       <Layout showHeader={true}>
-        <ProtectedRoute requiredRoles={[0, 1]}>
+        <ProtectedRoute requiredRoles={[1]}>
           <CartPage />
         </ProtectedRoute>
       </Layout>
@@ -157,7 +157,7 @@ export const routes = createBrowserRouter([
     path: "/subscription",
     element: (
       <Layout showHeader={true} >
-        <ProtectedRoute requiredRoles={[0]}>
+        <ProtectedRoute requiredRoles={[1]}>
           <SubscriptionPage />
         </ProtectedRoute>
       </Layout>
@@ -169,7 +169,7 @@ export const routes = createBrowserRouter([
     path: "/trading",
     element: (
       <Layout showHeader={true} >
-        <ProtectedRoute requiredRoles={[0, 1]}>
+        <ProtectedRoute requiredRoles={[1]}>
           <Tradingpage />
         </ProtectedRoute>
       </Layout>
