@@ -21,7 +21,7 @@ import ProfilePage from '../pages/ProfilePage/ProfilePage';
 import SubscriptionPage from '../pages/SubscriptionPage/SubscriptionPage';
 import CartPage from '../pages/Shoppingcart/CartPage';
 import Tradingpage from '../pages/Tradingpage/Trandingpage';
-import OrdersPage from '../pages/MyOrders/OrdersPage';
+import OrdersPage from '../pages/MyOrders/Orderspage';
 
 const Layout = ({ children, showHeader = true }) => {
   return (
@@ -123,7 +123,7 @@ export const routes = createBrowserRouter([
     path: '/cart',
     element: (
       <Layout showHeader={true}>
-        <ProtectedRoute requiredRoles={[0, 1]}>
+        <ProtectedRoute requiredRoles={[1]}>
           <CartPage />
         </ProtectedRoute>
       </Layout>
@@ -156,7 +156,7 @@ export const routes = createBrowserRouter([
     path: "/subscription",
     element: (
       <Layout showHeader={true} >
-        <ProtectedRoute requiredRoles={[0]}>
+        <ProtectedRoute requiredRoles={[1]}>
           <SubscriptionPage />
         </ProtectedRoute>
       </Layout>
@@ -168,7 +168,7 @@ export const routes = createBrowserRouter([
     path: "/trading",
     element: (
       <Layout showHeader={true} >
-        <ProtectedRoute requiredRoles={[0, 1]}>
+        <ProtectedRoute requiredRoles={[1]}>
           <Tradingpage />
         </ProtectedRoute>
       </Layout>

@@ -326,7 +326,7 @@ const Collectionpage = () => {
                             {product.type === "Unbox" ? <FaBoxOpen size={30} /> : <GiCardboardBoxClosed size={34} />}
                           </Box>
                           <img
-                            src={product.img}
+                            src={product.image}
                             alt={product.name}
                             style={{ width: 200, height: 200, borderRadius: "10px", marginTop: "-70px", cursor: "pointer" }}
                           />

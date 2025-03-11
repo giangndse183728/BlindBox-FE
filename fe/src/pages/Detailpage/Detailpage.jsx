@@ -54,7 +54,6 @@ const Detailpage = () => {
     
     const handleAddToCart = () => {
         addToCart(product, 1); 
-        alert(`${product.name} has been added to your cart!`);
     };
 
     return (
@@ -78,9 +77,9 @@ const Detailpage = () => {
                 <Grid container spacing={4} alignItems="center">
                     <Grid item xs={12} md={6} sx={{ textAlign: "center" }}>
                         <img
-                            src={product.img}
+                            src={product.image}
                             alt={product.name}
-                            style={{ width: 500, height: 500, borderRadius: "10px" }}
+                            style={{ width: 400, height: 350, borderRadius: "10px" }}
                         />
                     </Grid>
 
