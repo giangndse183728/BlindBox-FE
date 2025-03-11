@@ -68,4 +68,31 @@ export const logout = async () => {
     }
 };
 
+export const fetchProfile = async () => {
+    try {
+        const userResponse = await api.get('/accounts/me');
+        const userData = userResponse.data.result;
+
+        return userData;
+
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+        throw new Error('Failed to fetch user data');
+    }
+
+
+};
+
+// Update user data
+export const updateUserData = async (updatedUser) => {
+    try {
+        console.log(updatedUser);
+        const response = await api.patch('/accounts/me', updatedUser);
+        return response.data;
+    } catch (error) {
+        console.error('Error updating user data:', error);
+        throw new Error('Failed to update user data');
+    }
+};
+
 

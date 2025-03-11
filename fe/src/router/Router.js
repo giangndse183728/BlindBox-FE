@@ -21,6 +21,7 @@ import ProfilePage from '../pages/ProfilePage/ProfilePage';
 import SubscriptionPage from '../pages/SubscriptionPage/SubscriptionPage';
 import CartPage from '../pages/Shoppingcart/CartPage';
 import Tradingpage from '../pages/Tradingpage/Trandingpage';
+import OrdersPage from '../pages/MyOrders/OrdersPage';
 
 const Layout = ({ children, showHeader = true }) => {
   return (
@@ -65,7 +66,7 @@ export const routes = createBrowserRouter([
     ),
   },
 
- 
+
   {
     path: '/dashboard',
     element: (
@@ -76,18 +77,18 @@ export const routes = createBrowserRouter([
       </Layout>
     ),
     children: [
-      { 
+      {
         index: true,
         element: null
       },
-      { 
-        path: 'users', 
-        element: <ManageUsers /> 
+      {
+        path: 'users',
+        element: <ManageUsers />
       },
     ],
   },
 
- 
+
   {
     path: '/custom-accessories',
     element: (
@@ -98,7 +99,7 @@ export const routes = createBrowserRouter([
       </Layout>
     ),
   },
-  
+
   {
     path: '/Collection-page',
     element: (
@@ -107,7 +108,7 @@ export const routes = createBrowserRouter([
       </Layout>
     ),
   },
-  
+
   {
     path: '/product/:slug',
     element: (
@@ -116,7 +117,7 @@ export const routes = createBrowserRouter([
       </Layout>
     ),
   },
-  
+
 
   {
     path: '/cart',
@@ -128,7 +129,7 @@ export const routes = createBrowserRouter([
       </Layout>
     ),
   },
-  
+
   {
     path: "*",
     element: (
@@ -137,7 +138,7 @@ export const routes = createBrowserRouter([
       </Layout>
     ),
   },
-  
+
 
   {
     path: "/profile",
@@ -149,7 +150,7 @@ export const routes = createBrowserRouter([
       </Layout>
     ),
   },
-  
+
 
   {
     path: "/subscription",
@@ -161,7 +162,7 @@ export const routes = createBrowserRouter([
       </Layout>
     ),
   },
-  
+
 
   {
     path: "/trading",
@@ -170,6 +171,14 @@ export const routes = createBrowserRouter([
         <ProtectedRoute requiredRoles={[0, 1]}>
           <Tradingpage />
         </ProtectedRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/order",
+    element: (
+      <Layout showHeader={true} >
+        <OrdersPage />
       </Layout>
     ),
   },
