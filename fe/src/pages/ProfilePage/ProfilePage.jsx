@@ -178,7 +178,7 @@ const ProfilePage = () => {
                 {/* Profile Header */}
                 <GlassCard style={{ width: "80%", padding: "20px", marginBottom: "20px", position: 'relative' }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "20px", marginLeft: "40px" }}>
-                        <img src="/assets/bill-cypher/pfp.jpeg" alt="Profile" style={{ width: "80px", height: "80px", borderRadius: "50%", border: "3px solid #FFD700" }} />
+                        <img src="/assets/bill-cypher/pfp.jpeg" alt="Profile" style={{ width: "80px", height: "100%", borderRadius: "50%", border: "3px solid #FFD700" }} />
                         <div>
                             <h2 style={{
                                 margin: 0, color: "white", fontSize: "40px", fontFamily: '"Jersey 15", sans-serif'
@@ -230,22 +230,49 @@ const ProfilePage = () => {
                     {({ values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting }) => (
                         <form onSubmit={handleSubmit} style={{ width: "80%", display: "flex", justifyContent: "space-between", gap: "20px" }}>
                             {/* Sidebar */}
-                            <GlassCard style={{ width: "20%", padding: "15px", marginLeft: "-20px", position: 'relative' }}>
-                                <h3 style={{ color: "white" }}>About Me</h3>
-                                <FormTextField
-                                    id="biography"
-                                    label="Biography"
-                                    value={values.biography}
-                                    isEditing={isEditing}
-                                    handleChange={handleChange}
-                                    handleBlur={handleBlur}
-                                    errors={errors}
-                                    touched={touched}
-                                    multiline={true}
-                                    rows={8.5}
-                                    placeholder="This is the biography section where the user can add personal details."
-                                />
+                            <GlassCard
+                                style={{
+                                    width: "20%",
+                                    padding: "15px",
+                                    marginLeft: "-20px",
+                                    position: "relative",
+                                    minHeight: "500px", 
+                                    maxHeight: "600px",
+                                    overflowY: "auto", 
+                                    scrollbarWidth: "thin",
+                                    scrollbarColor: "rgba(255, 255, 255, 0.5) transparent", 
+                                }}
+                            >
+                                <h3 style={{ color: "white" }}>Policy</h3>
+                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", marginBottom: "10px" }}>
+                                    By toggling <b>Sale Blindbox</b>, users become sellers and must follow these rules:
+                                </h4>
+
+                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "bold" }}>Verified users only</h4>
+                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "normal" }}>Approval required.</h4>
+
+                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "bold" }}>Accurate listings</h4>
+                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "normal" }}>No fraud or misleading info.</h4>
+
+                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "bold" }}>Pricing & fees</h4>
+                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "normal" }}>Sellers set prices; platform takes a fee.</h4>
+
+                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "bold" }}>Secure payments</h4>
+                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "normal" }}>Payouts after confirmation.</h4>
+
+                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "bold" }}>Order fulfillment</h4>
+                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "normal" }}>Late or canceled orders may be penalized.</h4>
+
+                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "bold" }}>Compliance</h4>
+                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "normal" }}>No illegal items; violations lead to removal or bans.</h4>
+
+                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "bold" }}>Account control</h4>
+                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "normal" }}>Sellers can disable selling anytime.</h4>
                             </GlassCard>
+
+
+
+
 
                             {/* Main Content */}
                             <GlassCard theme="dark" style={{ width: "75%", padding: "20px", marginRight: "-20px" }}>
