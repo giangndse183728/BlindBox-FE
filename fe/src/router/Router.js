@@ -21,7 +21,8 @@ import ProfilePage from '../pages/ProfilePage/ProfilePage';
 import SubscriptionPage from '../pages/SubscriptionPage/SubscriptionPage';
 import CartPage from '../pages/Shoppingcart/CartPage';
 import Tradingpage from '../pages/Tradingpage/Trandingpage';
-import OrdersPage from '../pages/MyOrders/OrdersPage';
+import OrdersPage from '../pages/MyOrders/MyordersPage';
+
 
 const Layout = ({ children, showHeader = true }) => {
   return (
