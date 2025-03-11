@@ -235,7 +235,7 @@ const ProfilePage = () => {
                                 sx={{
                                     display: "flex",
                                     flexDirection: "column",
-                                    alignItems: "center", // Center align the sidebar & title
+                                    alignItems: "center",
                                     width: "20%", // Sidebar width
                                 }}
                             >
@@ -246,7 +246,7 @@ const ProfilePage = () => {
                                         color: "white",
                                         fontFamily: '"Jersey 15", sans-serif',
                                         textAlign: "center",
-                                        mb: 2, // Margin to push the sidebar down
+                                        mb: 2,
                                     }}
                                 >
                                     Register Seller
