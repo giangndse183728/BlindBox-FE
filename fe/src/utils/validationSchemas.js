@@ -46,13 +46,28 @@ export const tradingPostSchema = Yup.object({
         .required('Description is required')
         .max(500, 'Description cannot exceed 500 characters'),
     image: Yup.string()
-        .required('Image is required'), 
+        .required('Image is required'),
+});
+
+export const profileSchema = Yup.object({
+
+    fullName: Yup.string()
+        .max(100, 'Full name cannot exceed 100 characters'),
+    phoneNumber: Yup.string()
+        .matches(/^[0-9]+$/, 'Phone number is invalid')
+        .min(10, 'Phone number length must be from 10 to 15')
+        .max(15, 'Phone number length must be from 10 to 15'),
+    address: Yup.string()
+        .max(100, 'Address cannot exceed 100 characters'),
+    biography: Yup.string()
+        .max(500, 'Biography cannot exceed 500 characters')
 });
 
 export const validationSchemas = {
     login: loginSchema,
     sign: signupSchema,
     tradingPost: tradingPostSchema,
+    profile: profileSchema,
 };
 
 export default validationSchemas;
