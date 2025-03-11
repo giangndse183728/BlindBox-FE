@@ -139,7 +139,7 @@ const CartPage = () => {
                   <Grid item xs={5} sx={{ display: 'flex', alignItems: 'center' }}>
                     <Link to={`/product/${item.id}`} style={{ textDecoration: "none", display: "flex", alignItems: "center" }}>
                       <img
-                        src={item.img}
+                        src={item.image}
                         alt={item.name}
                         style={{ width: 80, height: 80, borderRadius: '10px', marginRight: '16px' }}
                       />

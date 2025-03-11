@@ -68,6 +68,7 @@ const Detailpage = () => {
             backgroundPosition: "center"
         }}>
             <Box sx={{
+                top:40,
                 position: "relative",
                 p: 4,
                 borderRadius: 4,

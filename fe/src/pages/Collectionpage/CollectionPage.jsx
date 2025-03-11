@@ -15,8 +15,6 @@ import {
   MenuItem,
   FormControl,
 } from "@mui/material";
-import { FaBoxOpen } from "react-icons/fa";
-import { GiCardboardBoxClosed } from "react-icons/gi";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import Autocomplete from "@mui/material/Autocomplete";
@@ -24,7 +22,7 @@ import TextField from "@mui/material/TextField";
 import GlassCard from "../../components/Decor/GlassCard";
 import Footer from "../../layouts/Footer";
 import { fetchBlindboxData } from '../../services/productApi';
-import LoadingScreen from '../../components/Loading/LoadingScreen'; // Import your loading component
+import LoadingScreen from '../../components/Loading/LoadingScreen'; 
 
 const Collectionpage = () => {
   const [products, setProducts] = useState([]);
@@ -39,11 +37,11 @@ const Collectionpage = () => {
   const query = new URLSearchParams(location.search);
   const page = parseInt(query.get("page")) || 1;
   const itemsPerPage = 9;
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true); 
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true); // Set loading to true before fetching data
+      setLoading(true); 
       try {
         const data = await fetchBlindboxData();
         console.log("Fetched Data:", data);
@@ -57,7 +55,7 @@ const Collectionpage = () => {
       } catch (error) {
         console.error("Error fetching blindbox data:", error);
       } finally {
-        setLoading(false); // Set loading to false after fetching
+        setLoading(false);
       }
     };
 
@@ -73,7 +71,6 @@ const Collectionpage = () => {
       const filtered = products
         .filter(product => product.price >= appliedPriceRange[0] && product.price <= appliedPriceRange[1])
         .filter(product => selectedBrand.length === 0 || selectedBrand.includes(product.brand))
-        .filter(product => selectedType.length === 0 || selectedType.includes(product.type))
         .filter(product => selectedRating === 0 || product.rating >= selectedRating);
       setFilteredProducts(filtered);
     };
@@ -210,22 +207,6 @@ const Collectionpage = () => {
             />
           ))}
           <Divider sx={{ bgcolor: "white", my: 2 }} />
-          <Typography>Type</Typography>
-          {["Unbox", "Seal"].map((type) => (
-            <FormControlLabel
-              key={type}
-              control={
-                <Checkbox
-                  checked={selectedType.includes(type)}
-                  onChange={handleTypeChange}
-                  value={type}
-                  sx={{ color: "white", "&.Mui-checked": { color: "yellow" } }}
-                />
-              }
-              label={type}
-            />
-          ))}
-          <Divider sx={{ bgcolor: "white", my: 2 }} />
           <Typography sx={{ mt: 2 }}>Rating</Typography>
           <Rating
             name="rating-filter"
@@ -322,9 +303,6 @@ const Collectionpage = () => {
                             width: "180px"
                           }}
                         >
-                          <Box sx={{ position: "absolute", top: 10, right: 15, color: "gray" }}>
-                            {product.type === "Unbox" ? <FaBoxOpen size={30} /> : <GiCardboardBoxClosed size={34} />}
-                          </Box>
                           <img
                             src={product.image}
                             alt={product.name}
