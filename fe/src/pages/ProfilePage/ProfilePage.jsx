@@ -1,5 +1,5 @@
 import { useEffect, useState, Suspense } from "react";
-import { Box, TextField, Button, Typography, Grid } from '@mui/material';
+import { Box, TextField, Button, Typography, Grid, Stack } from '@mui/material';
 import Footer from '../../layouts/Footer';
 import { useNavigate } from 'react-router-dom';
 import GlassCard from "../../components/Decor/GlassCard";
@@ -181,7 +181,7 @@ const ProfilePage = () => {
                         <img src="/assets/bill-cypher/pfp.jpeg" alt="Profile" style={{ width: "80px", height: "100%", borderRadius: "50%", border: "3px solid #FFD700" }} />
                         <div>
                             <h2 style={{
-                                margin: 0, color: "white", fontSize: "40px", fontFamily: '"Jersey 15", sans-serif'
+                                margin: 0, color: "white", fontSize: "45px", fontFamily: '"Jersey 15", sans-serif'
                             }}>{user?.userName}</h2>
                             <p style={{ margin: 0, color: "rgba(255, 255, 255, 0.5)", }}>{user?.email}</p>
                         </div>
@@ -229,61 +229,75 @@ const ProfilePage = () => {
                 >
                     {({ values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting }) => (
                         <form onSubmit={handleSubmit} style={{ width: "80%", display: "flex", justifyContent: "space-between", gap: "20px" }}>
+
                             {/* Sidebar */}
-                            <GlassCard
-                                style={{
-                                    width: "20%",
-                                    padding: "15px",
-                                    marginLeft: "-20px",
-                                    position: "relative",
-                                    minHeight: "500px",
-                                    maxHeight: "600px",
-                                    overflowY: "auto",
-                                    scrollbarWidth: "thin",
-                                    scrollbarColor: "rgba(255, 255, 255, 0.5) transparent",
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center", // Center align the sidebar & title
+                                    width: "20%", // Sidebar width
                                 }}
                             >
-                                <h3 style={{ color: "white" }}>Policy</h3>
-                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", marginBottom: "10px", fontSize: "14px", lineHeight: "1.4" }}>
-                                    By toggling <b>Sale Blindbox</b>, users become sellers and must follow these rules:
-                                </h4>
+                                {/* Register to be Seller Title - Pushing Sidebar Down */}
+                                <Typography
+                                    variant="h4"
+                                    sx={{
+                                        color: "white",
+                                        fontFamily: '"Jersey 15", sans-serif',
+                                        textAlign: "center",
+                                        mb: 2, // Margin to push the sidebar down
+                                    }}
+                                >
+                                    Register Seller
+                                </Typography>
 
-                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "bold", fontSize: "14px" }}>Verified users only</h4>
-                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontSize: "13px", marginBottom: "8px" }}>Approval required.</h4>
+                                {/* Sidebar (Policy Card) */}
+                                <GlassCard
+                                    style={{
+                                        width: "100%",
+                                        padding: "15px",
+                                        minHeight: "200px",
+                                        maxHeight: "400px",
+                                        overflowY: "auto",
+                                        scrollbarWidth: "thin",
+                                        scrollbarColor: "rgba(255, 255, 255, 0.5) transparent",
+                                    }}
+                                >
+                                    <Typography variant="h5" sx={{ color: "white", mb: 1, textAlign: "center", fontFamily: 'Yusei Magic' }}>
+                                        Policy
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ color: "white", mb: 2, textAlign: "center", fontFamily: 'Yusei Magic' }}>
+                                        By toggling <b>Sale Blindbox</b>, users become sellers and must follow these rules:
+                                    </Typography>
 
-                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "bold", fontSize: "14px" }}>Accurate listings</h4>
-                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontSize: "13px", marginBottom: "8px" }}>No fraud or misleading info.</h4>
-
-                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "bold", fontSize: "14px" }}>Pricing & Fees</h4>
-                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontSize: "13px", marginBottom: "8px" }}>
-                                    Sellers set prices. Platform takes a fee.
-                                </h4>
-
-                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "bold", fontSize: "14px" }}>Secure Payments</h4>
-                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontSize: "13px", marginBottom: "8px" }}>
-                                    Payouts after confirmation.
-                                </h4>
-
-                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "bold", fontSize: "14px" }}>Order Fulfillment</h4>
-                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontSize: "13px", marginBottom: "8px" }}>
-                                    Late/canceled orders may be penalized.
-                                </h4>
-
-                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "bold", fontSize: "14px" }}>Compliance</h4>
-                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontSize: "13px", marginBottom: "8px" }}>
-                                    No illegal items. Violations may lead to removal or bans.
-                                </h4>
-
-                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "bold", fontSize: "14px" }}>Account Control</h4>
-                                <h4 style={{ color: "rgba(255, 255, 255, 0.8)", fontSize: "13px", marginBottom: "8px" }}>
-                                    Sellers can disable selling anytime.
-                                </h4>
-
-                            </GlassCard>
-
-
-
-
+                                    {[
+                                        { title: "Verified users only", content: "Approval required." },
+                                        { title: "Accurate listings", content: "No fraud or misleading info." },
+                                        { title: "Pricing & Fees", content: "Sellers set prices. Platform takes a fee." },
+                                        { title: "Secure Payments", content: "Payouts after confirmation." },
+                                        { title: "Order Fulfillment", content: "Late/canceled orders may be penalized." },
+                                        { title: "Compliance", content: "No illegal items. Violations may lead to removal or bans." },
+                                        { title: "Account Control", content: "Sellers can disable selling anytime." },
+                                    ].map((item, index) => (
+                                        <Box key={index} sx={{ mb: 1 }}>
+                                            <Stack direction="row" alignItems="center" spacing={1}>
+                                                <img
+                                                    src="/assets/pixel-heart.png"
+                                                    alt="indent"
+                                                    style={{ width: "14px", height: "14px" }}
+                                                />
+                                                <Typography variant="body2" sx={{ color: "white", fontWeight: "bold" }}>
+                                                    {item.title}
+                                                </Typography>
+                                            </Stack>
+                                            <Typography variant="body2" sx={{ color: "rgba(255, 255, 255, 0.8)" }}>
+                                                {item.content}
+                                            </Typography>
+                                        </Box>
+                                    ))}
+                                </GlassCard>
+                            </Box>
 
                             {/* Main Content */}
                             <GlassCard theme="dark" style={{ width: "75%", padding: "20px", marginRight: "-20px" }}>
