@@ -1,5 +1,5 @@
 import { useEffect, useState, Suspense } from "react";
-import { Box, TextField, Button, Typography, Grid } from '@mui/material';
+import { Box, TextField, Button, Typography, Grid, Stack } from '@mui/material';
 import Footer from '../../layouts/Footer';
 import { useNavigate } from 'react-router-dom';
 import GlassCard from "../../components/Decor/GlassCard";
@@ -178,10 +178,10 @@ const ProfilePage = () => {
                 {/* Profile Header */}
                 <GlassCard style={{ width: "80%", padding: "20px", marginBottom: "20px", position: 'relative' }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "20px", marginLeft: "40px" }}>
-                        <img src="/assets/bill-cypher/pfp.jpeg" alt="Profile" style={{ width: "80px", height: "80px", borderRadius: "50%", border: "3px solid #FFD700" }} />
+                        <img src="/assets/bill-cypher/pfp.jpeg" alt="Profile" style={{ width: "80px", height: "100%", borderRadius: "50%", border: "3px solid #FFD700" }} />
                         <div>
                             <h2 style={{
-                                margin: 0, color: "white", fontSize: "40px", fontFamily: '"Jersey 15", sans-serif'
+                                margin: 0, color: "white", fontSize: "45px", fontFamily: '"Jersey 15", sans-serif'
                             }}>{user?.userName}</h2>
                             <p style={{ margin: 0, color: "rgba(255, 255, 255, 0.5)", }}>{user?.email}</p>
                         </div>
@@ -229,23 +229,75 @@ const ProfilePage = () => {
                 >
                     {({ values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting }) => (
                         <form onSubmit={handleSubmit} style={{ width: "80%", display: "flex", justifyContent: "space-between", gap: "20px" }}>
+
                             {/* Sidebar */}
-                            <GlassCard style={{ width: "20%", padding: "15px", marginLeft: "-20px", position: 'relative' }}>
-                                <h3 style={{ color: "white" }}>About Me</h3>
-                                <FormTextField
-                                    id="biography"
-                                    label="Biography"
-                                    value={values.biography}
-                                    isEditing={isEditing}
-                                    handleChange={handleChange}
-                                    handleBlur={handleBlur}
-                                    errors={errors}
-                                    touched={touched}
-                                    multiline={true}
-                                    rows={8.5}
-                                    placeholder="This is the biography section where the user can add personal details."
-                                />
-                            </GlassCard>
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    width: "20%", // Sidebar width
+                                }}
+                            >
+                                {/* Register to be Seller Title - Pushing Sidebar Down */}
+                                <Typography
+                                    variant="h4"
+                                    sx={{
+                                        color: "white",
+                                        fontFamily: '"Jersey 15", sans-serif',
+                                        textAlign: "center",
+                                        mb: 2,
+                                    }}
+                                >
+                                    Register Seller
+                                </Typography>
+
+                                {/* Sidebar (Policy Card) */}
+                                <GlassCard
+                                    style={{
+                                        width: "100%",
+                                        padding: "15px",
+                                        minHeight: "200px",
+                                        maxHeight: "400px",
+                                        overflowY: "auto",
+                                        scrollbarWidth: "thin",
+                                        scrollbarColor: "rgba(255, 255, 255, 0.5) transparent",
+                                    }}
+                                >
+                                    <Typography variant="h5" sx={{ color: "white", mb: 1, textAlign: "center", fontFamily: 'Yusei Magic' }}>
+                                        Policy
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ color: "white", mb: 2, textAlign: "center", fontFamily: 'Yusei Magic' }}>
+                                        By toggling <b>Sale Blindbox</b>, users become sellers and must follow these rules:
+                                    </Typography>
+
+                                    {[
+                                        { title: "Verified users only", content: "Approval required." },
+                                        { title: "Accurate listings", content: "No fraud or misleading info." },
+                                        { title: "Pricing & Fees", content: "Sellers set prices. Platform takes a fee." },
+                                        { title: "Secure Payments", content: "Payouts after confirmation." },
+                                        { title: "Order Fulfillment", content: "Late/canceled orders may be penalized." },
+                                        { title: "Compliance", content: "No illegal items. Violations may lead to removal or bans." },
+                                        { title: "Account Control", content: "Sellers can disable selling anytime." },
+                                    ].map((item, index) => (
+                                        <Box key={index} sx={{ mb: 1 }}>
+                                            <Stack direction="row" alignItems="center" spacing={1}>
+                                                <img
+                                                    src="/assets/pixel-heart.png"
+                                                    alt="indent"
+                                                    style={{ width: "14px", height: "14px" }}
+                                                />
+                                                <Typography variant="body2" sx={{ color: "white", fontWeight: "bold" }}>
+                                                    {item.title}
+                                                </Typography>
+                                            </Stack>
+                                            <Typography variant="body2" sx={{ color: "rgba(255, 255, 255, 0.8)" }}>
+                                                {item.content}
+                                            </Typography>
+                                        </Box>
+                                    ))}
+                                </GlassCard>
+                            </Box>
 
                             {/* Main Content */}
                             <GlassCard theme="dark" style={{ width: "75%", padding: "20px", marginRight: "-20px" }}>
