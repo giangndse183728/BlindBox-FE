@@ -22,6 +22,7 @@ import SubscriptionPage from '../pages/SubscriptionPage/SubscriptionPage';
 import CartPage from '../pages/Shoppingcart/CartPage';
 import Tradingpage from '../pages/Tradingpage/Trandingpage';
 import OrdersPage from '../pages/MyOrders/MyordersPage';
+import ManageProduct from '../pages/Seller/ManageProduct';
 
 
 const Layout = ({ children, showHeader = true }) => {
@@ -180,6 +181,14 @@ export const routes = createBrowserRouter([
     element: (
       <Layout showHeader={true} >
         <OrdersPage />
+      </Layout>
+    ),
+  },
+  {
+    path: "/sales",
+    element: (
+      <Layout showHeader={true} >
+        <ManageProduct/>
       </Layout>
     ),
   },
