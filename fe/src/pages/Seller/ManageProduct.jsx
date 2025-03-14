@@ -12,6 +12,7 @@ import { fetchSellerBlindboxData } from '../../services/productApi';
 import GlassCard from "../../components/Decor/GlassCard"
 import ButtonCus from '../../components/Button/ButtonCus';
 import CreateBlindboxDialog from './CreateBlindboxDialog';
+import ActionMenu from "../../components/Button/ActionMenu";
 
 export default function ManageProduct() {
   const [products, setProducts] = useState([]);
@@ -121,12 +122,7 @@ export default function ManageProduct() {
                       <TableCell sx={{ color: 'white' }}>{product.price}</TableCell>
                       <TableCell sx={{ color: 'white' }}>{product.quantity}</TableCell>
                       <TableCell>
-                        <IconButton color="primary">
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton color="error">
-                          <DeleteIcon />
-                        </IconButton>
+                      <ActionMenu  />
                       </TableCell>
                     </TableRow>
                   ))}
