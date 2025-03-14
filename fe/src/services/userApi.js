@@ -34,7 +34,7 @@ export const fetchUserData = async () => {
         const userData = userResponse.data.result;
         
         // Store user details in localStorage
-        localStorage.setItem("user", JSON.stringify({ name: userData.userName, email: userData.email, role: userData.role }));
+        localStorage.setItem("user", JSON.stringify({ name: userData.userName, email: userData.email, role: userData.role, isSeller: userData.isRegisterSelling }));
         
         return userData;
         
@@ -80,6 +80,16 @@ export const updateUserData = async (updatedUser) => {
     } catch (error) {
         console.error('Error updating user data:', error);
         throw new Error('Failed to update user data');
+    }
+};
+
+export const updateSellerStatus = async () => {
+    try {
+        const response = await api.patch('/accounts/register-seller');
+        return response.data;
+    } catch (error) {
+        console.error('Error updating seller status:', error);
+        throw new Error('Failed to update seller status');
     }
 };
 
