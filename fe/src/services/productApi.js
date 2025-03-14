@@ -4,6 +4,7 @@ import api from './baseURL';
 export const fetchBlindboxData = async () => {
     try {
         const blindboxResponse = await api.get('/products/blind-boxes');
+        console.log("API Response:", blindboxResponse.data);
         return blindboxResponse.data;
     } catch (error) {
         console.error('Error fetching blindbox data:', error);
