@@ -20,25 +20,13 @@ export const login = async (email, password) => {
 
 export const signup = async (userData) => {
     try {
-        const response = await api.post('/accounts/register', {
-            userName: userData.userName,
-            email: userData.email,
-            password: userData.password,
-            confirmPassword: userData.confirmPassword,
-            phoneNumber: userData.phoneNumber
-        });
-
-        return true;
-
+      await api.post('/accounts/register', userData);
+      return true;
     } catch (error) {
-        console.error('Error signing up:', error);
-        if (error.response) {
-            throw error;
-        } else {
-            throw new Error('Failed to sign up');
-        }
+      console.error('Error signing up:', error.response?.data || error.message);
+      throw error.response || new Error('Failed to sign up');
     }
-};
+  };
 
 export const fetchUserData = async () => {
     try {
