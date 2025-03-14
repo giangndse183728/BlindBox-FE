@@ -46,11 +46,11 @@ const Collectionpage = () => {
         const data = await fetchBlindboxData();
         console.log("Fetched Data:", data);
 
-        if (Array.isArray(data.result)) {
-          setProducts(data.result);
-          setFilteredProducts(data.result);
+        if (Array.isArray(data)) { // Kiểm tra nếu dữ liệu là mảng
+          setProducts(data);
+          setFilteredProducts(data);
         } else {
-          console.error("Expected an array but got:", data.result);
+          console.error("Unexpected API response format:", data);
         }
       } catch (error) {
         console.error("Error fetching blindbox data:", error);
@@ -185,7 +185,7 @@ const Collectionpage = () => {
           </Button>
           <Divider sx={{ bgcolor: "white", my: 2 }} />
           <Typography sx={{ mt: 2 }}>Brand</Typography>
-          {["fpt"].map((brand) => (
+          {["fpt", "Popmart"].map((brand) => (
             <FormControlLabel
               key={brand}
               control={
@@ -201,14 +201,16 @@ const Collectionpage = () => {
           ))}
           <Divider sx={{ bgcolor: "white", my: 2 }} />
           <Typography sx={{ mt: 2 }}>Rating</Typography>
-          <Rating
-            name="rating-filter"
-            value={selectedRating}
-            onChange={handleRatingChange}
-            precision={0.5}
-            icon={<FavoriteIcon fontSize="inherit" sx={{ color: "red"}} />}
-            emptyIcon={<FavoriteBorderIcon fontSize="inherit" sx={{ color: "white"}} />}
-          />
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 1 }}>
+            <Rating
+              name="rating-filter"
+              value={selectedRating}
+              onChange={handleRatingChange}
+              precision={0.5}
+              icon={<FavoriteIcon fontSize="inherit" sx={{ color: "red" }} />}
+              emptyIcon={<FavoriteBorderIcon fontSize="inherit" sx={{ color: "white" }} />}
+            />
+          </Box>
           <Button variant="contained" sx={{ bgcolor: "yellow", color: "black", borderRadius: 1, mt: 2, width: "100%" }} onClick={handleClearFilters}>
             Clear All
           </Button>
@@ -275,8 +277,8 @@ const Collectionpage = () => {
             <Grid container spacing={1}>
               {displayedProducts.length === 0 ? (
                 <Typography variant="h6" fontFamily="'Jersey 15', sans-serif" color="white" sx={{ fontSize: "2.8rem" }}>
-                No products available.
-              </Typography>
+                  No products available.
+                </Typography>
               ) : (
                 displayedProducts.map((product) => (
                   <Grid item xs={12} sm={6} md={4} key={product.slug} sx={{ p: 1 }}>
@@ -302,10 +304,12 @@ const Collectionpage = () => {
                           <img
                             src={product.image}
                             alt={product.name}
-                            style={{ width: 200, height: 200, borderRadius: "10px", marginTop: "-70px", cursor: "pointer" }}
+                            style={{ width: 150, height: 150, borderRadius: "10px", marginTop: "-70px", cursor: "pointer" }}
                           />
                           <Box sx={{ position: "absolute", bottom: 10, left: 10, color: "white", px: 1, py: 0.5, borderRadius: 1, textAlign: "left" }}>
-                            <Typography variant="h6" sx={{ fontWeight: "bold", mt: "-15px" }}>{product.name}</Typography>
+                            <Typography variant="h6" sx={{ fontWeight: "bold", mt: "-15px" }}>
+                              {product.name.length > 27 ? `${product.name.substring(0, 20)}...` : product.name}
+                            </Typography>
                             <Typography variant="body2" sx={{ fontSize: "0.9rem" }}>{product.brand}</Typography>
                             <Typography variant="body1">
                               ${isNaN(parseFloat(product.price)) ? "N/A" : parseFloat(product.price).toFixed(2)}
@@ -318,7 +322,7 @@ const Collectionpage = () => {
                               readOnly
                               precision={0.5}
                               icon={<FavoriteIcon fontSize="inherit" sx={{ color: "red" }} />}
-                              emptyIcon={<FavoriteBorderIcon fontSize="inherit" sx={{color:"white"}} />}
+                              emptyIcon={<FavoriteBorderIcon fontSize="inherit" sx={{ color: "white" }} />}
                             />
                           </Box>
                         </Box>

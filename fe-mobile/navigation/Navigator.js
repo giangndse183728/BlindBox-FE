@@ -14,7 +14,6 @@ const StackNavigator = () => {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Collection" component={CollectionScreen} />
       <Stack.Screen name="Detail" component={DetailScreen} />
-      <Stack.Screen name="Cart" component={CartScreen}/>
     </Stack.Navigator>
   );
 };
@@ -32,8 +31,8 @@ export default function App() {
           component={StackNavigator}
         />
         <Tab.Screen
-          name="Cart"
-          component={StackNavigator}
+          name="ShoppingCart"
+          component={CartScreen}
           />
       </Tab.Navigator>
     </NavigationContainer>
