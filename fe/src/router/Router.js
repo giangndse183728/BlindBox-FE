@@ -187,8 +187,10 @@ export const routes = createBrowserRouter([
   {
     path: "/sales",
     element: (
-      <Layout showHeader={true} >
+      <Layout showHeader={true}  >
+        <ProtectedRoute requiredRoles={[1]} requireSeller={true}>
         <ManageProduct/>
+        </ProtectedRoute>
       </Layout>
     ),
   },
