@@ -22,12 +22,12 @@ import TextField from "@mui/material/TextField";
 import GlassCard from "../../components/Decor/GlassCard";
 import Footer from "../../layouts/Footer";
 import { fetchBlindboxData } from '../../services/productApi';
-import LoadingScreen from '../../components/Loading/LoadingScreen'; 
+import LoadingScreen from '../../components/Loading/LoadingScreen';
 
 const Collectionpage = () => {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
-  const [priceRange, setPriceRange] = useState([0, 5000]);
+  const [priceRange, setPriceRange] = useState([0, 600]);
   const [appliedPriceRange, setAppliedPriceRange] = useState([0, 5000]);
   const [selectedBrand, setSelectedBrand] = useState([]);
   const [selectedType, setSelectedType] = useState([]);
@@ -37,11 +37,11 @@ const Collectionpage = () => {
   const query = new URLSearchParams(location.search);
   const page = parseInt(query.get("page")) || 1;
   const itemsPerPage = 9;
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true); 
+      setLoading(true);
       try {
         const data = await fetchBlindboxData();
         console.log("Fetched Data:", data);
@@ -98,13 +98,6 @@ const Collectionpage = () => {
     const value = event.target.value;
     setSelectedBrand(prev =>
       prev.includes(value) ? prev.filter(b => b !== value) : [...prev, value]
-    );
-  };
-
-  const handleTypeChange = (event) => {
-    const value = event.target.value;
-    setSelectedType(prev =>
-      prev.includes(value) ? prev.filter(t => t !== value) : [...prev, value]
     );
   };
 
@@ -180,7 +173,7 @@ const Collectionpage = () => {
             onChange={handlePriceChange}
             valueLabelDisplay="auto"
             min={0}
-            max={5000}
+            max={600}
             sx={{ color: "white" }}
           />
           <Grid container justifyContent="space-between" sx={{ mt: 1 }}>
@@ -213,8 +206,8 @@ const Collectionpage = () => {
             value={selectedRating}
             onChange={handleRatingChange}
             precision={0.5}
-            icon={<FavoriteIcon fontSize="inherit" sx={{ color: "red" }} />}
-            emptyIcon={<FavoriteBorderIcon fontSize="inherit" />}
+            icon={<FavoriteIcon fontSize="inherit" sx={{ color: "red"}} />}
+            emptyIcon={<FavoriteBorderIcon fontSize="inherit" sx={{ color: "white"}} />}
           />
           <Button variant="contained" sx={{ bgcolor: "yellow", color: "black", borderRadius: 1, mt: 2, width: "100%" }} onClick={handleClearFilters}>
             Clear All
@@ -265,6 +258,7 @@ const Collectionpage = () => {
                   onChange={(event) => sortProducts(event.target.value)}
                   sx={{ color: "white", border: "1px solid white", backgroundColor: "transparent" }}
                 >
+                  <MenuItem value="">None</MenuItem>
                   <MenuItem value="az">A-Z</MenuItem>
                   <MenuItem value="za">Z-A</MenuItem>
                   <MenuItem value="low-high">Lowest to Highest</MenuItem>
@@ -280,7 +274,9 @@ const Collectionpage = () => {
           ) : (
             <Grid container spacing={1}>
               {displayedProducts.length === 0 ? (
-                <Typography variant="h6" color="white">No products available.</Typography>
+                <Typography variant="h6" fontFamily="'Jersey 15', sans-serif" color="white" sx={{ fontSize: "2.8rem" }}>
+                No products available.
+              </Typography>
               ) : (
                 displayedProducts.map((product) => (
                   <Grid item xs={12} sm={6} md={4} key={product.slug} sx={{ p: 1 }}>
@@ -322,7 +318,7 @@ const Collectionpage = () => {
                               readOnly
                               precision={0.5}
                               icon={<FavoriteIcon fontSize="inherit" sx={{ color: "red" }} />}
-                              emptyIcon={<FavoriteBorderIcon fontSize="inherit" />}
+                              emptyIcon={<FavoriteBorderIcon fontSize="inherit" sx={{color:"white"}} />}
                             />
                           </Box>
                         </Box>
@@ -333,7 +329,7 @@ const Collectionpage = () => {
               )}
             </Grid>
           )}
-          
+
           <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
             <Pagination
               count={totalPages}
