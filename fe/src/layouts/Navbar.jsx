@@ -18,6 +18,7 @@ import {
   ListItemText,
   Divider,
   Badge,
+  CircularProgress
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
@@ -61,7 +62,8 @@ export default function ButtonAppBar() {
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
 
-  const { cart, addToCart, removeFromCart } = useCartStore();
+  // Get cart data and loading state from the store
+  const { cart, fetchCartItems, isLoading } = useCartStore();
   const cartCount = cart.length || 0;
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -70,18 +72,22 @@ export default function ButtonAppBar() {
   const email = storedUser.email || "";
   const image = storedUser.image || "";
 
+  // Fetch cart items when component mounts and when authentication status changes
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchCartItems();
+    }
+  }, [isAuthenticated, fetchCartItems]);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
       setIsAuthenticated(true);
     }
-
   }, []);
 
-
   const handleOpen = (event) => {
-    setAnchorEl(event.currentTarget); // Set anchorEl correctly
+    setAnchorEl(event.currentTarget);
   };
 
   const handleClose = () => {
@@ -90,10 +96,10 @@ export default function ButtonAppBar() {
 
   const handleLogout = async () => {
     try {
-        await logout();
-        // The redirect is handled in the logout function
+      await logout();
+      // The redirect is handled in the logout function
     } catch (error) {
-        toast.error('Failed to logout. Please try again.');
+      toast.error('Failed to logout. Please try again.');
     }
   };
 
@@ -150,22 +156,26 @@ export default function ButtonAppBar() {
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
               <NavLink to="/cart" className="nav-link">
-                <Badge
-                  badgeContent={cartCount}
-                  sx={{
-                    '& .MuiBadge-dot': {
-                      backgroundColor: 'yellow',
-                    },
-                    '& .MuiBadge-colorSecondary': {
-                      backgroundColor: 'yellow',
-                      color: 'black',
-                      fontWeight: "bold"
-                    },
-                  }}
-                  color="secondary"
-                >
-                  <ShoppingCartOutlinedIcon sx={{ fontSize: 22, color: 'white' }} />
-                </Badge>
+                {isLoading && isAuthenticated ? (
+                  <CircularProgress size={20} sx={{ color: 'white' }} />
+                ) : (
+                  <Badge
+                    badgeContent={cartCount}
+                    sx={{
+                      '& .MuiBadge-dot': {
+                        backgroundColor: 'yellow',
+                      },
+                      '& .MuiBadge-colorSecondary': {
+                        backgroundColor: 'yellow',
+                        color: 'black',
+                        fontWeight: "bold"
+                      },
+                    }}
+                    color="secondary"
+                  >
+                    <ShoppingCartOutlinedIcon sx={{ fontSize: 22, color: 'white' }} />
+                  </Badge>
+                )}
               </NavLink>
               {isAuthenticated ? (
                 <IconButton onClick={handleOpen}>
@@ -283,20 +293,44 @@ export default function ButtonAppBar() {
               <Typography color="black" fontFamily="Yusei Magic" variant="h4" component="div" sx={{ flexGrow: 1, textAlign: 'center' }}>
                 BlindB!ox
               </Typography>
-              {isAuthenticated ? (
-                <IconButton onClick={handleOpen}>
-                  <Avatar src={image} alt={nameUser}>{nameUser.charAt(0)}</Avatar>
-                </IconButton>
-              ) : (
-                <NavLink to="/Login" className="nav-link">
-                  <Button sx={{ color: 'black' }}>Login</Button>
-                </NavLink>
-              )}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                {isAuthenticated && (
+                  <NavLink to="/cart" className="nav-link">
+                    {isLoading ? (
+                      <CircularProgress size={20} sx={{ color: 'black' }} />
+                    ) : (
+                      <Badge
+                        badgeContent={cartCount}
+                        sx={{
+                          '& .MuiBadge-dot': {
+                            backgroundColor: 'yellow',
+                          },
+                          '& .MuiBadge-colorSecondary': {
+                            backgroundColor: 'yellow',
+                            color: 'black',
+                            fontWeight: "bold"
+                          },
+                        }}
+                        color="secondary"
+                      >
+                        <ShoppingCartOutlinedIcon sx={{ fontSize: 22, color: 'black' }} />
+                      </Badge>
+                    )}
+                  </NavLink>
+                )}
+                {isAuthenticated ? (
+                  <IconButton onClick={handleOpen}>
+                    <Avatar src={image} alt={nameUser}>{nameUser.charAt(0)}</Avatar>
+                  </IconButton>
+                ) : (
+                  <NavLink to="/Login" className="nav-link">
+                    <Button sx={{ color: 'black' }}>Login</Button>
+                  </NavLink>
+                )}
+              </Box>
             </Toolbar>
           </AppBar>
         )}
-
-
 
         <Drawer
           anchor="left"
@@ -340,7 +374,6 @@ export default function ButtonAppBar() {
                 </NavLink>
               ))}
             </List>
-         
           </Box>
         </Drawer>
       </Box>
