@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, ImageBackground, ActivityIndicator } from "react-native";
-import { Appbar, Card, Title, Provider as PaperProvider } from "react-native-paper";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, ImageBackground, ActivityIndicator} from "react-native";
+import { Appbar, Card, Title, Provider as PaperProvider, Button } from "react-native-paper";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from "@react-navigation/native";
 import Filter from "./Filter";
-import { fetchBlindboxData } from "../../service/productApi"; // Import API fetch
+import { fetchBlindboxData } from "../../service/productApi";
 
 const CollectionScreen = () => {
   const navigation = useNavigation();
@@ -12,6 +13,7 @@ const CollectionScreen = () => {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const getProducts = async () => {
@@ -28,6 +30,16 @@ const CollectionScreen = () => {
 
     getProducts();
   }, []);
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      const token = await AsyncStorage.getItem("accessToken");
+      setIsLoggedIn(!!token);
+    };
+
+    const unsubscribe = navigation.addListener("focus", checkLoginStatus);
+    return unsubscribe;
+  }, [navigation]);
 
   const truncateName = (name, wordLimit) => {
     const words = name.split(" ");
@@ -49,7 +61,7 @@ const CollectionScreen = () => {
   };
 
   const renderProduct = ({ item }) => (
-    <TouchableOpacity onPress={() => navigation.navigate("Detail", { productId: item.id, slug: item.slug })}>
+    <TouchableOpacity onPress={() => navigation.navigate("Detail", { productId: item._id, slug: item.slug })}>
       <Card style={styles.productCard}>
         <Card.Cover source={{ uri: item.image }} style={styles.productImage} />
         <Card.Content>
@@ -77,10 +89,27 @@ const CollectionScreen = () => {
 
   return (
     <PaperProvider>
-      <ImageBackground source={require('./background.jpeg')} style={styles.container}>
-        <Text style={styles.header}>BlindB!ox</Text>
+      <ImageBackground source={require('../../assets/background.jpeg')} style={styles.container}>
+
+        {/* Header + Nút Login hoặc Icon User */}
+        <View style={styles.headerContainer}>
+          <Text style={styles.header}>BlindB!ox</Text>
+
+          {isLoggedIn ? (
+            <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
+              <Icon name="user-circle" size={30} color="white" />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity onPress={() => navigation.navigate("Login", { setIsLoggedIn })} style={styles.loginButton}>
+              <Text style={styles.loginButtonText}>Login</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* Nút Filter */}
         <Appbar.Action icon="filter" onPress={() => setShowFilters(true)} />
 
+        {/* Danh sách sản phẩm */}
         {loading ? (
           <ActivityIndicator size="large" color="white" />
         ) : (
@@ -93,6 +122,7 @@ const CollectionScreen = () => {
           />
         )}
 
+        {/* Modal Filter */}
         <Modal visible={showFilters} animationType="slide" transparent={true}>
           <View style={styles.modalContainer}>
             <Filter onApplyFilters={applyFilters} onClose={() => setShowFilters(false)} />
@@ -108,11 +138,29 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
   },
+  headerContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+  },
   header: {
     fontSize: 24,
     color: "white",
     textAlign: "center",
-    marginBottom: 20,
+    flex: 1,
+  },
+  loginButton: {
+    backgroundColor: "white",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    marginRight: 10,
+  },
+  loginButtonText: {
+    color: "black",
+    fontSize: 16,
+    fontWeight: "bold",
   },
   productCard: {
     margin: 5,

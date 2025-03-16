@@ -5,15 +5,19 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import CollectionScreen from '../screen/CollectionScreen/CollectionScreen';
 import DetailScreen from '../screen/DetailScreen/DetailScreen';
 import CartScreen from '../screen/CartScreen/CartScreen';
+import LoginScreen from '../screen/LoginScreen/LoginScreen';
+import ProfileScreen from '../screen/ProfileScreen/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
-const StackNavigator = () => {
+const CollectionStackNavigator = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Collection" component={CollectionScreen} />
       <Stack.Screen name="Detail" component={DetailScreen} />
+      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="Profile" component={ProfileScreen} />
     </Stack.Navigator>
   );
 };
@@ -28,7 +32,7 @@ export default function App() {
       >
         <Tab.Screen
           name="Home" 
-          component={StackNavigator}
+          component={CollectionStackNavigator}
         />
         <Tab.Screen
           name="ShoppingCart"

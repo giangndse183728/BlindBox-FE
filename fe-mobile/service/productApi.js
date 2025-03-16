@@ -15,7 +15,7 @@ export const fetchBlindboxDetails = async (slug, id) => {
     const response = await api.get(`/products/blind-boxes/${slug}`, {
       params: { id },
     });
-    return response.data;
+    return response.data.result;
   } catch (error) {
     console.error("Error fetching blindbox details:", error.response ? error.response.data : error.message);
     throw new Error(error.response?.data?.message || "Failed to fetch blindbox details");

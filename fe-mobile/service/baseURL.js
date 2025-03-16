@@ -1,15 +1,13 @@
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// Lấy API URL từ biến môi trường Expo
-const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://10.0.2.2:5000";
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 const api = axios.create({
   baseURL: API_URL,
   withCredentials: true,
 });
 
-// ✅ Interceptor để tự động thêm token vào request
 api.interceptors.request.use(async (config) => {
   const token = await AsyncStorage.getItem("token");
   if (token) {
@@ -18,7 +16,6 @@ api.interceptors.request.use(async (config) => {
   return config;
 });
 
-// ✅ Interceptor để xử lý token hết hạn (401)
 api.interceptors.response.use(
   (response) => response,
   async (error) => {

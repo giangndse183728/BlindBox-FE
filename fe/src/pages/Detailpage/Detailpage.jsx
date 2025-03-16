@@ -22,7 +22,6 @@ const Detailpage = () => {
 
     useEffect(() => {
         const getProductDetails = async () => {
-            console.log("Fetching details for slug:", slug, "and ID:", id);
             try {
                 if (!id) {
                     throw new Error("No ID provided");
