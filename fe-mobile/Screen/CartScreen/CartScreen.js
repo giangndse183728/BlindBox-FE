@@ -6,8 +6,7 @@ const CartScreen = () => {
 
   return (
     <ImageBackground 
-      source={require('./background.jpeg')} 
-      style={styles.container}
+      source={require('../../assets/background.jpeg')} 
     >
      <View>
         Cart Screen
