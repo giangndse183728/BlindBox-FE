@@ -7,7 +7,6 @@ import {
   Box,
   Grid,
   Typography,
-  Button,
   Rating,
   Divider,
   Pagination,
@@ -21,6 +20,8 @@ import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import GlassCard from "../../components/Decor/GlassCard";
 import Footer from "../../layouts/Footer";
+import ButtonCus from "../../components/Button/ButtonCus";
+import { yellowGlowAnimation } from '../../components/Text/YellowEffect';
 import { fetchBlindboxData } from '../../services/productApi';
 import LoadingScreen from '../../components/Loading/LoadingScreen';
 
@@ -167,7 +168,7 @@ const Collectionpage = () => {
             Product Filter
           </Typography>
           {/* Price Range Filter */}
-          <Typography>Price Range</Typography>
+          <Typography fontFamily="'Jersey 15', sans-serif" sx={{fontSize:22}}>Price Range</Typography>
           <Slider
             value={priceRange}
             onChange={handlePriceChange}
@@ -180,11 +181,14 @@ const Collectionpage = () => {
             <Typography variant="body1">${priceRange[0]}</Typography>
             <Typography variant="body1">${priceRange[1]}</Typography>
           </Grid>
-          <Button variant="contained" sx={{ bgcolor: "yellow", color: "black", borderRadius: 1, mt: 2, width: "100%" }} onClick={handleApplyPriceFilter}>
-            Apply
-          </Button>
+
+          <ButtonCus variant="button-pixel-yellow" width="100%" height="40px" onClick={handleApplyPriceFilter}>
+            <Typography variant="h5" fontFamily="'Jersey 15', sans-serif" sx={{ color: "Seashell" }}>
+              Apply
+            </Typography>
+          </ButtonCus>
           <Divider sx={{ bgcolor: "white", my: 2 }} />
-          <Typography sx={{ mt: 2 }}>Brand</Typography>
+          <Typography fontFamily="'Jersey 15', sans-serif" sx={{ mt: 2, fontSize:22 }}>Brand</Typography>
           {["fpt", "Popmart"].map((brand) => (
             <FormControlLabel
               key={brand}
@@ -200,7 +204,7 @@ const Collectionpage = () => {
             />
           ))}
           <Divider sx={{ bgcolor: "white", my: 2 }} />
-          <Typography sx={{ mt: 2 }}>Rating</Typography>
+          <Typography fontFamily="'Jersey 15', sans-serif" sx={{ mt: 2, fontSize:22 }}>Rating</Typography>
           <Box sx={{ display: "flex", justifyContent: "center", mt: 1 }}>
             <Rating
               name="rating-filter"
@@ -211,16 +215,19 @@ const Collectionpage = () => {
               emptyIcon={<FavoriteBorderIcon fontSize="inherit" sx={{ color: "white" }} />}
             />
           </Box>
-          <Button variant="contained" sx={{ bgcolor: "yellow", color: "black", borderRadius: 1, mt: 2, width: "100%" }} onClick={handleClearFilters}>
+          <Divider sx={{ bgcolor: "white", my: 2 }} />
+          <ButtonCus variant="button-pixel-yellow" width="100%" height="40px" onClick={handleClearFilters}>
+            <Typography variant="h5" fontFamily="'Jersey 15', sans-serif" sx={{ color: "Seashell" }}>
             Clear All
-          </Button>
+            </Typography>
+          </ButtonCus>
         </Box>
 
         {/* Product Section */}
         <Box sx={{ flexGrow: 1, ml: { xs: 0, sm: 2 }, mt: { xs: 2, sm: 0 } }}>
           {/* Sorting Bar */}
           <Box sx={{ p: 2, color: "white", borderRadius: 1, position: "sticky", width: "90%", mb: 2, top: 5, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <Typography fontFamily="'Jersey 15', sans-serif" sx={{ fontSize: '4rem', fontWeight: "bold" }}>
+            <Typography fontFamily="'Jersey 15', sans-serif" sx={{ fontSize: '4rem', fontWeight: "bold",...yellowGlowAnimation }}>
               BLINDBOXES
             </Typography>
             <Autocomplete
@@ -308,7 +315,7 @@ const Collectionpage = () => {
                           />
                           <Box sx={{ position: "absolute", bottom: 10, left: 10, color: "white", px: 1, py: 0.5, borderRadius: 1, textAlign: "left" }}>
                             <Typography variant="h6" sx={{ fontWeight: "bold", mt: "-15px" }}>
-                              {product.name.length > 27 ? `${product.name.substring(0, 20)}...` : product.name}
+                              {product.name.length > 27 ? `${product.name.substring(0, 24)}...` : product.name}
                             </Typography>
                             <Typography variant="body2" sx={{ fontSize: "0.9rem" }}>{product.brand}</Typography>
                             <Typography variant="body1">
