@@ -6,8 +6,9 @@ import { fetchBlindboxDetails } from '../../services/productApi';
 import ButtonCus from "../../components/Button/ButtonCus";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-import useCartStore from '../Shoppingcart/CartStore'; 
+import useCartStore from '../Shoppingcart/CartStore';
 import LoadingScreen from '../../components/Loading/LoadingScreen';
+import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 
 const Detailpage = () => {
     const { slug } = useParams();
@@ -18,7 +19,7 @@ const Detailpage = () => {
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const { addToCart } = useCartStore(); 
+    const { addToCart } = useCartStore();
 
     useEffect(() => {
         const getProductDetails = async () => {
@@ -28,7 +29,7 @@ const Detailpage = () => {
                 }
                 const data = await fetchBlindboxDetails(slug, id);
                 console.log("Fetched Product Data:", data);
-                
+
                 if (data.result) {
                     setProduct(data.result);
                 } else {
@@ -50,9 +51,9 @@ const Detailpage = () => {
 
     const feedbackList = product.feedback || [];
     const price = typeof product.price === 'number' ? product.price : parseFloat(product.price) || 0;
-    
+
     const handleAddToCart = () => {
-        addToCart(product, 1); 
+        addToCart(product, 1);
     };
 
     return (
@@ -67,7 +68,7 @@ const Detailpage = () => {
             backgroundPosition: "center"
         }}>
             <Box sx={{
-                top:40,
+                top: 40,
                 position: "relative",
                 p: 4,
                 borderRadius: 4,
@@ -79,19 +80,19 @@ const Detailpage = () => {
                         <img
                             src={product.image}
                             alt={product.name}
-                            style={{ width: 400, height: 350, borderRadius: "10px" }}
+                            style={{ width: 450, height: 400, borderRadius: "10px" }}
                         />
                     </Grid>
 
                     <Grid item xs={12} md={6} sx={{ color: "white" }}>
-                        <Typography variant="h4" sx={{ fontWeight: "bold", color: "#f8b400" }}>
+                        <Typography variant="h4" fontFamily="'Jersey 15', sans-serif" sx={{ fontSize: 45, fontWeight: "bold", color: "#f8b400" }}>
                             {product.name}
                         </Typography>
 
                         <Link to="/Collection-page" style={{ textDecoration: "none" }}>
                             <Button variant="contained" sx={{
                                 position: "absolute",
-                                top: 30,
+                                top: 0,
                                 right: 10,
                                 bgcolor: "black",
                                 color: "white",
@@ -101,13 +102,13 @@ const Detailpage = () => {
                             </Button>
                         </Link>
 
-                        <Typography variant="h6" sx={{ mt: 1 }}>Brand: {product.brand || "Unknown"}</Typography>
-                        <Typography variant="h5" sx={{ mt: 1, color: "#ff4444" }}>
-                            Price: ${price.toFixed(2)}
+                        <Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ fontSize: 30, mt: 1 }}>Brand: {product.brand || "Unknown"}</Typography>
+                        <Typography variant="h5" fontFamily="'Jersey 15', sans-serif" sx={{ fontSize: 40, mt: 1, color: "#ff4444" }}>
+                            ${price.toFixed(2)}
                         </Typography>
-                        <Typography sx={{ mt: 2 }}>{product.description || "No description available."}</Typography>
+                        <Typography sx={{ fontSize: 19, mt: 2 }}>{product.description || "No description available."}</Typography>
                         <Box sx={{ mt: 2, display: "flex", alignItems: "center" }}>
-                            <Typography variant="h6" sx={{ mr: 2 }}>Rating:</Typography>
+                            <Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ fontSize: 29, mr: 2 }}>Rating:</Typography>
                             <Rating
                                 name="product-rating"
                                 value={product.rating || 0}
@@ -116,13 +117,38 @@ const Detailpage = () => {
                                 icon={<FavoriteIcon sx={{ color: "red" }} />}
                                 emptyIcon={<FavoriteBorderIcon sx={{ color: "red" }} />}
                             />
-                            <Typography sx={{ ml: 1, color: "white" }}>{(product.rating || 0).toFixed(1)}</Typography>
+                            <Typography fontFamily="'Jersey 15', sans-serif" sx={{ fontSize: 25, ml: 1, color: "white" }}>{(product.rating || 0).toFixed(1)}</Typography>
                         </Box>
-
-                        <Box sx={{ mt: 3 }}>
-                            <ButtonCus variant="button-pixel-red" width="20%" height="40px" onClick={handleAddToCart}>
-                                <Typography variant="h5" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
+                        <Box sx={{ mt: 3, display: "flex", gap: 2 }}>
+                            <Button
+                                variant="outlined"
+                                sx={{
+                                    border: "2px solid #f8b400",
+                                    backgroundColor: "transparent",
+                                    color: "#f8b400",
+                                    width: "30%",
+                                    height: "50px",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    gap: 1,
+                                    "&:hover": {
+                                        backgroundColor: "#f8b400",
+                                        color: "black",
+                                        "& .cart-icon": { color: "black" }
+                                    }
+                                }}
+                                onClick={handleAddToCart}
+                            >
+                                <ShoppingCartOutlinedIcon className="cart-icon" sx={{ fontSize: 22, color: "inherit" }} />
+                                <Typography variant="h5" fontFamily="'Jersey 15', sans-serif">
                                     Add to Cart
+                                </Typography>
+                            </Button>
+
+                            <ButtonCus variant="button-pixel-red" width="100%" height="50px">
+                                <Typography variant="h5" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
+                                    Buy now for ${price.toFixed(2)}
                                 </Typography>
                             </ButtonCus>
                         </Box>
@@ -131,11 +157,11 @@ const Detailpage = () => {
 
                 {/* Feedback Section */}
                 <Box sx={{ mt: 5 }}>
-                    <Typography variant="h5" sx={{ color: "#f8b400", mb: 2 }}>Feedback</Typography>
+                    <Typography variant="h5" fontFamily="'Jersey 15', sans-serif" sx={{ fontSize: 35, color: "#f8b400", mb: 2 }}>Feedback</Typography>
                     <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                        <Typography variant="h4" sx={{ color: "#f8b400", mr: 2 }}>{(product.rating || 0).toFixed(1)}</Typography>
+                        <Typography variant="h4" fontFamily="'Jersey 15', sans-serif" sx={{fontSize:50, color: "#f8b400", mr: 2 }}>{(product.rating || 0).toFixed(1)}</Typography>
                         <Rating value={product.rating || 0} readOnly precision={0.1} />
-                        <Typography sx={{ ml: 1, color: "white" }}>({feedbackList.length} reviews)</Typography>
+                        <Typography fontFamily="'Jersey 15', sans-serif" sx={{fontSize:25, ml: 1, color: "white" }}>({feedbackList.length} reviews)</Typography>
                     </Box>
                     <Box sx={{ mt: 3 }}>
                         {feedbackList.map((fb, index) => (
