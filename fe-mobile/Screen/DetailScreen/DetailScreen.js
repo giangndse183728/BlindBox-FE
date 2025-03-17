@@ -24,7 +24,7 @@ const DetailScreen = () => {
       const checkAuth = async () => {
         const token = await AsyncStorage.getItem("accessToken");
         if (!token) {
-          Alert.alert("Session Expired", "Please login again.");
+          Alert.alert("You need to login to see detail", "Please login again.");
           navigation.replace("Login");
         }
       };
@@ -38,7 +38,6 @@ const DetailScreen = () => {
     const loadProduct = async () => {
       try {
         const data = await fetchBlindboxDetails(slug, productId);
-        console.log("Fetched product data:", data); // Debugging log
         setProduct(data);
       } catch (err) {
         setError(err.message);
