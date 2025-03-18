@@ -237,6 +237,7 @@ const ProfilePage = () => {
                                     flexDirection: "column",
                                     alignItems: "center",
                                     width: "20%", // Sidebar width
+                                    
                                 }}
                             >
                                 {/* Register to be Seller Title - Pushing Sidebar Down */}
