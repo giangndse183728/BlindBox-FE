@@ -12,7 +12,10 @@ import {
 import { yellowGlowAnimation } from "../../components/Text/YellowEffect";
 import ButtonCus from "../../components/Button/ButtonCus";
 import CloseIcon from '@mui/icons-material/Close';
-
+import { fetchBeads, createCustomAccessory } from "../../services/accessoryApi";
+import { toast } from 'react-toastify';
+import useCartStore from '../Shoppingcart/CartStore'; // Import the cart store
+import { uploadImage } from "../../services/productApi"; // Import the uploadImage function
 
 const ThreeCustom = () => {
   const containerRef = useRef(null);
@@ -29,11 +32,37 @@ const ThreeCustom = () => {
   const [openZoomModal, setOpenZoomModal] = useState(false);
   const [beadDetails, setBeadDetails] = useState({ solid: [], low: [], spike: [] });
   const [screenshot, setScreenshot] = useState(null);
+  const [beadData, setBeadData] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Add cart store to access addToCart function
+  const { addToCart } = useCartStore();
 
   const baseRadius = 0.2;
 
+  // Type mapping
+  const typeMap = {
+    'low': '0',
+    'spike': '1',
+    'solid': '2'
+  };
 
-  // Calculate the radius based on numberOfModels instead of totalModels
+  // Fetch bead data on component mount
+  useEffect(() => {
+    const getBeads = async () => {
+      try {
+        const data = await fetchBeads();
+        setBeadData(data);
+      } catch (error) {
+        console.error("Error fetching beads:", error);
+        toast.error("Failed to load bead information");
+      }
+    };
+    
+    getBeads();
+  }, []);
+
+  // Calculate the radius based on numberOfModels
   const radius = baseRadius + numberOfModels * 0.18;
 
   // Scene setup
@@ -215,7 +244,6 @@ const ThreeCustom = () => {
     };
   }, []);
 
-  // Animation update
   useEffect(() => {
     const animate = () => {
       const time = performance.now() * 0.001;
@@ -239,7 +267,36 @@ const ThreeCustom = () => {
     return () => clearInterval(animationInterval);
   }, [numberOfModels, radius]);
 
-  // Update handlers to modify numberOfModels
+  const getBeadIdByType = (type) => {
+    const typeString = typeMap[type];
+    const bead = beadData.find(b => b.type === typeString);
+    return bead ? bead._id : null;
+  };
+
+  const getPriceForType = (type) => {
+    const typeString = typeMap[type];
+    const bead = beadData.find(b => b.type === typeString);
+    return bead ? parseFloat(bead.price) : 0;
+  };
+
+  const getTotalForItem = (type, quantity) => {
+    const price = getPriceForType(type);
+    return price * quantity;
+  };
+
+  const calculateTotalPrice = () => {
+    let total = 0;
+    
+ 
+    Object.keys(beadDetails).forEach(type => {
+      beadDetails[type].forEach(bead => {
+        total += getTotalForItem(type, bead.quantity);
+      });
+    });
+    
+    return total.toFixed(2);
+  };
+
   const handleAddModels = (color, count) => {
     const newTotal = numberOfModels + count;
 
@@ -266,7 +323,6 @@ const ThreeCustom = () => {
         return updatedDetails;
       });
     } else {
-
       alert('You can create a maximum of 120 models!');
     }
   };
@@ -274,7 +330,7 @@ const ThreeCustom = () => {
   const handleRemoveAll = () => {
     setNumberOfModels(0);
     setModelGroups([]);
-    setBeadDetails({ solid: [], low: [], spike: [] }); // Reset bead details
+    setBeadDetails({ solid: [], low: [], spike: [] }); 
   };
 
   const handleRemoveLast = () => {
@@ -304,10 +360,75 @@ const ThreeCustom = () => {
 
   const handlePreview = () => {
     // Capture the screenshot of the 3D scene
-    html2canvas(containerRef.current, { backgroundColor: null, width: 700, height: 600, }).then(canvas => {
+    html2canvas(containerRef.current, { backgroundColor: null, width: 700, height: 600 }).then(canvas => {
       setScreenshot(canvas.toDataURL("image/png"));
     });
     setOpenModal(true);
+  };
+
+  const handleAddToCart = async () => {
+    if (numberOfModels < 10) {
+      toast.error("Please add at least 10 beads to your accessory");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const customItems = [];
+      
+      Object.keys(beadDetails).forEach(type => {
+        beadDetails[type].forEach(bead => {
+          const beadId = getBeadIdByType(type);
+          if (beadId) {
+            customItems.push({
+              quantity: bead.quantity,
+              color: bead.color,
+              beadId: beadId
+            });
+          }
+        });
+      });
+
+      let imageUrl = "default_image";
+      
+      if (screenshot) {
+        // Convert base64 data URL to a Blob
+        const response = await fetch(screenshot);
+        const blob = await response.blob();
+        
+        // Create a File object from the Blob
+        const imageFile = new File([blob], "custom_accessory.png", { type: "image/png" });
+        
+        const uploadResponse = await uploadImage(imageFile);
+        imageUrl = uploadResponse.result
+      }
+
+      const requestData = {
+        customItems: customItems,
+        image: imageUrl
+      };
+
+      const response = await createCustomAccessory(requestData);
+      
+      const productId = response.productId;
+      
+      if (!productId) {
+        throw new Error("Invalid response: No product ID returned");
+      }
+      
+      const product = { _id: productId };
+      await addToCart(product, 1); 
+      
+      toast.success("Custom accessory added to cart successfully!");
+      setOpenModal(false);
+      handleRemoveAll(); 
+    } catch (error) {
+      console.error("Error creating/adding custom accessory:", error);
+      toast.error("Failed to add custom accessory to cart. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -332,8 +453,15 @@ const ThreeCustom = () => {
 
           <BeadInfo />
 
-
-          <ButtonCus variant="button-02" width="250px" onClick={handlePreview} sx={{ display: 'flex', justifyContent: 'center' }}> Preview</ButtonCus>
+          <ButtonCus 
+            variant="button-02" 
+            width="250px" 
+            onClick={handlePreview} 
+            sx={{ display: 'flex', justifyContent: 'center' }}
+            disabled={numberOfModels === 0}
+          > 
+            Preview
+          </ButtonCus>
 
         </Grid>
         <Grid item xs={6}>
@@ -373,7 +501,11 @@ const ThreeCustom = () => {
       </Grid>
 
       {/* Modal for Preview */}
-      <Dialog open={openModal} onClose={() => setOpenModal(false)} sx={{ '& .MuiDialog-paper': { backgroundColor: 'black', border: '2px solid white' } }}>
+      <Dialog 
+        open={openModal} 
+        onClose={() => setOpenModal(false)} 
+        sx={{ '& .MuiDialog-paper': { backgroundColor: 'black', border: '2px solid white' } }}
+      >
         <DialogTitle sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Accessory Information</DialogTitle>
         <DialogContent>
         
@@ -411,40 +543,54 @@ const ThreeCustom = () => {
               </TableHead>
               <TableBody>
                 {beadDetails.solid.map((bead, index) => (
-                  <TableRow key={index}>
+                  <TableRow key={`solid-${index}`}>
                     <TableCell sx={{ color: 'white' }}>Solid</TableCell>
                     <TableCell sx={{ color: bead.color }}>{bead.color}</TableCell>
                     <TableCell sx={{ color: 'white' }}>{bead.quantity}</TableCell>
-                    <TableCell sx={{ color: 'white' }}>$</TableCell>
+                    <TableCell sx={{ color: 'white' }}>${getTotalForItem('solid', bead.quantity).toFixed(2)}</TableCell>
                   </TableRow>
                 ))}
                 {beadDetails.low.map((bead, index) => (
-                  <TableRow key={index}>
+                  <TableRow key={`low-${index}`}>
                     <TableCell sx={{ color: 'white' }}>Low-Poly</TableCell>
                     <TableCell sx={{ color: bead.color }}>{bead.color}</TableCell>
                     <TableCell sx={{ color: 'white' }}>{bead.quantity}</TableCell>
-                    <TableCell sx={{ color: 'white' }}>$</TableCell>
+                    <TableCell sx={{ color: 'white' }}>${getTotalForItem('low', bead.quantity).toFixed(2)}</TableCell>
                   </TableRow>
                 ))}
                 {beadDetails.spike.map((bead, index) => (
-                  <TableRow key={index}>
+                  <TableRow key={`spike-${index}`}>
                     <TableCell sx={{ color: 'white' }}>Spike</TableCell>
                     <TableCell sx={{ color: bead.color }}>{bead.color}</TableCell>
                     <TableCell sx={{ color: 'white' }}>{bead.quantity}</TableCell>
-                    <TableCell sx={{ color: 'white' }}>$</TableCell>
+                    <TableCell sx={{ color: 'white' }}>${getTotalForItem('spike', bead.quantity).toFixed(2)}</TableCell>
                   </TableRow>
                 ))}
+                {/* Total Row */}
+                <TableRow>
+                  <TableCell colSpan={3} sx={{ color: 'white', fontWeight: 'bold', textAlign: 'right' }}>
+                    Total:
+                  </TableCell>
+                  <TableCell sx={{ color: '#FFD700', fontWeight: 'bold' }}>
+                    ${calculateTotalPrice()}
+                  </TableCell>
+                </TableRow>
               </TableBody>
             </Table>
           </TableContainer>
         </DialogContent>
         <DialogActions>
-          <ButtonCus variant="button-pixel-green" height={40} onClick={() => setOpenModal(false)} sx={{ color: 'white' }}>
+          <ButtonCus 
+            variant="button-pixel-green" 
+            height={40} 
+            onClick={handleAddToCart} 
+            disabled={isSubmitting || numberOfModels === 0}
+            sx={{ color: 'white' }}
+          >
             <Typography fontFamily="'Jersey 15', sans-serif" variant="h6" sx={{ color: "white" }}>
-              Add to cart
+              {isSubmitting ? "Adding..." : "Add to cart"}
             </Typography>
           </ButtonCus>
-
         </DialogActions>
       </Dialog>
 
@@ -506,4 +652,4 @@ const ThreeCustom = () => {
   );
 };
 
-export default ThreeCustom
+export default ThreeCustom;

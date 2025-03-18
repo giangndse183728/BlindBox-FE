@@ -124,24 +124,24 @@ const CreateBlindboxDialog = ({ open, onClose, onSuccess }) => {
     try {
       setSubmitting(true);
 
-      // First upload the image
+   
       setUploading(true);
       const imageResponse = await uploadImage(selectedFile);
       setUploading(false);
 
-      // Then create the product with the image URL
+    
       const productData = {
         ...formData,
         size: parseFloat(formData.size),
         price: parseFloat(formData.price),
-        image: imageResponse.result // Assuming the API returns a URL in the response
+        image: imageResponse.result 
       };
 
       await createBlindbox(productData);
 
       toast.success('Product created successfully');
-      onSuccess(); // Call the success callback to refresh products
-      handleClose(); // Close the dialog
+      onSuccess(); 
+      handleClose(); 
     } catch (error) {
       toast.error(error.message || 'Failed to create product');
     } finally {
@@ -150,7 +150,7 @@ const CreateBlindboxDialog = ({ open, onClose, onSuccess }) => {
   };
 
   const handleClose = () => {
-    // Reset form state
+   
     setFormData({
       name: '',
       description: '',
@@ -163,7 +163,7 @@ const CreateBlindboxDialog = ({ open, onClose, onSuccess }) => {
     setSelectedFile(null);
     setImagePreview('');
     setOriginalImage(null);
-    onClose(); // Call the parent's onClose function
+    onClose(); 
   };
 
   return (
