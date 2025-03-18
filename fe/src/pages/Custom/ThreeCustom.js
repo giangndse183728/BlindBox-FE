@@ -4,9 +4,14 @@ import GlassCard from "../../components/Decor/GlassCard";
 import html2canvas from 'html2canvas';
 import * as THREE from "three";
 import { OrbitControls } from "three-stdlib";
-import { Grid, Typography, LinearProgress, Dialog, DialogTitle, DialogContent, DialogActions, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { 
+  Grid, Typography, LinearProgress, Dialog, DialogTitle, 
+  DialogContent, DialogActions, Table, TableBody, TableCell, 
+  TableContainer, TableHead, TableRow, Box, IconButton 
+} from '@mui/material';
 import { yellowGlowAnimation } from "../../components/Text/YellowEffect";
-import ButtonCus from "../../components/Button/ButtonCus";;
+import ButtonCus from "../../components/Button/ButtonCus";
+import CloseIcon from '@mui/icons-material/Close';
 
 
 const ThreeCustom = () => {
@@ -21,6 +26,7 @@ const ThreeCustom = () => {
   const [modelGroups, setModelGroups] = useState([]);
   const [sphereType, setSphereType] = useState('low');
   const [openModal, setOpenModal] = useState(false);
+  const [openZoomModal, setOpenZoomModal] = useState(false);
   const [beadDetails, setBeadDetails] = useState({ solid: [], low: [], spike: [] });
   const [screenshot, setScreenshot] = useState(null);
 
@@ -116,7 +122,7 @@ const ThreeCustom = () => {
             geometry = new THREE.SphereGeometry(0.5, 32, 32);
             break;
           case 'low':
-            geometry = new THREE.SphereGeometry(0.6, 8, 5);
+            geometry = new THREE.OctahedronGeometry(0.6, 1);
             break;
           case 'spike':
             geometry = new THREE.SphereGeometry(0.5, 64, 64);
@@ -370,10 +376,28 @@ const ThreeCustom = () => {
       <Dialog open={openModal} onClose={() => setOpenModal(false)} sx={{ '& .MuiDialog-paper': { backgroundColor: 'black', border: '2px solid white' } }}>
         <DialogTitle sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Accessory Information</DialogTitle>
         <DialogContent>
-          {/* Screenshot of the 3D scene */}
+        
           {screenshot && (
-            <img src={screenshot} alt="3D Scene Screenshot" style={{ width: '100%', marginBottom: '16px' }} />
+            <Box 
+              sx={{ 
+                cursor: 'zoom-in', 
+                width: '100%', 
+                marginBottom: '16px',
+                transition: 'transform 0.3s',
+                '&:hover': {
+                  transform: 'scale(1.02)'
+                }
+              }}
+              onClick={() => setOpenZoomModal(true)}
+            >
+              <img 
+                src={screenshot} 
+                alt="3D Scene Screenshot" 
+                style={{ width: '100%' }} 
+              />
+            </Box>
           )}
+          
           {/* Table for Bead Information */}
           <TableContainer>
             <Table sx={{ minWidth: 500 }} aria-label="bead information table">
@@ -422,6 +446,61 @@ const ThreeCustom = () => {
           </ButtonCus>
 
         </DialogActions>
+      </Dialog>
+
+      {/* New Zoom Modal */}
+      <Dialog 
+        open={openZoomModal} 
+        onClose={() => setOpenZoomModal(false)}
+        maxWidth="xl"
+        sx={{ 
+          '& .MuiDialog-paper': { 
+            backgroundColor: 'rgba(0, 0, 0, 0.9)', 
+            boxShadow: '0 0 20px rgba(255, 215, 0, 0.5)',
+            overflow: 'hidden'
+          } 
+        }}
+      >
+        <DialogContent sx={{ p: 0, position: 'relative' }}>
+          <IconButton 
+            onClick={() => setOpenZoomModal(false)}
+            sx={{ 
+              position: 'absolute', 
+              top: 8, 
+              right: 8, 
+              color: 'white',
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              '&:hover': {
+                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              }
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+          
+          {screenshot && (
+            <Box 
+              sx={{ 
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                width: '100%',
+                height: '100%',
+                overflow: 'auto'
+              }}
+            >
+              <img 
+                src={screenshot} 
+                alt="Zoomed 3D Scene" 
+                style={{ 
+                  maxWidth: '100vw',
+                  maxHeight: '90vh',
+                  objectFit: 'contain'
+                }} 
+              />
+            </Box>
+          )}
+        </DialogContent>
       </Dialog>
     </>
   );

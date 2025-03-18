@@ -23,7 +23,6 @@ export const signup = async (userData) => {
       await api.post('/accounts/register', userData);
       return true;
     } catch (error) {
-      console.error('Error signing up:', error.response?.data || error.message);
       throw error.response || new Error('Failed to sign up');
     }
   };
@@ -33,13 +32,11 @@ export const fetchUserData = async () => {
         const userResponse = await api.get('/accounts/me');
         const userData = userResponse.data.result;
         
-        // Store user details in localStorage
         localStorage.setItem("user", JSON.stringify({ name: userData.userName, email: userData.email, role: userData.role, isSeller: userData.isRegisterSelling }));
         
         return userData;
         
     } catch (error) {
-        console.error('Error fetching user data:', error);
         throw new Error('Failed to fetch user data');
     }
 };
@@ -64,7 +61,6 @@ export const fetchProfile = async () => {
         return userData;
 
     } catch (error) {
-        console.error('Error fetching user data:', error);
         throw new Error('Failed to fetch user data');
     }
 
@@ -78,7 +74,6 @@ export const updateUserData = async (updatedUser) => {
         const response = await api.patch('/accounts/me', updatedUser);
         return response.data;
     } catch (error) {
-        console.error('Error updating user data:', error);
         throw new Error('Failed to update user data');
     }
 };
@@ -88,7 +83,6 @@ export const updateSellerStatus = async () => {
         const response = await api.patch('/accounts/register-seller');
         return response.data;
     } catch (error) {
-        console.error('Error updating seller status:', error);
         throw new Error('Failed to update seller status');
     }
 };

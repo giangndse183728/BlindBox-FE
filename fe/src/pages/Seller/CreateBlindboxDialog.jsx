@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   Box, Typography, Button, Grid, TextField,
   Dialog, DialogTitle, DialogContent, DialogActions, Slider,
-  CircularProgress, IconButton
+  CircularProgress, IconButton, InputAdornment
 } from "@mui/material";
 import ImageIcon from '@mui/icons-material/Image';
 import { toast } from 'react-toastify';
@@ -10,12 +10,13 @@ import { uploadImage, createBlindbox } from '../../services/productApi';
 import { removeBackground } from '@imgly/background-removal';
 import CloseIcon from '@mui/icons-material/Close';
 import SettingsBackupRestoreIcon from '@mui/icons-material/SettingsBackupRestore';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 
 const CreateBlindboxDialog = ({ open, onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    quantity: '',
+    quantity: 1,
     price: '',
     brand: '',
     size: '',
@@ -131,6 +132,8 @@ const CreateBlindboxDialog = ({ open, onClose, onSuccess }) => {
       // Then create the product with the image URL
       const productData = {
         ...formData,
+        size: parseFloat(formData.size),
+        price: parseFloat(formData.price),
         image: imageResponse.result // Assuming the API returns a URL in the response
       };
 
@@ -375,6 +378,13 @@ const CreateBlindboxDialog = ({ open, onClose, onSuccess }) => {
                 value={formData.price}
                 onChange={handleInputChange}
                 required
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start" sx={{ color: 'white' }}>
+                      <AttachMoneyIcon />
+                    </InputAdornment>
+                  ),
+                }}
                 InputLabelProps={{
                   sx: { color: 'rgba(255, 255, 255, 0.7)' }
                 }}
@@ -423,6 +433,7 @@ const CreateBlindboxDialog = ({ open, onClose, onSuccess }) => {
                 name="size"
                 label="Size"
                 variant="outlined"
+                type="number"
                 fullWidth
                 value={formData.size}
                 onChange={handleInputChange}

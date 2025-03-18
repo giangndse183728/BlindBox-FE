@@ -77,10 +77,10 @@ const CustomBoard = ({ onAddModels, onRemoveAll, onRemoveLast, isLoading, onType
         onChange={handleColorChange} 
         width="52px"
         colors={[
-          '#B80000', '#DB3E00', '#FCCB00', '#008B02',
-          '#006B76', '#1273DE', '#004DCF', '#5300EB',
-          '#EB9694', '#FAD0C3', '#FEF3BD', '#C1E1C5',
-          '#BEDADC', '#C4DEF6', '#BED3F3', '#D4C4FB'
+          '#E82222', '#FF5722', '#FFD740', '#4CAF50',
+          '#26A69A', '#42A5F5', '#3D5AFE', '#7C4DFF',
+          '#E57373', '#FF8A65', '#FFE082', '#A5D6A7',
+  '#80CBC4', '#90CAF9', '#9FA8DA', '#B39DDB'
         ]}
       />
 
