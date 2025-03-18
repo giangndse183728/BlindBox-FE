@@ -17,6 +17,7 @@ import ManageUsers from '../pages/Admin/dashboard/pages/ManageUsers';
 //User
 import CustomPage from '../pages/Custom/CustomPage';
 import ProfilePage from '../pages/ProfilePage/ProfilePage';
+import OrderSuccessScreen from '../pages/Shoppingcart/OrderSuccessScreen';
 //Seller
 import SubscriptionPage from '../pages/SubscriptionPage/SubscriptionPage';
 import CartPage from '../pages/Shoppingcart/CartPage';
@@ -124,7 +125,7 @@ export const routes = createBrowserRouter([
   {
     path: '/cart',
     element: (
-      <Layout showHeader={true}>
+      <Layout showHeader={false}>
         <ProtectedRoute requiredRoles={[1]}>
           <CartPage />
         </ProtectedRoute>
@@ -181,6 +182,14 @@ export const routes = createBrowserRouter([
     element: (
       <Layout showHeader={true} >
         <OrdersPage />
+      </Layout>
+    ),
+  },
+  {
+    path: "/order-success",
+    element: (
+      <Layout showHeader={false} >
+        <OrderSuccessScreen />
       </Layout>
     ),
   },

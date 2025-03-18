@@ -77,7 +77,6 @@ const useCartStore = create(
                         throw new Error('Invalid response format from server');
                     }
                 } catch (error) {
-                    console.error('Error updating quantity:', error);
                     set({ error: error.message, isLoading: false });
                     toast.error('Failed to update item quantity');
                 }
