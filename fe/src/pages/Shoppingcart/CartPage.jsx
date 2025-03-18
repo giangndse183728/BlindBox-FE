@@ -3,24 +3,37 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import useCartStore from './CartStore';
 import { Link } from "react-router-dom";
-import { Box, Typography, Button, Grid, TextField, InputAdornment } from "@mui/material";
+import { Box, Typography, Button, Grid, TextField, InputAdornment, CircularProgress } from "@mui/material";
 import { yellowGlowAnimation } from '../../components/Text/YellowEffect';
 import ButtonCus from "../../components/Button/ButtonCus";
 import DeleteIconOutlined from '@mui/icons-material/DeleteOutlined';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 
 const CartPage = () => {
-  const { cart, removeFromCart, clearCart, updateQuantity } = useCartStore();
-  const totalPrice = (cart || []).reduce((total, item) => total + item.price * item.quantity, 0);
+  const { cart, removeFromCart, clearCart, updateQuantity, fetchCartItems, isLoading, error } = useCartStore();
+  
+  const cartItems = cart || [];
+  
+  const totalPrice = cartItems.reduce((total, item) => {
+    return total + (item.totalPrice || 0);
+  }, 0);
+
+  useEffect(() => {
+    fetchCartItems();
+  }, [fetchCartItems]);
 
   const handleQuantityChange = (item, newQuantity) => {
     if (newQuantity > 0) {
-      updateQuantity(item.id, newQuantity);
+      updateQuantity(item.product._id, newQuantity);
     }
   };
 
-  const handleDelete = (id) => {
-    removeFromCart(id);
+  const handleDelete = (item) => {
+    removeFromCart(item.product._id);
+  };
+
+  const handleClearCart = () => {
+    clearCart();
   };
 
   useEffect(() => {
@@ -28,7 +41,6 @@ const CartPage = () => {
     AOS.init({ duration: 1000 });
     AOS.refresh(); // Ensures reinitialization
   }, []);         
-
 
   return (
     <>
@@ -53,26 +65,59 @@ const CartPage = () => {
         paddingTop: 12,
      
       }}>
-        {cart.length > 0 && (
-      <Box sx={{ width: '93%', mb: 2 }}>  {/* Container for the title */}
-        <Typography 
-          variant="h5" 
-          fontFamily="'Jersey 15', sans-serif" 
-          sx={{ 
-            color: "white", 
-            fontSize: '3rem', 
-            ...yellowGlowAnimation,
-            textAlign: 'left'  // Align text to the left
-          }}
-        >
-          Shopping Cart
-        </Typography>
-      </Box>
+        {cartItems.length > 0 && (
+          <Box sx={{ width: '93%', mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography 
+              variant="h5" 
+              fontFamily="'Jersey 15', sans-serif" 
+              sx={{ 
+                color: "white", 
+                fontSize: '3rem', 
+                ...yellowGlowAnimation,
+                textAlign: 'left'
+              }}
+            >
+              Shopping Cart
+            </Typography>
+            <ButtonCus
+              variant="button-pixel-red"
+              onClick={handleClearCart}
+              width="120px"
+              height="40px"
+            >
+              <Typography variant="body1" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
+                Clear Cart
+              </Typography>
+            </ButtonCus>
+          </Box>
         )}
 
-      {cart.length === 0 ? (
+      {isLoading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+          <CircularProgress sx={{ color: '#FFD700' }} />
+        </Box>
+      ) : error ? (
         <Box sx={{ mt: 10 }}>
-       
+          <Typography fontFamily="'Jersey 15', sans-serif" sx={{ color: "red", textAlign: 'center', fontSize: '2rem' }}>
+            {error}
+          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+            <Button
+              variant="outlined"
+              onClick={() => fetchCartItems()}
+              sx={{
+                color: "white",
+                border: "2px solid white",
+                backgroundColor: "transparent",
+                "&:hover": { bgcolor: "yellow", color: "black" },
+              }}
+            >
+              Try Again
+            </Button>
+          </Box>
+        </Box>
+      ) : cartItems.length === 0 ? (
+        <Box sx={{ mt: 10 }}>
           <Typography fontFamily="'Jersey 15', sans-serif" sx={{ color: "white", textAlign: 'center', ...yellowGlowAnimation, fontSize: '4rem' }}>Your cart is empty!!</Typography>
           <Typography fontFamily="'Jersey 15', sans-serif" sx={{ color: "white", textAlign: 'center', fontSize: '2rem' }}>You can find what you seek with a click of a button</Typography>
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
@@ -130,43 +175,61 @@ const CartPage = () => {
               </Grid>
 
              
-              {cart.map((item) => (
-                <Grid container spacing={2} key={item.id} sx={{ 
+              {cartItems.map((item) => (
+                <Grid container spacing={2} key={item._id} sx={{ 
                   alignItems: 'center', 
                   borderBottom: '1px solid rgba(255,255,255,0.1)', 
                   py: 2 
                 }}>
                   <Grid item xs={5} sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Link to={`/product/${item.id}`} style={{ textDecoration: "none", display: "flex", alignItems: "center" }}>
+                    <Link to={`/product/${item.product?._id}`} style={{ textDecoration: "none", display: "flex", alignItems: "center" }}>
                       <img
-                        src={item.image}
-                        alt={item.name}
+                        src={item.product?.image}
+                        alt={item.product?.name}
                         style={{ width: 80, height: 80, borderRadius: '10px', marginRight: '16px' }}
                       />
-                      <Typography sx={{ color: "white" }}>{item.name}</Typography>
+                      <Typography sx={{ color: "white" }}>{item.product?.name}</Typography>
                     </Link>
                   </Grid>
                   <Grid item xs={2} sx={{ textAlign: 'center' }}>
-                    <Typography sx={{ color: "white" }}>user</Typography>
+                    <Typography sx={{ color: "white" }}>Seller</Typography>
                   </Grid>
                   <Grid item xs={2} sx={{ textAlign: 'center' }}>
-                  <Typography sx={{ color: "white" }}>${parseFloat(item.price).toFixed(2) || "N/A"}</Typography>
+                    <Typography sx={{ color: "white" }}>${parseFloat(item.product?.price).toFixed(2) || "N/A"}</Typography>
                   </Grid>
                   <Grid item xs={2} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    <ButtonCus variant="button-pixel" onClick={() => handleQuantityChange(item, item.quantity - 1)} width="30px" height="30px">-</ButtonCus>
-                    <Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ mx: 2, color: "white" }}>{item.quantity}</Typography>
-                    <ButtonCus variant="button-pixel" onClick={() => handleQuantityChange(item, item.quantity + 1)} width="30px" height="30px">+</ButtonCus>
+                    <ButtonCus 
+                      variant="button-pixel" 
+                      onClick={() => handleQuantityChange(item, item.cartQuantity - 1)} 
+                      width="30px" 
+                      height="30px"
+                      disabled={isLoading}
+                    >
+                      -
+                    </ButtonCus>
+                    <Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ mx: 2, color: "white" }}>
+                      {item.cartQuantity}
+                    </Typography>
+                    <ButtonCus 
+                      variant="button-pixel" 
+                      onClick={() => handleQuantityChange(item, item.cartQuantity + 1)} 
+                      width="30px" 
+                      height="30px"
+                      disabled={isLoading}
+                    >
+                      +
+                    </ButtonCus>
                   </Grid>
                   <Grid item xs={1} sx={{ textAlign: 'center' }}>
                     <ButtonCus 
                       variant="button-pixel-red" 
-                      onClick={() => handleDelete(item.id)} 
+                      onClick={() => handleDelete(item)} 
                       width="40px"
                       height="40px"
+                      disabled={isLoading}
                     >
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <DeleteIconOutlined sx={{ fontSize: 20 }} />
-    
                       </Box>
                     </ButtonCus>
                   </Grid>
@@ -302,6 +365,7 @@ const CartPage = () => {
                 variant="button-pixel-green"
                 width="100%"
                 height="40px"
+                disabled={isLoading || cartItems.length === 0}
               >
                 <Typography variant="h5" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
                   Proceed to Checkout
@@ -314,9 +378,9 @@ const CartPage = () => {
                   height="30px"
                   sx={{ mt: 2 }}
                 >
-                    <Typography variant="body1" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
-                      Continue Shopping
-                </Typography>
+                  <Typography variant="body1" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
+                    Continue Shopping
+                  </Typography>
                 </ButtonCus>
               </Link>
             </Box>

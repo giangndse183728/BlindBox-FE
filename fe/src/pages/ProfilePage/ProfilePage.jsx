@@ -6,11 +6,12 @@ import GlassCard from "../../components/Decor/GlassCard";
 import EditIcon from '@mui/icons-material/Edit';
 import LoadingScreen from '../../components/Loading/LoadingScreen';
 import { yellowGlowAnimation } from '../../components/Text/YellowEffect';
-import { fetchProfile, updateUserData } from '../../services/userApi';
+import { fetchProfile, updateUserData, updateSellerStatus } from '../../services/userApi';
 import { Formik } from 'formik';
 import { profileSchema } from '../../utils/validationSchemas';
 import { toast } from 'react-toastify';
 import { useAddressManagement, AddressForm } from '../../components/Address/AddressComponents';
+import SwitchCus from '../../components/Button/SwitchCus';
 
 // Extracted reusable components
 const FormTextField = ({ id, label, value, isEditing, handleChange, handleBlur, errors, touched, readOnly = false, multiline = false, rows = 1, placeholder = "" }) => {
@@ -61,6 +62,7 @@ const ProfilePage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
+    const [isSeller, setIsSeller] = useState(false);
 
     const addressData = useAddressManagement(user?.address);
     const { generateFullAddress, parseAddress, setIsLoading: setAddressIsLoading } = addressData;
@@ -75,6 +77,7 @@ const ProfilePage = () => {
                     setUser(null);
                 } else {
                     setUser(userData);
+                    setIsSeller(userData.isRegisterSelling);
                     if (userData.address) {
                         await parseAddress(userData.address);
                     }
@@ -137,6 +140,17 @@ const ProfilePage = () => {
         }
     };
 
+    const handleToggleSeller = async (checked) => {
+        try {
+            await updateSellerStatus();
+            setIsSeller(checked);
+            toast.success(`You are now ${checked ? 'registered as a seller' : 'no longer a seller'}.`);
+        } catch (error) {
+            console.error("Can not reverse");
+
+        }
+    };
+
     return (
         <div style={{
             position: 'relative',
@@ -173,16 +187,15 @@ const ProfilePage = () => {
                 marginTop: '50px',
                 marginBottom: '50px',
                 flex: 1,
-                minHeight: "calc(100vh - 80px)"
             }}>
                 {/* Profile Header */}
                 <GlassCard style={{ width: "80%", padding: "20px", marginBottom: "20px", position: 'relative' }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "20px", marginLeft: "40px" }}>
                         <img src="/assets/bill-cypher/pfp.jpeg" alt="Profile" style={{ width: "80px", height: "100%", borderRadius: "50%", border: "3px solid #FFD700" }} />
                         <div>
-                            <h2 style={{
+                            <p style={{
                                 margin: 0, color: "white", fontSize: "45px", fontFamily: '"Jersey 15", sans-serif'
-                            }}>{user?.userName}</h2>
+                            }}>{user?.userName}</p>
                             <p style={{ margin: 0, color: "rgba(255, 255, 255, 0.5)", }}>{user?.email}</p>
                         </div>
                     </div>
@@ -250,8 +263,9 @@ const ProfilePage = () => {
                                         mb: 2,
                                     }}
                                 >
-                                    Register Seller
+                                   *Register <span style={{...yellowGlowAnimation}}>Seller</span> 
                                 </Typography>
+                            
 
                                 {/* Sidebar (Policy Card) */}
                                 <GlassCard
@@ -259,17 +273,18 @@ const ProfilePage = () => {
                                         width: "100%",
                                         padding: "15px",
                                         minHeight: "200px",
-                                        maxHeight: "400px",
+                                        maxHeight: "480px",
                                         overflowY: "auto",
                                         scrollbarWidth: "thin",
                                         scrollbarColor: "rgba(255, 255, 255, 0.5) transparent",
                                     }}
                                 >
                                     <Typography variant="h5" sx={{ color: "white", mb: 1, textAlign: "center", fontFamily: 'Yusei Magic' }}>
-                                        Policy
+                                      - Policy -
                                     </Typography>
+                                    <Box sx={{  mb: 8 }}>
                                     <Typography variant="body2" sx={{ color: "white", mb: 2, textAlign: "center", fontFamily: 'Yusei Magic' }}>
-                                        By toggling <b>Sale Blindbox</b>, users become sellers and must follow these rules:
+                                        By toggling <b><span style={{color:'yellow'}}>Sale Blindbox </span></b>, users become sellers and must follow these rules:
                                     </Typography>
 
                                     {[
@@ -281,7 +296,7 @@ const ProfilePage = () => {
                                         { title: "Compliance", content: "No illegal items. Violations may lead to removal or bans." },
                                         { title: "Account Control", content: "Sellers can disable selling anytime." },
                                     ].map((item, index) => (
-                                        <Box key={index} sx={{ mb: 1 }}>
+                                        <Box key={index} sx={{ mb: 4 }}>
                                             <Stack direction="row" alignItems="center" spacing={1}>
                                                 <img
                                                     src="/assets/pixel-heart.png"
@@ -297,6 +312,21 @@ const ProfilePage = () => {
                                             </Typography>
                                         </Box>
                                     ))}
+                                    </Box>
+                                    <Box sx={{ mb: 5, gap: 2 , alignItems: 'center', display: 'flex', flexDirection:'row', justifyContent: 'center' }}>
+                                    <Typography variant="h5" sx={{  color: "rgba(255, 255, 255, 0.8)", fontFamily: '"Jersey 15", sans-serif', ...yellowGlowAnimation }}>
+                                                Become Seller
+                                            </Typography>
+                                        <SwitchCus
+                                     
+                                        checked={isSeller}
+                                        onChange={handleToggleSeller}
+                                        
+                                    />
+                                    </Box>
+                                    <Typography variant="body1" sx={{  color: "rgba(255, 255, 255, 0.8)", fontFamily: '"Jersey 15", sans-serif'}}>
+                                    *Please complete all required fields in your profile to become a seller.
+                                            </Typography>
                                 </GlassCard>
                             </Box>
 
@@ -363,6 +393,9 @@ const ProfilePage = () => {
 
                                     <AddressForm isEditing={isEditing} addressData={addressData} />
                                 </Grid>
+
+                             
+                            
 
                                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
                                     {isEditing ? (

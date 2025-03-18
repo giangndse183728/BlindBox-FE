@@ -1,35 +1,50 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, ImageBackground } from "react-native";
-import { Appbar, Card, Title, Provider as PaperProvider } from "react-native-paper";
-import Icon from 'react-native-vector-icons/FontAwesome'; 
+import React, { useState, useEffect } from "react";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, ImageBackground, ActivityIndicator} from "react-native";
+import { Appbar, Card, Title, Provider as PaperProvider, Button } from "react-native-paper";
+import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from "@react-navigation/native";
-import Filter from "./Filter"; 
+import Filter from "./Filter";
+import { fetchBlindboxData } from "../../service/productApi";
 
 const CollectionScreen = () => {
   const navigation = useNavigation();
-  const [products] = useState([
-    { id: 1, name: "Anime Blind Box", img: require('./blindbox1.png'), price: 2999.99, brand: "Pop Mart", type: "Unbox", rating: 4.5 },
-    { id: 2, name: "Superhero Surprise Pack", img: require('./blindbox1.png'), price: 2500, brand: "My Kingdom", type: "Seal", rating: 4 },
-    { id: 3, name: "Kawaii Collectibles", img: require('./blindbox1.png'), price: 3200, brand: "Tokidoki", type: "Unbox", rating: 3 },
-    { id: 4, name: "Gaming Loot Crate", img: require('./blindbox1.png'), price: 1999.99, brand: "Funko", type: "Seal", rating: 5 },
-    { id: 5, name: "Sci-Fi Mystery Box", img: require('./blindbox1.png'), price: 4500, brand: "Mighty Jaxx", type: "Unbox", rating: 2 },
-    { id: 6, name: "Cartoon Nostalgia Box", img: require('./blindbox1.png'), price: 2800, brand: "Kidrobot", type: "Unbox", rating: 3 },
-    { id: 7, name: "Fantasy Adventure Pack", img: require('./blindbox1.png'), price: 3500, brand: "Pop Mart", type: "Seal", rating: 3.5 },
-    { id: 8, name: "Retro Game Blind Box", img: require('./blindbox1.png'), price: 4000, brand: "My Kingdom", type: "Unbox", rating: 1 },
-    { id: 9, name: "Limited Edition Blind Box", img: require('./blindbox1.png'), price: 4999.99, brand: "Tokidoki", type: "Seal", rating: 1.5 },
-    { id: 10, name: "Horror Themed Surprise", img: require('./blindbox1.png'), price: 2700, brand: "Funko", type: "Unbox", rating: 2.5 },
-    { id: 11, name: "Marvel Blind Box", img: require('./blindbox1.png'), price: 3300, brand: "Mighty Jaxx", type: "Seal", rating: 4 },
-    { id: 12, name: "DC Comics Mystery Pack", img: require('./blindbox1.png'), price: 3100, brand: "Kidrobot", type: "Unbox", rating: 3.5 },
-    { id: 13, name: "Anime Limited Edition Box", img: require('./blindbox1.png'), price: 3799.99, brand: "Pop Mart", type: "Seal", rating: 2 },
-  ]);
+  const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [showFilters, setShowFilters] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const getProducts = async () => {
+      try {
+        const data = await fetchBlindboxData();
+        setProducts(data);
+        setFilteredProducts(data);
+      } catch (error) {
+        console.error(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getProducts();
+  }, []);
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      const token = await AsyncStorage.getItem("accessToken");
+      setIsLoggedIn(!!token);
+    };
+
+    const unsubscribe = navigation.addListener("focus", checkLoginStatus);
+    return unsubscribe;
+  }, [navigation]);
 
   const truncateName = (name, wordLimit) => {
     const words = name.split(" ");
     return words.length > wordLimit ? words.slice(0, wordLimit).join(" ") + "..." : name;
   };
-
-  const [filteredProducts, setFilteredProducts] = useState(products);
-  const [showFilters, setShowFilters] = useState(false);
 
   const applyFilters = (filters) => {
     const { priceRange, selectedBrand, selectedType, selectedRating } = filters;
@@ -46,21 +61,24 @@ const CollectionScreen = () => {
   };
 
   const renderProduct = ({ item }) => (
-    <TouchableOpacity onPress={() => navigation.navigate("Detail", { productId: item.id })}>
+    <TouchableOpacity onPress={() => navigation.navigate("Detail", { productId: item._id, slug: item.slug })}>
       <Card style={styles.productCard}>
-        <Card.Cover source={item.img} style={styles.productImage} />
+        <Card.Cover source={{ uri: item.image }} style={styles.productImage} />
         <Card.Content>
           <Title style={styles.productName}>{truncateName(item.name, 1)}</Title>
           <Text style={styles.productBrand}>{item.brand}</Text>
-          <Text style={styles.productPrice}>${item.price.toFixed(2)}</Text>
+          <Text style={styles.productPrice}>
+            ${Number(item.price).toFixed(2)}
+          </Text>
+
           <View style={styles.ratingContainer}>
             {Array.from({ length: 5 }, (_, index) => (
-              <Icon 
+              <Icon
                 key={index}
-                name="heart" 
-                size={20} 
-                color={index < Math.round(item.rating) ? "red" : "white"} 
-                style={styles.heartIcon} 
+                name="heart"
+                size={20}
+                color={index < Math.round(item.rating) ? "red" : "white"}
+                style={styles.heartIcon}
               />
             ))}
           </View>
@@ -71,21 +89,40 @@ const CollectionScreen = () => {
 
   return (
     <PaperProvider>
-      <ImageBackground 
-        source={require('./background.jpeg')} 
-        style={styles.container} 
-      >
-        <Text style={styles.header}>BlindB!ox</Text>
+      <ImageBackground source={require('../../assets/background.jpeg')} style={styles.container}>
+
+        {/* Header + Nút Login hoặc Icon User */}
+        <View style={styles.headerContainer}>
+          <Text style={styles.header}>BlindB!ox</Text>
+
+          {isLoggedIn ? (
+            <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
+              <Icon name="user-circle" size={30} color="white" />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity onPress={() => navigation.navigate("Login", { setIsLoggedIn })} style={styles.loginButton}>
+              <Text style={styles.loginButtonText}>Login</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* Nút Filter */}
         <Appbar.Action icon="filter" onPress={() => setShowFilters(true)} />
 
-        <FlatList
-          data={filteredProducts}
-          renderItem={renderProduct}
-          keyExtractor={(item) => item.id.toString()}
-          numColumns={2}
-          contentContainerStyle={styles.productList}
-        />
+        {/* Danh sách sản phẩm */}
+        {loading ? (
+          <ActivityIndicator size="large" color="white" />
+        ) : (
+          <FlatList
+            data={filteredProducts}
+            renderItem={renderProduct}
+            keyExtractor={(item) => item._id.toString()}
+            numColumns={2}
+            contentContainerStyle={styles.productList}
+          />
+        )}
 
+        {/* Modal Filter */}
         <Modal visible={showFilters} animationType="slide" transparent={true}>
           <View style={styles.modalContainer}>
             <Filter onApplyFilters={applyFilters} onClose={() => setShowFilters(false)} />
@@ -101,44 +138,62 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
   },
+  headerContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+  },
   header: {
     fontSize: 24,
     color: "white",
     textAlign: "center",
-    marginBottom: 20,
+    flex: 1,
+  },
+  loginButton: {
+    backgroundColor: "white",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    marginRight: 10,
+  },
+  loginButtonText: {
+    color: "black",
+    fontSize: 16,
+    fontWeight: "bold",
   },
   productCard: {
     margin: 5,
     flex: 1,
-    borderColor: "white", 
+    borderColor: "white",
     borderWidth: 1,
-    borderRadius: 8, 
+    borderRadius: 8,
     padding: 10,
-    backgroundColor: "transparent", 
+    backgroundColor: "transparent",
   },
   productImage: {
     height: 150,
-    backgroundColor: "transparent", 
+    backgroundColor: "transparent",
   },
   productName: {
     fontWeight: "bold",
     fontSize: 14,
     marginBottom: 5,
-    color: "white", 
+    color: "white",
   },
   productBrand: {
-    color: "white", 
+    color: "white",
   },
   productPrice: {
-    color: "white", 
+    color: "white",
   },
   ratingContainer: {
     flexDirection: 'row',
-    backgroundColor: "transparent", 
+    backgroundColor: "transparent",
   },
   heartIcon: {
-    backgroundColor: "transparent", 
-    marginRight: 5, 
+    backgroundColor: "transparent",
+    marginRight: 5,
   },
   productList: {
     paddingBottom: 50,

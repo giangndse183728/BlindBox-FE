@@ -7,7 +7,6 @@ import {
   Box,
   Grid,
   Typography,
-  Button,
   Rating,
   Divider,
   Pagination,
@@ -21,13 +20,15 @@ import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import GlassCard from "../../components/Decor/GlassCard";
 import Footer from "../../layouts/Footer";
+import ButtonCus from "../../components/Button/ButtonCus";
+import { yellowGlowAnimation } from '../../components/Text/YellowEffect';
 import { fetchBlindboxData } from '../../services/productApi';
-import LoadingScreen from '../../components/Loading/LoadingScreen'; 
+import LoadingScreen from '../../components/Loading/LoadingScreen';
 
 const Collectionpage = () => {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
-  const [priceRange, setPriceRange] = useState([0, 5000]);
+  const [priceRange, setPriceRange] = useState([0, 600]);
   const [appliedPriceRange, setAppliedPriceRange] = useState([0, 5000]);
   const [selectedBrand, setSelectedBrand] = useState([]);
   const [selectedType, setSelectedType] = useState([]);
@@ -37,20 +38,20 @@ const Collectionpage = () => {
   const query = new URLSearchParams(location.search);
   const page = parseInt(query.get("page")) || 1;
   const itemsPerPage = 9;
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true); 
+      setLoading(true);
       try {
         const data = await fetchBlindboxData();
         console.log("Fetched Data:", data);
 
-        if (Array.isArray(data.result)) {
-          setProducts(data.result);
-          setFilteredProducts(data.result);
+        if (Array.isArray(data)) { // Kiểm tra nếu dữ liệu là mảng
+          setProducts(data);
+          setFilteredProducts(data);
         } else {
-          console.error("Expected an array but got:", data.result);
+          console.error("Unexpected API response format:", data);
         }
       } catch (error) {
         console.error("Error fetching blindbox data:", error);
@@ -98,13 +99,6 @@ const Collectionpage = () => {
     const value = event.target.value;
     setSelectedBrand(prev =>
       prev.includes(value) ? prev.filter(b => b !== value) : [...prev, value]
-    );
-  };
-
-  const handleTypeChange = (event) => {
-    const value = event.target.value;
-    setSelectedType(prev =>
-      prev.includes(value) ? prev.filter(t => t !== value) : [...prev, value]
     );
   };
 
@@ -174,25 +168,28 @@ const Collectionpage = () => {
             Product Filter
           </Typography>
           {/* Price Range Filter */}
-          <Typography>Price Range</Typography>
+          <Typography fontFamily="'Jersey 15', sans-serif" sx={{fontSize:22}}>Price Range</Typography>
           <Slider
             value={priceRange}
             onChange={handlePriceChange}
             valueLabelDisplay="auto"
             min={0}
-            max={5000}
+            max={600}
             sx={{ color: "white" }}
           />
           <Grid container justifyContent="space-between" sx={{ mt: 1 }}>
             <Typography variant="body1">${priceRange[0]}</Typography>
             <Typography variant="body1">${priceRange[1]}</Typography>
           </Grid>
-          <Button variant="contained" sx={{ bgcolor: "yellow", color: "black", borderRadius: 1, mt: 2, width: "100%" }} onClick={handleApplyPriceFilter}>
-            Apply
-          </Button>
+
+          <ButtonCus variant="button-pixel-yellow" width="100%" height="40px" onClick={handleApplyPriceFilter}>
+            <Typography variant="h5" fontFamily="'Jersey 15', sans-serif" sx={{ color: "Seashell" }}>
+              Apply
+            </Typography>
+          </ButtonCus>
           <Divider sx={{ bgcolor: "white", my: 2 }} />
-          <Typography sx={{ mt: 2 }}>Brand</Typography>
-          {["fpt"].map((brand) => (
+          <Typography fontFamily="'Jersey 15', sans-serif" sx={{ mt: 2, fontSize:22 }}>Brand</Typography>
+          {["fpt", "Popmart"].map((brand) => (
             <FormControlLabel
               key={brand}
               control={
@@ -207,25 +204,30 @@ const Collectionpage = () => {
             />
           ))}
           <Divider sx={{ bgcolor: "white", my: 2 }} />
-          <Typography sx={{ mt: 2 }}>Rating</Typography>
-          <Rating
-            name="rating-filter"
-            value={selectedRating}
-            onChange={handleRatingChange}
-            precision={0.5}
-            icon={<FavoriteIcon fontSize="inherit" sx={{ color: "red" }} />}
-            emptyIcon={<FavoriteBorderIcon fontSize="inherit" />}
-          />
-          <Button variant="contained" sx={{ bgcolor: "yellow", color: "black", borderRadius: 1, mt: 2, width: "100%" }} onClick={handleClearFilters}>
+          <Typography fontFamily="'Jersey 15', sans-serif" sx={{ mt: 2, fontSize:22 }}>Rating</Typography>
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 1 }}>
+            <Rating
+              name="rating-filter"
+              value={selectedRating}
+              onChange={handleRatingChange}
+              precision={0.5}
+              icon={<FavoriteIcon fontSize="inherit" sx={{ color: "red" }} />}
+              emptyIcon={<FavoriteBorderIcon fontSize="inherit" sx={{ color: "white" }} />}
+            />
+          </Box>
+          <Divider sx={{ bgcolor: "white", my: 2 }} />
+          <ButtonCus variant="button-pixel-yellow" width="100%" height="40px" onClick={handleClearFilters}>
+            <Typography variant="h5" fontFamily="'Jersey 15', sans-serif" sx={{ color: "Seashell" }}>
             Clear All
-          </Button>
+            </Typography>
+          </ButtonCus>
         </Box>
 
         {/* Product Section */}
         <Box sx={{ flexGrow: 1, ml: { xs: 0, sm: 2 }, mt: { xs: 2, sm: 0 } }}>
           {/* Sorting Bar */}
           <Box sx={{ p: 2, color: "white", borderRadius: 1, position: "sticky", width: "90%", mb: 2, top: 5, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <Typography fontFamily="'Jersey 15', sans-serif" sx={{ fontSize: '4rem', fontWeight: "bold" }}>
+            <Typography fontFamily="'Jersey 15', sans-serif" sx={{ fontSize: '4rem', fontWeight: "bold",...yellowGlowAnimation }}>
               BLINDBOXES
             </Typography>
             <Autocomplete
@@ -265,6 +267,7 @@ const Collectionpage = () => {
                   onChange={(event) => sortProducts(event.target.value)}
                   sx={{ color: "white", border: "1px solid white", backgroundColor: "transparent" }}
                 >
+                  <MenuItem value="">None</MenuItem>
                   <MenuItem value="az">A-Z</MenuItem>
                   <MenuItem value="za">Z-A</MenuItem>
                   <MenuItem value="low-high">Lowest to Highest</MenuItem>
@@ -280,7 +283,9 @@ const Collectionpage = () => {
           ) : (
             <Grid container spacing={1}>
               {displayedProducts.length === 0 ? (
-                <Typography variant="h6" color="white">No products available.</Typography>
+                <Typography variant="h6" fontFamily="'Jersey 15', sans-serif" color="white" sx={{ fontSize: "2.8rem" }}>
+                  No products available.
+                </Typography>
               ) : (
                 displayedProducts.map((product) => (
                   <Grid item xs={12} sm={6} md={4} key={product.slug} sx={{ p: 1 }}>
@@ -306,10 +311,12 @@ const Collectionpage = () => {
                           <img
                             src={product.image}
                             alt={product.name}
-                            style={{ width: 200, height: 200, borderRadius: "10px", marginTop: "-70px", cursor: "pointer" }}
+                            style={{ width: 150, height: 150, borderRadius: "10px", marginTop: "-70px", cursor: "pointer" }}
                           />
                           <Box sx={{ position: "absolute", bottom: 10, left: 10, color: "white", px: 1, py: 0.5, borderRadius: 1, textAlign: "left" }}>
-                            <Typography variant="h6" sx={{ fontWeight: "bold", mt: "-15px" }}>{product.name}</Typography>
+                            <Typography variant="h6" sx={{ fontWeight: "bold", mt: "-15px" }}>
+                              {product.name.length > 27 ? `${product.name.substring(0, 24)}...` : product.name}
+                            </Typography>
                             <Typography variant="body2" sx={{ fontSize: "0.9rem" }}>{product.brand}</Typography>
                             <Typography variant="body1">
                               ${isNaN(parseFloat(product.price)) ? "N/A" : parseFloat(product.price).toFixed(2)}
@@ -322,7 +329,7 @@ const Collectionpage = () => {
                               readOnly
                               precision={0.5}
                               icon={<FavoriteIcon fontSize="inherit" sx={{ color: "red" }} />}
-                              emptyIcon={<FavoriteBorderIcon fontSize="inherit" />}
+                              emptyIcon={<FavoriteBorderIcon fontSize="inherit" sx={{ color: "white" }} />}
                             />
                           </Box>
                         </Box>
@@ -333,7 +340,7 @@ const Collectionpage = () => {
               )}
             </Grid>
           )}
-          
+
           <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
             <Pagination
               count={totalPages}

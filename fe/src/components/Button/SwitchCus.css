@@ -4,6 +4,7 @@
     display: flex;
     justify-content: center;
     position: relative;
+    margin-top: "15px";
   }
   
   .toggle-input {
@@ -87,7 +88,7 @@
   .toggle-handle-bar-wrapper {
     position: relative;
     width: .5em;
-    height: 3em;
+    height: 4.9em;
   }
   
   .toggle-handle-bar {
