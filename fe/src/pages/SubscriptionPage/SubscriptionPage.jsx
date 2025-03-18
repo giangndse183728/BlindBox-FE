@@ -72,7 +72,7 @@ const SubscriptionPage = () => {
                     Available Plans
                 </Typography>
 
-                <img src="/assets/gif/star.gif" alt="Stars" style={{ width: '50px', height: 'auto', marginLeft: '10px' }} />
+                <img src="/assets/gif/giphy.gif" alt="Stars" style={{ width: '50px', height: 'auto', marginLeft: '10px' }} />
             </div>
             <div style={{ display: 'flex', gap: '9rem', justifyContent: 'center', flexWrap: 'wrap', width: '100%' }}>
                 {plans.map((plan, index) => (
