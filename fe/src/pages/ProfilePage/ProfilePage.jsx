@@ -1,5 +1,5 @@
 import { useEffect, useState, Suspense } from "react";
-import { Box, TextField, Button, Typography, Grid, Stack } from '@mui/material';
+import { Box, TextField, Button, Typography, Grid, Stack, Chip } from '@mui/material';
 import Footer from '../../layouts/Footer';
 import { useNavigate } from 'react-router-dom';
 import GlassCard from "../../components/Decor/GlassCard";
@@ -195,7 +195,32 @@ const ProfilePage = () => {
                         <div>
                             <p style={{
                                 margin: 0, color: "white", fontSize: "45px", fontFamily: '"Jersey 15", sans-serif'
-                            }}>{user?.userName}</p>
+                            }}>{user?.userName}
+                                <Chip
+                                    label={`Credits: ${user?.remainingCredits || 10}`}
+                                    variant="outlined"
+                                    size="small"
+                                    sx={{
+                                        ml: 2,
+                                        borderColor: '#FFD700',
+                                        borderWidth: 2,
+                                        color: 'white',
+                                        fontSize: '0.8rem',
+                                        fontWeight: 'bold',
+                                        height: '25px',
+                                        fontFamily: 'Yusei Magic',
+                                        '& .MuiChip-label': {
+                                            paddingLeft: '10px',
+                                            paddingRight: '10px',
+                                            paddingBottom: '3px',
+                                            fontFamily: 'Yusei Magic'
+                                        },
+                                        '& .MuiOutlinedInput-notchedOutline': {
+                                            borderWidth: 2
+                                        }
+                                    }}
+                                />
+                            </p>
                             <p style={{ margin: 0, color: "rgba(255, 255, 255, 0.5)", }}>{user?.email}</p>
                         </div>
                     </div>
@@ -250,7 +275,7 @@ const ProfilePage = () => {
                                     flexDirection: "column",
                                     alignItems: "center",
                                     width: "20%", // Sidebar width
-                                    
+
                                 }}
                             >
                                 {/* Register to be Seller Title - Pushing Sidebar Down */}
@@ -263,9 +288,9 @@ const ProfilePage = () => {
                                         mb: 2,
                                     }}
                                 >
-                                   *Register <span style={{...yellowGlowAnimation}}>Seller</span> 
+                                    *Register <span style={{ ...yellowGlowAnimation }}>Seller</span>
                                 </Typography>
-                            
+
 
                                 {/* Sidebar (Policy Card) */}
                                 <GlassCard
@@ -280,53 +305,53 @@ const ProfilePage = () => {
                                     }}
                                 >
                                     <Typography variant="h5" sx={{ color: "white", mb: 1, textAlign: "center", fontFamily: 'Yusei Magic' }}>
-                                      - Policy -
+                                        - Policy -
                                     </Typography>
-                                    <Box sx={{  mb: 8 }}>
-                                    <Typography variant="body2" sx={{ color: "white", mb: 2, textAlign: "center", fontFamily: 'Yusei Magic' }}>
-                                        By toggling <b><span style={{color:'yellow'}}>Sale Blindbox </span></b>, users become sellers and must follow these rules:
-                                    </Typography>
+                                    <Box sx={{ mb: 8 }}>
+                                        <Typography variant="body2" sx={{ color: "white", mb: 2, textAlign: "center", fontFamily: 'Yusei Magic' }}>
+                                            By toggling <b><span style={{ color: 'yellow' }}>Sale Blindbox </span></b>, users become sellers and must follow these rules:
+                                        </Typography>
 
-                                    {[
-                                        { title: "Verified users only", content: "Approval required." },
-                                        { title: "Accurate listings", content: "No fraud or misleading info." },
-                                        { title: "Pricing & Fees", content: "Sellers set prices. Platform takes a fee." },
-                                        { title: "Secure Payments", content: "Payouts after confirmation." },
-                                        { title: "Order Fulfillment", content: "Late/canceled orders may be penalized." },
-                                        { title: "Compliance", content: "No illegal items. Violations may lead to removal or bans." },
-                                        { title: "Account Control", content: "Sellers can disable selling anytime." },
-                                    ].map((item, index) => (
-                                        <Box key={index} sx={{ mb: 4 }}>
-                                            <Stack direction="row" alignItems="center" spacing={1}>
-                                                <img
-                                                    src="/assets/pixel-heart.png"
-                                                    alt="indent"
-                                                    style={{ width: "14px", height: "14px" }}
-                                                />
-                                                <Typography variant="body2" sx={{ color: "white", fontWeight: "bold" }}>
-                                                    {item.title}
+                                        {[
+                                            { title: "Verified users only", content: "Approval required." },
+                                            { title: "Accurate listings", content: "No fraud or misleading info." },
+                                            { title: "Pricing & Fees", content: "Sellers set prices. Platform takes a fee." },
+                                            { title: "Secure Payments", content: "Payouts after confirmation." },
+                                            { title: "Order Fulfillment", content: "Late/canceled orders may be penalized." },
+                                            { title: "Compliance", content: "No illegal items. Violations may lead to removal or bans." },
+                                            { title: "Account Control", content: "Sellers can disable selling anytime." },
+                                        ].map((item, index) => (
+                                            <Box key={index} sx={{ mb: 4 }}>
+                                                <Stack direction="row" alignItems="center" spacing={1}>
+                                                    <img
+                                                        src="/assets/pixel-heart.png"
+                                                        alt="indent"
+                                                        style={{ width: "14px", height: "14px" }}
+                                                    />
+                                                    <Typography variant="body2" sx={{ color: "white", fontWeight: "bold" }}>
+                                                        {item.title}
+                                                    </Typography>
+                                                </Stack>
+                                                <Typography variant="body2" sx={{ color: "rgba(255, 255, 255, 0.8)" }}>
+                                                    {item.content}
                                                 </Typography>
-                                            </Stack>
-                                            <Typography variant="body2" sx={{ color: "rgba(255, 255, 255, 0.8)" }}>
-                                                {item.content}
-                                            </Typography>
-                                        </Box>
-                                    ))}
+                                            </Box>
+                                        ))}
                                     </Box>
-                                    <Box sx={{ mb: 5, gap: 2 , alignItems: 'center', display: 'flex', flexDirection:'row', justifyContent: 'center' }}>
-                                    <Typography variant="h5" sx={{  color: "rgba(255, 255, 255, 0.8)", fontFamily: '"Jersey 15", sans-serif', ...yellowGlowAnimation }}>
-                                                Become Seller
-                                            </Typography>
+                                    <Box sx={{ mb: 5, gap: 2, alignItems: 'center', display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+                                        <Typography variant="h5" sx={{ color: "rgba(255, 255, 255, 0.8)", fontFamily: '"Jersey 15", sans-serif', ...yellowGlowAnimation }}>
+                                            Become Seller
+                                        </Typography>
                                         <SwitchCus
-                                     
-                                        checked={isSeller}
-                                        onChange={handleToggleSeller}
-                                        
-                                    />
+
+                                            checked={isSeller}
+                                            onChange={handleToggleSeller}
+
+                                        />
                                     </Box>
-                                    <Typography variant="body1" sx={{  color: "rgba(255, 255, 255, 0.8)", fontFamily: '"Jersey 15", sans-serif'}}>
-                                    *Please complete all required fields in your profile to become a seller.
-                                            </Typography>
+                                    <Typography variant="body1" sx={{ color: "rgba(255, 255, 255, 0.8)", fontFamily: '"Jersey 15", sans-serif' }}>
+                                        *Please complete all required fields in your profile to become a seller.
+                                    </Typography>
                                 </GlassCard>
                             </Box>
 
@@ -394,8 +419,8 @@ const ProfilePage = () => {
                                     <AddressForm isEditing={isEditing} addressData={addressData} />
                                 </Grid>
 
-                             
-                            
+
+
 
                                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
                                     {isEditing ? (
