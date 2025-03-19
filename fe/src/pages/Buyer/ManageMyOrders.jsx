@@ -27,7 +27,6 @@ const ORDER_STATUS = {
 // Sub-component for each expandable row
 function OrderRow({ order }) {
     const [open, setOpen] = useState(false);
-    const [detailsOpen, setDetailsOpen] = useState(false); // For nested expandable section
 
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('en-US', {
@@ -44,14 +43,7 @@ function OrderRow({ order }) {
             {/* Main Row: Order Items Card Section */}
             <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
                 <TableCell>
-                    <IconButton
-                        aria-label="expand row"
-                        size="small"
-                        onClick={() => setOpen(!open)}
-                        sx={{ color: 'white' }}
-                    >
-                        {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-                    </IconButton>
+                    {/* Removing the IconButton from here */}
                 </TableCell>
                 <TableCell colSpan={5}>
                     <Box sx={{ mb: 2 }}>
@@ -97,32 +89,44 @@ function OrderRow({ order }) {
                                     Combo Discount: -${parseFloat(order.discount).toFixed(2)}
                                 </Typography>
                             )}
-                            <Typography sx={{ color: '#FFD700', fontWeight: 'bold', fontSize: '1rem' }}>
-                                Total: ${parseFloat(order.totalPrice).toFixed(2)}
-                            </Typography>
+                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                                <Typography sx={{ color: '#FFD700', fontWeight: 'bold', fontSize: '1rem', mr: 1 }}>
+                                    Total: ${parseFloat(order.totalPrice).toFixed(2)}
+                                </Typography>
+                                <IconButton
+                                    aria-label="expand row"
+                                    size="small"
+                                    onClick={() => setOpen(!open)}
+                                    sx={{ color: 'white' }}
+                                >
+                                    {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                                </IconButton>
+                            </Box>
                         </Box>
                     </Box>
                 </TableCell>
             </TableRow>
 
-            {/* Collapsible Row: Order Details (Order ID, Total Price, Status, Receiver, Order Date) */}
+            {/* Collapsible Row: Order Details + Additional Details */}
             <TableRow>
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
                     <Collapse in={open} timeout="auto" unmountOnExit>
                         <Box sx={{ margin: 2 }}>
+                            {/* Order Details (Order ID, Total Price, Status, Receiver, Order Date) */}
                             <Table size="small">
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell width="60px" /> {/* Empty cell to align with header */}
+                                        <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Order ID</TableCell>
+                                        <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Total Price</TableCell>
+                                        <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif", textAlign: 'center' }}>Status</TableCell>
+                                        <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Receiver</TableCell>
+                                        <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Order Date</TableCell>
+                                    </TableRow>
+                                </TableHead>
                                 <TableBody>
                                     <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
-                                        <TableCell>
-                                            <IconButton
-                                                aria-label="expand details"
-                                                size="small"
-                                                onClick={() => setDetailsOpen(!detailsOpen)}
-                                                sx={{ color: 'white' }}
-                                            >
-                                                {detailsOpen ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-                                            </IconButton>
-                                        </TableCell>
+                                        <TableCell width="60px" /> {/* Empty cell to align with header */}
                                         <TableCell sx={{ color: 'white', maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis' }}>{order._id}</TableCell>
                                         <TableCell sx={{ color: 'white' }}>${parseFloat(order.totalPrice).toFixed(2)}</TableCell>
                                         <TableCell sx={{ textAlign: 'center' }}>
@@ -150,57 +154,50 @@ function OrderRow({ order }) {
                                         <TableCell sx={{ color: 'white' }}>{order.receiverInfo.fullName}</TableCell>
                                         <TableCell sx={{ color: 'white' }}>{formatDate(order.createdAt)}</TableCell>
                                     </TableRow>
-                                    {/* Nested Collapsible Row: Additional Details (Status Stepper, Shipping, Notes) */}
-                                    <TableRow>
-                                        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-                                            <Collapse in={detailsOpen} timeout="auto" unmountOnExit>
-                                                <Box sx={{ margin: 2 }}>
-                                                    <Typography variant="h6" sx={{ fontFamily: "'Jersey 15', sans-serif", color: '#FFD700', mb: 2 }}>
-                                                        Order Details
-                                                    </Typography>
-
-                                                    {/* Order Status Stepper */}
-                                                    <OrderStatusStepper status={order.status} />
-
-                                                    {/* Shipping Information */}
-                                                    <Box sx={{
-                                                        p: 2,
-                                                        backgroundColor: 'rgba(0, 0, 0, 0.3)',
-                                                        borderRadius: 1,
-                                                        mb: 3,
-                                                    }}>
-                                                        <Typography sx={{ color: '#FFD700', fontWeight: 'bold', mb: 1 }}>
-                                                            Shipping Information
-                                                        </Typography>
-                                                        <Box sx={{ ml: 2 }}>
-                                                            <Typography sx={{ color: 'white' }}>
-                                                                Address: {order.receiverInfo.address}
-                                                            </Typography>
-                                                            <Typography sx={{ color: 'white' }}>
-                                                                Phone: {order.receiverInfo.phoneNumber}
-                                                            </Typography>
-                                                        </Box>
-                                                    </Box>
-
-                                                    {/* Additional Info */}
-                                                    {order.notes && (
-                                                        <Box sx={{
-                                                            p: 2,
-                                                            backgroundColor: 'rgba(0, 0, 0, 0.3)',
-                                                            borderRadius: 1,
-                                                        }}>
-                                                            <Typography sx={{ color: '#FFD700', fontWeight: 'bold', mb: 1 }}>
-                                                                Notes
-                                                            </Typography>
-                                                            <Typography sx={{ color: 'white', ml: 2 }}>{order.notes}</Typography>
-                                                        </Box>
-                                                    )}
-                                                </Box>
-                                            </Collapse>
-                                        </TableCell>
-                                    </TableRow>
                                 </TableBody>
                             </Table>
+
+                            {/* Additional Details (Status Stepper, Shipping, Notes) */}
+                            <Typography variant="h6" sx={{ fontFamily: "'Jersey 15', sans-serif", color: '#FFD700', mt: 2, mb: 2 }}>
+                                Order Details
+                            </Typography>
+
+                            {/* Order Status Stepper */}
+                            <OrderStatusStepper status={order.status} />
+
+                            {/* Shipping Information */}
+                            <Box sx={{
+                                p: 2,
+                                backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                                borderRadius: 1,
+                                mb: 3,
+                            }}>
+                                <Typography sx={{ color: '#FFD700', fontWeight: 'bold', mb: 1 }}>
+                                    Shipping Information
+                                </Typography>
+                                <Box sx={{ ml: 2 }}>
+                                    <Typography sx={{ color: 'white' }}>
+                                        Address: {order.receiverInfo.address}
+                                    </Typography>
+                                    <Typography sx={{ color: 'white' }}>
+                                        Phone: {order.receiverInfo.phoneNumber}
+                                    </Typography>
+                                </Box>
+                            </Box>
+
+                            {/* Additional Info */}
+                            {order.notes && (
+                                <Box sx={{
+                                    p: 2,
+                                    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                                    borderRadius: 1,
+                                }}>
+                                    <Typography sx={{ color: '#FFD700', fontWeight: 'bold', mb: 1 }}>
+                                        Notes
+                                    </Typography>
+                                    <Typography sx={{ color: 'white', ml: 2 }}>{order.notes}</Typography>
+                                </Box>
+                            )}
                         </Box>
                     </Collapse>
                 </TableCell>
