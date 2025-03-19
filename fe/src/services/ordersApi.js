@@ -12,7 +12,7 @@ export const createOrder = async (orderData) => {
 
 export const getMyOrders = async () => {
   try {
-    const response = await api.get('/orders/');
+    const response = await api.get('/orders');
     return response.data;
   } catch (error) {
     console.error('Error fetching orders:', error);

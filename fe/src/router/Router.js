@@ -1,4 +1,4 @@
-import { createBrowserRouter, Outlet } from 'react-router-dom';
+import { createBrowserRouter } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute';
 //Layout
 import ButtonAppBar from '../layouts/Navbar';
@@ -18,6 +18,7 @@ import ManageUsers from '../pages/Admin/dashboard/pages/ManageUsers';
 import CustomPage from '../pages/Custom/CustomPage';
 import ProfilePage from '../pages/ProfilePage/ProfilePage';
 import OrderSuccessScreen from '../pages/Shoppingcart/OrderSuccessScreen';
+import ManageMyOrders from '../pages/Buyer/ManageMyOrders';
 //Seller
 import SubscriptionPage from '../pages/SubscriptionPage/SubscriptionPage';
 import CartPage from '../pages/Shoppingcart/CartPage';
@@ -198,7 +199,17 @@ export const routes = createBrowserRouter([
     element: (
       <Layout showHeader={true}  >
         <ProtectedRoute requiredRoles={[1]} requireSeller={true}>
-        <ManageProduct/>
+          <ManageProduct />
+        </ProtectedRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/my-orders",
+    element: (
+      <Layout showHeader={true}  >
+        <ProtectedRoute requiredRoles={[1]} requireSeller={false}>
+          <ManageMyOrders />
         </ProtectedRoute>
       </Layout>
     ),
