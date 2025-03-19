@@ -42,11 +42,35 @@ function OrderRow({ order }) {
         <React.Fragment>
             {/* Main Row: Order Items Card Section */}
             <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
-                <TableCell>
-                    {/* Removing the IconButton from here */}
-                </TableCell>
-                <TableCell colSpan={5}>
+                <TableCell colSpan={6}>
                     <Box sx={{ mb: 2 }}>
+                        {/* Order ID and Status Chip */}
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                            <Typography sx={{ color: 'white', fontSize: '1rem', fontWeight: 'bold' }}>
+                                Order ID: {order._id}
+                            </Typography>
+                            <Chip
+                                label={ORDER_STATUS[order.status].label}
+                                sx={{
+                                    bgcolor: ORDER_STATUS[order.status].bgColor,
+                                    color: ORDER_STATUS[order.status].color,
+                                    border: `1px solid ${ORDER_STATUS[order.status].color}`,
+                                    fontWeight: 'bold',
+                                }}
+                                icon={
+                                    <Box sx={{
+                                        '& svg': {
+                                            color: ORDER_STATUS[order.status].color,
+                                            fontSize: '1rem',
+                                            mr: -0.5,
+                                        },
+                                    }}>
+                                        {ORDER_STATUS[order.status].icon}
+                                    </Box>
+                                }
+                            />
+                        </Box>
+                        <Divider sx={{ backgroundColor: 'rgba(255, 255, 255, 0.2)', mb: 2 }} />
                         {order.items.map((item) => (
                             <Box
                                 key={item._id}
@@ -55,8 +79,8 @@ function OrderRow({ order }) {
                                     alignItems: 'center',
                                     backgroundColor: 'rgba(0, 0, 0, 0.5)',
                                     borderRadius: 1,
-                                    p: 2,
-                                    mb: 1,
+                                    p: 3,
+                                    mb: 2,
                                     border: '1px solid rgba(255, 255, 255, 0.1)',
                                 }}
                             >
@@ -64,42 +88,39 @@ function OrderRow({ order }) {
                                     component="img"
                                     src={item.image}
                                     alt={item.productName}
-                                    sx={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 1, mr: 2 }}
+                                    sx={{ width: 130, height: 130, objectFit: 'cover', borderRadius: 1, mr: 3 }}
                                 />
                                 <Box sx={{ flex: 1 }}>
-                                    <Typography sx={{ color: 'white', fontSize: '0.9rem', fontWeight: 'bold' }}>
+                                    <Typography sx={{ color: 'white', fontSize: '1.1rem', fontWeight: 'bold', mb: 1 }}>
                                         {item.productName}
                                     </Typography>
-                                    <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.8rem' }}>
-                                        Variant: {item.variant || 'N/A'}
-                                    </Typography>
-                                    <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.8rem' }}>
+                                    <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '1rem' }}>
                                         x{item.quantity}
                                     </Typography>
                                 </Box>
-                                <Typography sx={{ color: '#FFD700', fontWeight: 'bold' }}>
+                                <Typography sx={{ color: '#FFD700', fontWeight: 'bold', fontSize: '1rem' }}>
                                     ${(parseFloat(item.price) * item.quantity).toFixed(2)}
                                 </Typography>
                             </Box>
                         ))}
                         {/* Summary Section */}
-                        <Box sx={{ mt: 2, textAlign: 'right' }}>
+                        <Box sx={{ mt: 3, textAlign: 'right' }}>
                             {order.discount && (
-                                <Typography sx={{ color: '#F44336', fontSize: '0.9rem' }}>
+                                <Typography sx={{ color: '#F44336', fontSize: '1.1rem', mb: 1 }}>
                                     Combo Discount: -${parseFloat(order.discount).toFixed(2)}
                                 </Typography>
                             )}
                             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-                                <Typography sx={{ color: '#FFD700', fontWeight: 'bold', fontSize: '1rem', mr: 1 }}>
+                                <Typography sx={{ color: '#FFD700', fontWeight: 'bold', fontSize: '1.2rem', mr: 2 }}>
                                     Total: ${parseFloat(order.totalPrice).toFixed(2)}
                                 </Typography>
                                 <IconButton
                                     aria-label="expand row"
-                                    size="small"
+                                    size="medium"
                                     onClick={() => setOpen(!open)}
                                     sx={{ color: 'white' }}
                                 >
-                                    {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                                    {open ? <KeyboardArrowUpIcon fontSize="large" /> : <KeyboardArrowDownIcon fontSize="large" />}
                                 </IconButton>
                             </Box>
                         </Box>
@@ -112,14 +133,12 @@ function OrderRow({ order }) {
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
                     <Collapse in={open} timeout="auto" unmountOnExit>
                         <Box sx={{ margin: 2 }}>
-                            {/* Order Details (Order ID, Total Price, Status, Receiver, Order Date) */}
+                            {/* Order Details (Total Price, Receiver, Order Date) */}
                             <Table size="small">
                                 <TableHead>
                                     <TableRow>
                                         <TableCell width="60px" /> {/* Empty cell to align with header */}
-                                        <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Order ID</TableCell>
                                         <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Total Price</TableCell>
-                                        <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif", textAlign: 'center' }}>Status</TableCell>
                                         <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Receiver</TableCell>
                                         <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Order Date</TableCell>
                                     </TableRow>
@@ -127,30 +146,7 @@ function OrderRow({ order }) {
                                 <TableBody>
                                     <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
                                         <TableCell width="60px" /> {/* Empty cell to align with header */}
-                                        <TableCell sx={{ color: 'white', maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis' }}>{order._id}</TableCell>
                                         <TableCell sx={{ color: 'white' }}>${parseFloat(order.totalPrice).toFixed(2)}</TableCell>
-                                        <TableCell sx={{ textAlign: 'center' }}>
-                                            <Chip
-                                                label={ORDER_STATUS[order.status].label}
-                                                sx={{
-                                                    bgcolor: ORDER_STATUS[order.status].bgColor,
-                                                    color: ORDER_STATUS[order.status].color,
-                                                    border: `1px solid ${ORDER_STATUS[order.status].color}`,
-                                                    fontWeight: 'bold',
-                                                }}
-                                                icon={
-                                                    <Box sx={{
-                                                        '& svg': {
-                                                            color: ORDER_STATUS[order.status].color,
-                                                            fontSize: '1rem',
-                                                            mr: -0.5,
-                                                        },
-                                                    }}>
-                                                        {ORDER_STATUS[order.status].icon}
-                                                    </Box>
-                                                }
-                                            />
-                                        </TableCell>
                                         <TableCell sx={{ color: 'white' }}>{order.receiverInfo.fullName}</TableCell>
                                         <TableCell sx={{ color: 'white' }}>{formatDate(order.createdAt)}</TableCell>
                                     </TableRow>
@@ -309,7 +305,8 @@ export default function ManageMyOrders() {
                                 sx={{
                                     color: 'white',
                                     '&.Mui-selected': { color: '#FFD700' },
-                                    fontFamily: "'Jersey 15', sans-serif"
+                                    fontFamily: "'Jersey 15', sans-serif",
+                                    fontSize: '1.3rem'
                                 }}
                             />
                             <Tab
@@ -318,7 +315,8 @@ export default function ManageMyOrders() {
                                 sx={{
                                     color: 'white',
                                     '&.Mui-selected': { color: '#FFD700' },
-                                    fontFamily: "'Jersey 15', sans-serif"
+                                    fontFamily: "'Jersey 15', sans-serif",
+                                    fontSize: '1.3rem'
                                 }}
                             />
                             <Tab
@@ -327,7 +325,8 @@ export default function ManageMyOrders() {
                                 sx={{
                                     color: 'white',
                                     '&.Mui-selected': { color: '#FFD700' },
-                                    fontFamily: "'Jersey 15', sans-serif"
+                                    fontFamily: "'Jersey 15', sans-serif",
+                                    fontSize: '1.3rem'
                                 }}
                             />
                             <Tab
@@ -336,7 +335,8 @@ export default function ManageMyOrders() {
                                 sx={{
                                     color: 'white',
                                     '&.Mui-selected': { color: '#FFD700' },
-                                    fontFamily: "'Jersey 15', sans-serif"
+                                    fontFamily: "'Jersey 15', sans-serif",
+                                    fontSize: '1.3rem'
                                 }}
                             />
                             <Tab
@@ -345,7 +345,8 @@ export default function ManageMyOrders() {
                                 sx={{
                                     color: 'white',
                                     '&.Mui-selected': { color: '#FFD700' },
-                                    fontFamily: "'Jersey 15', sans-serif"
+                                    fontFamily: "'Jersey 15', sans-serif",
+                                    fontSize: '1.3rem'
                                 }}
                             />
                             <Tab
@@ -354,7 +355,8 @@ export default function ManageMyOrders() {
                                 sx={{
                                     color: 'white',
                                     '&.Mui-selected': { color: '#FFD700' },
-                                    fontFamily: "'Jersey 15', sans-serif"
+                                    fontFamily: "'Jersey 15', sans-serif",
+                                    fontSize: '1.3rem'
                                 }}
                             />
                         </Tabs>
@@ -377,7 +379,16 @@ export default function ManageMyOrders() {
                                     <TableHead>
                                         <TableRow>
                                             <TableCell width="60px" /> {/* Expand/collapse control */}
-                                            <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Order Items</TableCell>
+                                            <TableCell
+                                                sx={{
+                                                    color: '#FFD700',
+                                                    fontFamily: "'Jersey 15', sans-serif",
+                                                    fontSize: '1.5rem',
+
+                                                }}
+                                            >
+                                                Order Items
+                                            </TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
