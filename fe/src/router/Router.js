@@ -11,6 +11,7 @@ import Home from '../pages/Homepage/Homepage';
 import Collectionpage from '../pages/Collectionpage/CollectionPage';
 import Detailpage from '../pages/Detailpage/Detailpage';
 import NotFoundPage from '../pages/Error404/NotFoundPage';
+import AccessoryDetailPage from '../pages/Detailpage/AccessoryDetailPage';
 //Admin
 import Dashboard from '../pages/Admin/dashboard/Dashboard';
 import ManageUsers from '../pages/Admin/dashboard/pages/ManageUsers';
@@ -121,6 +122,14 @@ export const routes = createBrowserRouter([
     ),
   },
 
+  {
+    path: 'product/accessory/:slug',
+    element: (
+      <Layout showHeader={true}>
+        <AccessoryDetailPage />
+      </Layout>
+    ),
+  },
 
   {
     path: '/cart',
