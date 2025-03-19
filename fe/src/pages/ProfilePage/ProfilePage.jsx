@@ -197,7 +197,7 @@ const ProfilePage = () => {
                                 margin: 0, color: "white", fontSize: "45px", fontFamily: '"Jersey 15", sans-serif'
                             }}>{user?.userName}
                                 <Chip
-                                    label={`Credits: ${user?.remainingCredits || 10}`}
+                                    label={`Credits: ${user?.remainingCredits}`}
                                     variant="outlined"
                                     size="small"
                                     sx={{
