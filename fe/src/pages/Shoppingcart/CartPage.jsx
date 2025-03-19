@@ -4,7 +4,7 @@ import "aos/dist/aos.css";
 import useCartStore from './CartStore';
 import { Link, useNavigate } from "react-router-dom";
 import { 
-  Box, Typography, Button, Grid, TextField, InputAdornment, CircularProgress
+  Box, Typography, Button, Grid, TextField, InputAdornment, CircularProgress, Chip
 } from "@mui/material";
 import { yellowGlowAnimation } from '../../components/Text/YellowEffect';
 import ButtonCus from "../../components/Button/ButtonCus";
@@ -200,6 +200,11 @@ const CartPage = () => {
     AOS.refresh();
   }, []);
 
+  const isAccessory = (item) => {
+    // Check if the product has accessories array and it's not empty
+    return item.product?.accessories && item.product.accessories.length > 0;
+  };
+
   return (
     <>
       {orderSuccess && orderData ? (
@@ -332,14 +337,46 @@ const CartPage = () => {
                     py: 2
                   }}>
                     <Grid item xs={5} sx={{ display: 'flex', alignItems: 'center' }}>
-                      <Link to={`/product/${item.product?.slug}?id=${item.product?._id}`} style={{ textDecoration: "none", display: "flex", alignItems: "center" }}>
-                        <img
-                          src={item.product?.image}
-                          alt={item.product?.name}
-                          style={{ width: 80, height: 80, borderRadius: '10px', marginRight: '16px' }}
-                        />
-                        <Typography sx={{ color: "white" }}>{item.product?.name}</Typography>
-                      </Link>
+                      {isAccessory(item) ? (
+                        
+                        <Link 
+                          to={`/product/accessory/${item.product?.slug}?id=${item.product?._id}`} 
+                          style={{ textDecoration: "none", display: "flex", alignItems: "center" }}
+                        >
+                          <img
+                            src={item.product?.image}
+                            alt={item.product?.name}
+                            style={{ width: 80, height: 80, borderRadius: '10px', marginRight: '16px' }}
+                          />
+                          <Box>
+                            <Typography sx={{ color: "white" }}>{item.product?.name}</Typography>
+                            <Chip 
+                              label="Custom Accessory" 
+                              size="small"
+                              sx={{ 
+                                mt: 0.5,
+                                bgcolor: 'rgba(255,215,0,0.1)',
+                                color: '#FFD700',
+                                border: '1px solid rgba(255,215,0,0.3)',
+                                fontSize: '0.7rem'
+                              }} 
+                            />
+                          </Box>
+                        </Link>
+                      ) : (
+                        // Regular product link
+                        <Link 
+                          to={`/product/${item.product?.slug}?id=${item.product?._id}`} 
+                          style={{ textDecoration: "none", display: "flex", alignItems: "center" }}
+                        >
+                          <img
+                            src={item.product?.image}
+                            alt={item.product?.name}
+                            style={{ width: 80, height: 80, borderRadius: '10px', marginRight: '16px' }}
+                          />
+                          <Typography sx={{ color: "white" }}>{item.product?.name}</Typography>
+                        </Link>
+                      )}
                     </Grid>
                     <Grid item xs={2} sx={{ textAlign: 'center' }}>
                       <Typography sx={{ color: "white" }}>{item.product?.brand}</Typography>

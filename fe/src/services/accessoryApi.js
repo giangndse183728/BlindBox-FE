@@ -10,6 +10,18 @@ export const fetchBeads= async () => {
     }
   };
 
+  export const fetchAccessoryById = async (slug, id) => {
+    try {
+        const response = await api.get(`/products/accessories/${slug}`, {
+            params: { id } 
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching accessory details:', error.response ? error.response.data : error.message);
+        throw new Error(error.response?.data?.message || 'Failed to fetch accessory details');
+    }
+};
+
   export const createCustomAccessory= async (data) => {
     try {
       const response = await api.post('/products/accessories/customization', data);
