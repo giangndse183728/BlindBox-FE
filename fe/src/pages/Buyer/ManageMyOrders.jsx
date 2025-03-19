@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import {
     Box, Typography, Paper, Table, TableBody, TableCell, TableContainer,
-    TableHead, TableRow, CircularProgress, Collapse, IconButton, Chip
+    TableHead, TableRow, CircularProgress, Collapse, IconButton, Chip,
+    Tabs, Tab
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
@@ -11,10 +12,10 @@ import ReceiptIcon from '@mui/icons-material/Receipt';
 import CancelIcon from '@mui/icons-material/Cancel';
 import PendingIcon from '@mui/icons-material/Pending';
 import { getMyOrders } from '../../services/ordersApi';
-import GlassCard from '../../components/Decor/GlassCard'; // Assuming this is available
-import OrderStatusStepper from '../../components/Order/OrderStatusStepper'; // Assuming this is available
+import GlassCard from '../../components/Decor/GlassCard';
+import OrderStatusStepper from '../../components/Order/OrderStatusStepper';
 
-// Define order status constants similar to ManageSellerOrders
+// Define order status constants
 const ORDER_STATUS = {
     0: { label: 'Pending', color: '#FF9800', bgColor: 'rgba(255, 152, 0, 0.2)', icon: <PendingIcon /> },
     1: { label: 'Processing', color: '#2196F3', bgColor: 'rgba(33, 150, 243, 0.2)', icon: <ReceiptIcon /> },
@@ -75,12 +76,10 @@ function OrderRow({ order }) {
                     />
                 </TableCell>
                 <TableCell sx={{ color: 'white' }}>{order.receiverInfo.fullName}</TableCell>
-                <TableCell sx={{ color: 'white', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis' }}>{order.receiverInfo.address}</TableCell>
-                <TableCell sx={{ color: 'white' }}>{order.receiverInfo.phoneNumber}</TableCell>
                 <TableCell sx={{ color: 'white' }}>{formatDate(order.createdAt)}</TableCell>
             </TableRow>
             <TableRow>
-                <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={8}>
+                <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
                     <Collapse in={open} timeout="auto" unmountOnExit>
                         <Box sx={{ margin: 2 }}>
                             <Typography variant="h6" sx={{ fontFamily: "'Jersey 15', sans-serif", color: '#FFD700', mb: 2 }}>
@@ -89,6 +88,26 @@ function OrderRow({ order }) {
 
                             {/* Order Status Stepper */}
                             <OrderStatusStepper status={order.status} />
+
+                            {/* Shipping Information */}
+                            <Box sx={{
+                                p: 2,
+                                backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                                borderRadius: 1,
+                                mb: 3,
+                            }}>
+                                <Typography sx={{ color: '#FFD700', fontWeight: 'bold', mb: 1 }}>
+                                    Shipping Information
+                                </Typography>
+                                <Box sx={{ ml: 2 }}>
+                                    <Typography sx={{ color: 'white' }}>
+                                        Address: {order.receiverInfo.address}
+                                    </Typography>
+                                    <Typography sx={{ color: 'white' }}>
+                                        Phone: {order.receiverInfo.phoneNumber}
+                                    </Typography>
+                                </Box>
+                            </Box>
 
                             {/* Ordered Items */}
                             <Typography variant="subtitle1" sx={{ fontFamily: "'Jersey 15', sans-serif", color: '#FFD700', mb: 1 }}>
@@ -162,14 +181,17 @@ function OrderRow({ order }) {
 
 export default function ManageMyOrders() {
     const [orders, setOrders] = useState([]);
+    const [filteredOrders, setFilteredOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [tabValue, setTabValue] = useState('all'); // Default to show all orders
 
     useEffect(() => {
         const fetchOrders = async () => {
             try {
                 const response = await getMyOrders();
                 setOrders(response.result);
+                setFilteredOrders(response.result); // Initially show all orders
             } catch (err) {
                 setError(err.message || 'Failed to fetch orders');
                 console.error('Error fetching orders:', err);
@@ -180,6 +202,20 @@ export default function ManageMyOrders() {
 
         fetchOrders();
     }, []);
+
+    useEffect(() => {
+        // Filter orders based on tabValue
+        if (tabValue === 'all') {
+            setFilteredOrders(orders);
+        } else {
+            const status = parseInt(tabValue);
+            setFilteredOrders(orders.filter(order => order.status === status));
+        }
+    }, [tabValue, orders]);
+
+    const handleTabChange = (event, newValue) => {
+        setTabValue(newValue);
+    };
 
     return (
         <>
@@ -200,15 +236,88 @@ export default function ManageMyOrders() {
                         My Orders 🗒️
                     </Typography>
 
+                    {/* Tabs for status filtering */}
+                    <Box sx={{
+                        width: '100%',
+                        mb: 2,
+                        borderBottom: 1,
+                        borderColor: 'rgba(255, 255, 255, 0.2)'
+                    }}>
+                        <Tabs
+                            value={tabValue}
+                            onChange={handleTabChange}
+                            sx={{
+                                '& .MuiTabs-indicator': {
+                                    backgroundColor: '#FFD700'
+                                },
+                            }}
+                        >
+                            <Tab
+                                label="All"
+                                value="all"
+                                sx={{
+                                    color: 'white',
+                                    '&.Mui-selected': { color: '#FFD700' },
+                                    fontFamily: "'Jersey 15', sans-serif"
+                                }}
+                            />
+                            <Tab
+                                label="Pending"
+                                value="0"
+                                sx={{
+                                    color: 'white',
+                                    '&.Mui-selected': { color: '#FFD700' },
+                                    fontFamily: "'Jersey 15', sans-serif"
+                                }}
+                            />
+                            <Tab
+                                label="Processing"
+                                value="1"
+                                sx={{
+                                    color: 'white',
+                                    '&.Mui-selected': { color: '#FFD700' },
+                                    fontFamily: "'Jersey 15', sans-serif"
+                                }}
+                                iﬁed />
+                            <Tab
+                                label="Shipped"
+                                value="2"
+                                sx={{
+                                    color: 'white',
+                                    '&.Mui-selected': { color: '#FFD700' },
+                                    fontFamily: "'Jersey 15', sans-serif"
+                                }}
+                            />
+                            <Tab
+                                label="Delivered"
+                                value="3"
+                                sx={{
+                                    color: 'white',
+                                    '&.Mui-selected': { color: '#FFD700' },
+                                    fontFamily: "'Jersey 15', sans-serif"
+                                }}
+                            />
+                            <Tab
+                                label="Cancelled"
+                                value="4"
+                                sx={{
+                                    color: 'white',
+                                    '&.Mui-selected': { color: '#FFD700' },
+                                    fontFamily: "'Jersey 15', sans-serif"
+                                }}
+                            />
+                        </Tabs>
+                    </Box>
+
                     {loading ? (
                         <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
                             <CircularProgress sx={{ color: '#FFD700' }} />
                         </Box>
                     ) : error ? (
                         <Typography sx={{ color: 'white', textAlign: 'center' }}>{error}</Typography>
-                    ) : orders.length === 0 ? (
+                    ) : filteredOrders.length === 0 ? (
                         <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)', textAlign: 'center', my: 4 }}>
-                            No orders found
+                            {orders.length === 0 ? "No orders found" : "No orders found for this status"}
                         </Typography>
                     ) : (
                         <TableContainer component={Paper} sx={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
@@ -220,13 +329,11 @@ export default function ManageMyOrders() {
                                         <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Total Price</TableCell>
                                         <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif", textAlign: 'center' }}>Status</TableCell>
                                         <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Receiver</TableCell>
-                                        <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Address</TableCell>
-                                        <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Phone</TableCell>
                                         <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Order Date</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {orders.map((order) => (
+                                    {filteredOrders.map((order) => (
                                         <OrderRow key={order._id} order={order} />
                                     ))}
                                 </TableBody>
