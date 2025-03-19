@@ -3,19 +3,17 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import useCartStore from './CartStore';
 import { Link, useNavigate } from "react-router-dom";
-import { Box, Typography, Button, Grid, TextField, InputAdornment, CircularProgress, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Switch, Divider } from "@mui/material";
+import { 
+  Box, Typography, Button, Grid, TextField, InputAdornment, CircularProgress
+} from "@mui/material";
 import { yellowGlowAnimation } from '../../components/Text/YellowEffect';
 import ButtonCus from "../../components/Button/ButtonCus";
 import DeleteIconOutlined from '@mui/icons-material/DeleteOutlined';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import { fetchProfile } from '../../services/userApi';
-import CreditCardIcon from '@mui/icons-material/CreditCard';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-import PaymentIcon from '@mui/icons-material/Payment';
-import PhoneAndroidIcon from '@mui/icons-material/PhoneAndroid';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
-import GlassCard from "../../components/Decor/GlassCard";
 import OrderInfoDialog from './OrderInfoDialog';
 import EditIcon from '@mui/icons-material/Edit';
 import { createOrder } from '../../services/ordersApi';
@@ -48,14 +46,12 @@ const CartPage = () => {
   const [orderData, setOrderData] = useState(null);
   const navigate = useNavigate();
 
-  // Fetch user profile data
   useEffect(() => {
     const getUserProfile = async () => {
       try {
         setProfileLoading(true);
         const userData = await fetchProfile();
 
-        // Only update the buyer info, not the gift recipient info
         setOrderInfo(prev => ({
           ...prev,
           fullName: userData.fullName || '',
@@ -229,8 +225,6 @@ const CartPage = () => {
         justifyContent: 'center',
         alignItems: 'center',
         paddingTop: 3,
-
-
       }}>
         {cartItems.length > 0 && (
           <Box sx={{ width: '93%', mb: 2, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -246,8 +240,6 @@ const CartPage = () => {
             >
               -  &nbsp;Shopping Cart &nbsp;  -
             </Typography>
-
-
           </Box>
         )}
 
@@ -313,7 +305,7 @@ const CartPage = () => {
                   </Grid>
                   <Grid item xs={2} sx={{ textAlign: 'center' }}>
                     <Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white", fontSize: '1.5rem' }}>
-                      From
+                      Brand
                     </Typography>
                   </Grid>
                   <Grid item xs={2} sx={{ textAlign: 'center' }}>
@@ -333,7 +325,6 @@ const CartPage = () => {
                   </Grid>
                 </Grid>
 
-
                 {cartItems.map((item) => (
                   <Grid container spacing={2} key={item._id} sx={{
                     alignItems: 'center',
@@ -341,7 +332,7 @@ const CartPage = () => {
                     py: 2
                   }}>
                     <Grid item xs={5} sx={{ display: 'flex', alignItems: 'center' }}>
-                      <Link to={`/product/${item.product?._id}`} style={{ textDecoration: "none", display: "flex", alignItems: "center" }}>
+                      <Link to={`/product/${item.product?.slug}?id=${item.product?._id}`} style={{ textDecoration: "none", display: "flex", alignItems: "center" }}>
                         <img
                           src={item.product?.image}
                           alt={item.product?.name}
@@ -351,39 +342,38 @@ const CartPage = () => {
                       </Link>
                     </Grid>
                     <Grid item xs={2} sx={{ textAlign: 'center' }}>
-                      <Typography sx={{ color: "white" }}>Seller</Typography>
+                      <Typography sx={{ color: "white" }}>{item.product?.brand}</Typography>
                     </Grid>
                     <Grid item xs={2} sx={{ textAlign: 'center' }}>
                       <Typography sx={{ color: "white" }}>${parseFloat(item.product?.price).toFixed(2) || "N/A"}</Typography>
                     </Grid>
                     <Grid item xs={2} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-  <ButtonCus
-    variant="button-pixel"
-    onClick={() => handleQuantityChange(item, item.cartQuantity - 1)}
-    width="30px"
-    height="30px"
-    disabled={isLoading || item.cartQuantity <= 1} // Disable if quantity is 1
-  >
-    -
-  </ButtonCus>
+                      <ButtonCus
+                        variant="button-pixel"
+                        onClick={() => handleQuantityChange(item, item.cartQuantity - 1)}
+                        width="30px"
+                        height="30px"
+                        disabled={isLoading || item.cartQuantity <= 1} // Disable if quantity is 1
+                      >
+                        -
+                      </ButtonCus>
 
-  <Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ mx: 2, color: "white" }}>
-    {item.cartQuantity}
-  </Typography>
+                      <Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ mx: 2, color: "white" }}>
+                        {item.cartQuantity}
+                      </Typography>
 
-  {item.cartQuantity < item.product.quantity && ( // Hide + button when reaching stock limit
-    <ButtonCus
-      variant="button-pixel"
-      onClick={() => handleQuantityChange(item, item.cartQuantity + 1)}
-      width="30px"
-      height="30px"
-      disabled={isLoading}
-    >
-      +
-    </ButtonCus>
-  )}
-</Grid>
-
+                      {item.cartQuantity < item.product.quantity && ( // Hide + button when reaching stock limit
+                        <ButtonCus
+                          variant="button-pixel"
+                          onClick={() => handleQuantityChange(item, item.cartQuantity + 1)}
+                          width="30px"
+                          height="30px"
+                          disabled={isLoading}
+                        >
+                          +
+                        </ButtonCus>
+                      )}
+                    </Grid>
 
                     <Grid item xs={1} sx={{ textAlign: 'center' }}>
                       <ButtonCus
@@ -400,6 +390,7 @@ const CartPage = () => {
                     </Grid>
                   </Grid>
                 ))}
+                
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 3, mb: 5 }}>
                   <Typography
                     color="white"
@@ -407,7 +398,6 @@ const CartPage = () => {
                       ...yellowGlowAnimation,
                       textAlign: 'right',
                       position: 'relative',
-
                       fontSize: '2rem',
                       fontFamily: '"Jersey 15", sans-serif !important',
                     }}
@@ -420,7 +410,6 @@ const CartPage = () => {
                     onClick={handleClearCart}
                     width="120px"
                     height="30px"
-
                   >
                     <Typography variant="body1" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
                       Clear Cart
@@ -432,7 +421,6 @@ const CartPage = () => {
                       ...yellowGlowAnimation,
                       textAlign: 'right',
                       position: 'relative',
-
                       fontSize: '2rem',
                       fontFamily: '"Jersey 15", sans-serif !important',
                     }}
@@ -440,9 +428,7 @@ const CartPage = () => {
                     *****************
                   </Typography>
                 </Box>
-
               </Box>
-
             </Grid>
 
             {/* Checkout Box */}
@@ -473,10 +459,6 @@ const CartPage = () => {
                     </Typography>
                   </ButtonCus>
                 </Box>
-
-
-
-
 
                 {/* Display shipping info summary if available */}
                 {(orderInfo.isGift ? orderInfo.giftRecipient.fullName : orderInfo.fullName) && (
@@ -513,7 +495,7 @@ const CartPage = () => {
                   </Box>
                 )}
 
-                {/* Payment Method n */}
+                {/* Payment Method */}
                 <Box sx={{
                   display: 'flex',
                   justifyContent: 'space-between',
@@ -526,7 +508,6 @@ const CartPage = () => {
                   <Typography sx={{
                     color: "white",
                     fontFamily: "'Jersey 15', sans-serif",
-
                   }}>
                     Payment Method:
                   </Typography>
@@ -537,7 +518,7 @@ const CartPage = () => {
                     gap: 1
                   }}>
                     {paymentMethods[orderInfo.paymentMethod]?.icon}
-                    <Typography >
+                    <Typography>
                       {paymentMethods[orderInfo.paymentMethod]?.name || 'Not selected'}
                     </Typography>
                   </Box>
@@ -581,7 +562,6 @@ const CartPage = () => {
                       },
                     }}
                   />
-
                 </Box>
 
                 {/* Gift Status */}
@@ -644,8 +624,6 @@ const CartPage = () => {
                     bgcolor: 'rgba(255,255,255,0.1)',
                     my: 2
                   }} />
-
-
 
                   {/* Total */}
                   <Box sx={{
@@ -724,6 +702,8 @@ const CartPage = () => {
           </Grid>
         )}
       </Grid>
+
+      {/* Dialog for order info */}
       <OrderInfoDialog
         open={openOrderDialog}
         onClose={handleCloseOrderDialog}
