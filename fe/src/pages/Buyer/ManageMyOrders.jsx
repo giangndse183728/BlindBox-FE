@@ -50,9 +50,25 @@ export default function ManageMyOrders() {
         });
     };
 
+    const getStatusColor = (status) => {
+        switch (status) {
+            case 0:
+                return '#ff9800'; // Pending - orange
+            case 1:
+                return '#2196f3'; // Processing - blue
+            case 2:
+                return '#9c27b0'; // Shipped - purple
+            case 3:
+                return '#4caf50'; // Delivered - green
+            case 4:
+                return '#f44336'; // Cancelled - red
+            default:
+                return '#9e9e9e'; // Unknown - grey
+        }
+    };
+
     return (
         <>
-
             <Box sx={{
                 position: 'fixed',
                 top: 0,
@@ -64,8 +80,19 @@ export default function ManageMyOrders() {
                 backgroundPosition: "center",
                 zIndex: -2,
             }} />
-            <Box sx={{}}>
-                <Typography variant="h4" gutterBottom sx={{ color: 'white', mb: 3 }}>
+            <Box sx={{
+                maxWidth: 1200,
+                margin: '0 auto',
+                padding: 3,
+                backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                borderRadius: 2,
+                boxShadow: 3
+            }}>
+                <Typography variant="h4" gutterBottom sx={{
+                    color: 'primary.main',
+                    fontWeight: 'bold',
+                    mb: 3
+                }}>
                     My Orders
                 </Typography>
 
@@ -74,33 +101,55 @@ export default function ManageMyOrders() {
                         <CircularProgress />
                     </Box>
                 ) : error ? (
-                    <Typography color="error" sx={{ color: 'white' }}>{error}</Typography>
+                    <Typography color="error">{error}</Typography>
                 ) : orders.length === 0 ? (
-                    <Typography sx={{ color: 'white' }}>No orders found</Typography>
+                    <Typography>No orders found</Typography>
                 ) : (
-                    <TableContainer component={Paper} sx={{ backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
+                    <TableContainer component={Paper} sx={{
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        borderRadius: 1,
+                        boxShadow: 1,
+                    }}>
                         <Table>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell>Order ID</TableCell>
-                                    <TableCell>Total Price</TableCell>
-                                    <TableCell>Status</TableCell>
-                                    <TableCell>Receiver</TableCell>
-                                    <TableCell>Address</TableCell>
-                                    <TableCell>Phone</TableCell>
-                                    <TableCell>Order Date</TableCell>
+                                    <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Order ID</TableCell>
+                                    <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Total Price</TableCell>
+                                    <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif", textAlign: 'center' }}>Status</TableCell>
+                                    <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Receiver</TableCell>
+                                    <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Address</TableCell>
+                                    <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Phone</TableCell>
+                                    <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Order Date</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
                                 {orders.map((order) => (
-                                    <TableRow key={order._id}>
-                                        <TableCell>{order._id}</TableCell>
-                                        <TableCell>${order.totalPrice}</TableCell>
-                                        <TableCell>{getStatusText(order.status)}</TableCell>
-                                        <TableCell>{order.receiverInfo.fullName}</TableCell>
-                                        <TableCell>{order.receiverInfo.address}</TableCell>
-                                        <TableCell>{order.receiverInfo.phoneNumber}</TableCell>
-                                        <TableCell>{formatDate(order.createdAt)}</TableCell>
+                                    <TableRow
+                                        key={order._id}
+                                        hover
+                                        sx={{ '&:nth-of-type(odd)': { backgroundColor: 'rgba(0, 0, 0, 0.3)' } }}
+                                    >
+                                        <TableCell sx={{ color: 'white', maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis' }}>{order._id}</TableCell>
+                                        <TableCell sx={{ color: 'white' }}>${order.totalPrice}</TableCell>
+                                        <TableCell sx={{ textAlign: 'center' }}>
+                                            <Box sx={{
+                                                backgroundColor: getStatusColor(order.status),
+                                                color: 'white',
+                                                borderRadius: 1,
+                                                p: 0.5,
+                                                display: 'inline-block',
+                                                textAlign: 'center',
+                                                minWidth: 90,
+                                                border: `1px solid ${getStatusColor(order.status)}`,
+                                                fontWeight: 'bold',
+                                            }}>
+                                                {getStatusText(order.status)}
+                                            </Box>
+                                        </TableCell>
+                                        <TableCell sx={{ color: 'white' }}>{order.receiverInfo.fullName}</TableCell>
+                                        <TableCell sx={{ color: 'white', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis' }}>{order.receiverInfo.address}</TableCell>
+                                        <TableCell sx={{ color: 'white' }}>{order.receiverInfo.phoneNumber}</TableCell>
+                                        <TableCell sx={{ color: 'white' }}>{formatDate(order.createdAt)}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
