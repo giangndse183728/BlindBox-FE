@@ -1,4 +1,8 @@
-import  api  from './baseURL';
+import api from './baseURL';
+
+const accNumber = process.env.REACT_APP_ACC;
+const bankName = process.env.REACT_APP_BANK_NAME;
+
 
 export const login = async (email, password) => {
     try {
@@ -9,7 +13,7 @@ export const login = async (email, password) => {
 
         const accessToken = response.data.result.accessToken;
         localStorage.setItem('token', accessToken);
-        
+
         return true;
 
     } catch (error) {
@@ -20,22 +24,22 @@ export const login = async (email, password) => {
 
 export const signup = async (userData) => {
     try {
-      await api.post('/accounts/register', userData);
-      return true;
+        await api.post('/accounts/register', userData);
+        return true;
     } catch (error) {
-      throw error.response || new Error('Failed to sign up');
+        throw error.response || new Error('Failed to sign up');
     }
-  };
+};
 
 export const fetchUserData = async () => {
     try {
         const userResponse = await api.get('/accounts/me');
         const userData = userResponse.data.result;
-        
+
         localStorage.setItem("user", JSON.stringify({ name: userData.userName, email: userData.email, role: userData.role, isSeller: userData.isRegisterSelling }));
-        
+
         return userData;
-        
+
     } catch (error) {
         throw new Error('Failed to fetch user data');
     }
@@ -46,7 +50,7 @@ export const logout = async () => {
         await api.post('/accounts/logout', {}, { withCredentials: true });
         // Clear all stored data
         localStorage.clear();
-        window.location.href = '/'; 
+        window.location.href = '/';
     } catch (error) {
         console.error('Error logging out:', error);
         throw new Error('Failed to logout');
@@ -87,4 +91,24 @@ export const updateSellerStatus = async () => {
     }
 };
 
+export const addCredit = async (amount = 10000) => {
+    try {
+        const response = await api.post("/payment/topup");
+
+        const { content, conversionRate } = response.data.result;
+
+        const qrUrl = `https://qr.sepay.vn/img?acc=${accNumber}&bank=${bankName}&amount=${amount}&des=${encodeURIComponent(content)}&lock=true`;
+
+
+        return {
+            apiResponse: response.data.result,
+            qrUrl: qrUrl,
+            conversionRate: conversionRate,
+            amount: amount
+        };
+    } catch (error) {
+        console.error("Error generating topup instructions:", error.response ? error.response.data : error.message);
+        throw new Error(error.response?.data?.message || "Failed to generate topup instructions");
+    }
+};
 

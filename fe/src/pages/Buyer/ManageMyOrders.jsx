@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
     Box, Typography, Paper, Table, TableBody, TableCell, TableContainer,
     TableHead, TableRow, CircularProgress, Collapse, IconButton, Chip,
-    Tabs, Tab
+    Tabs, Tab, Pagination
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
@@ -182,9 +182,13 @@ function OrderRow({ order }) {
 export default function ManageMyOrders() {
     const [orders, setOrders] = useState([]);
     const [filteredOrders, setFilteredOrders] = useState([]);
+    const [displayedOrders, setDisplayedOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [tabValue, setTabValue] = useState('all'); // Default to show all orders
+    const [page, setPage] = useState(1);
+    const itemsPerPage = 5; // Fixed page size
+    const [totalPages, setTotalPages] = useState(1);
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -205,16 +209,31 @@ export default function ManageMyOrders() {
 
     useEffect(() => {
         // Filter orders based on tabValue
+        let newFilteredOrders;
         if (tabValue === 'all') {
-            setFilteredOrders(orders);
+            newFilteredOrders = orders;
         } else {
             const status = parseInt(tabValue);
-            setFilteredOrders(orders.filter(order => order.status === status));
+            newFilteredOrders = orders.filter(order => order.status === status);
         }
+        setFilteredOrders(newFilteredOrders);
+        setPage(1); // Reset to first page when tab changes
     }, [tabValue, orders]);
+
+    useEffect(() => {
+        // Update displayed orders based on pagination
+        const startIndex = (page - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        setDisplayedOrders(filteredOrders.slice(startIndex, endIndex));
+        setTotalPages(Math.max(1, Math.ceil(filteredOrders.length / itemsPerPage)));
+    }, [filteredOrders, page]);
 
     const handleTabChange = (event, newValue) => {
         setTabValue(newValue);
+    };
+
+    const handlePageChange = (event, newPage) => {
+        setPage(newPage);
     };
 
     return (
@@ -278,7 +297,7 @@ export default function ManageMyOrders() {
                                     '&.Mui-selected': { color: '#FFD700' },
                                     fontFamily: "'Jersey 15', sans-serif"
                                 }}
-                                iﬁed />
+                            />
                             <Tab
                                 label="Shipped"
                                 value="2"
@@ -320,25 +339,57 @@ export default function ManageMyOrders() {
                             {orders.length === 0 ? "No orders found" : "No orders found for this status"}
                         </Typography>
                     ) : (
-                        <TableContainer component={Paper} sx={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-                            <Table>
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell width="60px" /> {/* Expand/collapse control */}
-                                        <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Order ID</TableCell>
-                                        <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Total Price</TableCell>
-                                        <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif", textAlign: 'center' }}>Status</TableCell>
-                                        <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Receiver</TableCell>
-                                        <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Order Date</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {filteredOrders.map((order) => (
-                                        <OrderRow key={order._id} order={order} />
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
+                        <>
+                            <TableContainer component={Paper} sx={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+                                <Table>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell width="60px" /> {/* Expand/collapse control */}
+                                            <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Order ID</TableCell>
+                                            <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Total Price</TableCell>
+                                            <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif", textAlign: 'center' }}>Status</TableCell>
+                                            <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Receiver</TableCell>
+                                            <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Order Date</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {displayedOrders.map((order) => (
+                                            <OrderRow key={order._id} order={order} />
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+
+                            {/* Pagination Controls */}
+                            <Box sx={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                mt: 3,
+                                px: 1
+                            }}>
+                                <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                                    Showing {displayedOrders.length} of {filteredOrders.length} orders
+                                </Typography>
+                                <Pagination
+                                    count={totalPages}
+                                    page={page}
+                                    onChange={handlePageChange}
+                                    sx={{
+                                        '& .MuiPaginationItem-root': {
+                                            color: 'white',
+                                        },
+                                        '& .MuiPaginationItem-page.Mui-selected': {
+                                            backgroundColor: 'rgba(255, 215, 0, 0.3)',
+                                            borderColor: '#FFD700',
+                                        },
+                                        '& .MuiPaginationItem-page:hover': {
+                                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                        },
+                                    }}
+                                />
+                            </Box>
+                        </>
                     )}
                 </GlassCard>
             </Box>
