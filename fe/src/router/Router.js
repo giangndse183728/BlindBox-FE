@@ -11,9 +11,11 @@ import Home from '../pages/Homepage/Homepage';
 import Collectionpage from '../pages/Collectionpage/CollectionPage';
 import Detailpage from '../pages/Detailpage/Detailpage';
 import NotFoundPage from '../pages/Error404/NotFoundPage';
+import AccessoryDetailPage from '../pages/Detailpage/AccessoryDetailPage';
 //Admin
 import Dashboard from '../pages/Admin/dashboard/Dashboard';
 import ManageUsers from '../pages/Admin/dashboard/pages/ManageUsers';
+import ManagePosts from '../pages/Admin/dashboard/pages/ManagePosts';
 //User
 import CustomPage from '../pages/Custom/CustomPage';
 import ProfilePage from '../pages/ProfilePage/ProfilePage';
@@ -89,6 +91,11 @@ export const routes = createBrowserRouter([
         path: 'users',
         element: <ManageUsers />
       },
+      {
+        path: 'posts',
+        element: <ManagePosts />
+      },
+   
     ],
   },
 
@@ -97,7 +104,7 @@ export const routes = createBrowserRouter([
     path: '/custom-accessories',
     element: (
       <Layout showHeader={true}>
-        <ProtectedRoute requiredRoles={[0, 1]}>
+        <ProtectedRoute requiredRoles={[1]}>
           <CustomPage />
         </ProtectedRoute>
       </Layout>
@@ -122,6 +129,14 @@ export const routes = createBrowserRouter([
     ),
   },
 
+  {
+    path: 'product/accessory/:slug',
+    element: (
+      <Layout showHeader={true}>
+        <AccessoryDetailPage />
+      </Layout>
+    ),
+  },
 
   {
     path: '/cart',
