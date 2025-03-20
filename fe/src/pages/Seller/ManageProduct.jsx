@@ -4,7 +4,8 @@ import {
   Paper, Table, TableBody, TableCell, TableContainer, 
   TableHead, TableRow, IconButton, CircularProgress, Slider,
   TextField, InputAdornment, Select, MenuItem, FormControl, InputLabel,
-  Pagination, Stack, Tabs, Tab
+  Pagination, Stack, Tabs, Tab, Dialog, DialogTitle, DialogContent, 
+  DialogActions, Button, DialogContentText
 } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -12,7 +13,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { toast } from 'react-toastify';
-import { fetchSellerBlindboxData } from '../../services/productApi';
+import { fetchSellerBlindboxData, updateBlindbox, deleteBlindbox } from '../../services/productApi';
 import GlassCard from "../../components/Decor/GlassCard"
 import ButtonCus from '../../components/Button/ButtonCus';
 import CreateBlindboxDialog from './CreateBlindboxDialog';
@@ -33,6 +34,10 @@ export default function ManageProduct() {
   const [page, setPage] = useState(1);
   const [itemsPerPage] = useState(5);
   const [totalPages, setTotalPages] = useState(1);
+
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
   useEffect(() => {
     fetchProducts();
@@ -115,6 +120,56 @@ export default function ManageProduct() {
   
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
+  };
+
+  const handleEditProduct = (product) => {
+    setSelectedProduct(product);
+    setOpenEditDialog(true);
+  };
+
+  const handleDeleteProduct = (product) => {
+    setSelectedProduct(product);
+    setOpenDeleteDialog(true);
+  };
+
+  const handleCloseEditDialog = () => {
+    setOpenEditDialog(false);
+    setSelectedProduct(null);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setOpenDeleteDialog(false);
+    setSelectedProduct(null);
+  };
+
+  const handleUpdateProduct = async (productId, updatedData) => {
+    setLoading(true);
+    try {
+      await updateBlindbox(productId, updatedData);
+      toast.success('Product updated successfully');
+      fetchProducts(); // Refresh the product list
+      handleCloseEditDialog();
+    } catch (error) {
+      toast.error(error.message || 'Failed to update product');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!selectedProduct) return;
+    
+    setLoading(true);
+    try {
+      await deleteBlindbox(selectedProduct._id);
+      toast.success('Product deleted successfully');
+      fetchProducts(); // Refresh the product list
+      handleCloseDeleteDialog();
+    } catch (error) {
+      toast.error(error.message || 'Failed to delete product');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -337,7 +392,10 @@ export default function ManageProduct() {
                             </Box>
                           </TableCell>
                           <TableCell sx={{ textAlign: 'center' }}>
-                            <ActionMenu />
+                            <ActionMenu 
+                              onEdit={() => handleEditProduct(product)}
+                              onDelete={() => handleDeleteProduct(product)}
+                            />
                           </TableCell>
                         </TableRow>
                       ))}
@@ -388,11 +446,62 @@ export default function ManageProduct() {
         )}
       </Box>
 
-      {/* Use the separated dialog component */}
+      {/* Add Delete Confirmation Dialog */}
+      <Dialog
+        open={openDeleteDialog}
+        onClose={handleCloseDeleteDialog}
+        PaperProps={{
+          style: {
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            border: '1px solid rgba(255, 215, 0, 0.5)',
+            borderRadius: '8px',
+            color: 'white',
+          }
+        }}
+      >
+        <DialogTitle sx={{ fontFamily: "'Jersey 15', sans-serif", color: '#FFD700' }}>
+          Confirm Delete
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+            Are you sure you want to delete "{selectedProduct?.name}"? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ padding: 2 }}>
+          <Button 
+            onClick={handleCloseDeleteDialog} 
+            sx={{ 
+              color: 'white', 
+              borderColor: 'rgba(255, 255, 255, 0.5)',
+              '&:hover': { borderColor: 'white', backgroundColor: 'rgba(255, 255, 255, 0.1)' }
+            }}
+            variant="outlined"
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleConfirmDelete} 
+            sx={{ 
+              backgroundColor: '#FF4444', 
+              color: 'white',
+              '&:hover': { backgroundColor: '#CC0000' }
+            }}
+            variant="contained"
+            autoFocus
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Add the CreateBlindboxDialog but modified to handle editing as well */}
       <CreateBlindboxDialog 
-        open={openDialog} 
-        onClose={handleCloseDialog}
-        onSuccess={fetchProducts} 
+        open={openDialog || openEditDialog} 
+        onClose={openEditDialog ? handleCloseEditDialog : handleCloseDialog}
+        onSuccess={fetchProducts}
+        isEditing={openEditDialog}
+        productData={selectedProduct}
+        handleUpdate={handleUpdateProduct}
       />
     </>
   );
