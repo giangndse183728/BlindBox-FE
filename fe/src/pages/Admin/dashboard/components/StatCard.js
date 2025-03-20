@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -7,113 +7,155 @@ import CardContent from '@mui/material/CardContent';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { SparkLineChart } from '@mui/x-charts/SparkLineChart';
-import { areaElementClasses } from '@mui/x-charts/LineChart';
+import Avatar from '@mui/material/Avatar';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import RemoveIcon from '@mui/icons-material/Remove';
+import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
+import { alpha } from '@mui/material/styles';
 
-function getDaysInMonth(month, year) {
-  const date = new Date(year, month, 0);
-  const monthName = date.toLocaleDateString('en-US', {
-    month: 'short',
-  });
-  const daysInMonth = date.getDate();
-  const days = [];
-  let i = 1;
-  while (days.length < daysInMonth) {
-    days.push(`${monthName} ${i}`);
-    i += 1;
-  }
-  return days;
-}
-
-function AreaGradient({ color, id }) {
-  return (
-    <defs>
-      <linearGradient id={id} x1="50%" y1="0%" x2="50%" y2="100%">
-        <stop offset="0%" stopColor={color} stopOpacity={0.3} />
-        <stop offset="100%" stopColor={color} stopOpacity={0} />
-      </linearGradient>
-    </defs>
-  );
-}
-
-AreaGradient.propTypes = {
-  color: PropTypes.string.isRequired,
-  id: PropTypes.string.isRequired,
-};
-
-function StatCard({ title, value, interval, trend, data }) {
+function StatCard({ title, value, interval, trend }) {
   const theme = useTheme();
-  const daysInWeek = getDaysInMonth(4, 2024);
 
-  const trendColors = {
-    up:
-      theme.palette.mode === 'light'
-        ? theme.palette.success.main
-        : theme.palette.success.dark,
-    down:
-      theme.palette.mode === 'light'
-        ? theme.palette.error.main
-        : theme.palette.error.dark,
-    neutral:
-      theme.palette.mode === 'light'
-        ? theme.palette.grey[400]
-        : theme.palette.grey[700],
+  // Define trend colors and icons
+  const trendConfig = {
+    up: {
+      color: theme.palette.success.main,
+      colorLight: alpha(theme.palette.success.main, 0.12),
+      icon: <ArrowUpwardIcon fontSize="small" />,
+      chipColor: 'success',
+      label: '+25%'
+    },
+    down: {
+      color: theme.palette.error.main,
+      colorLight: alpha(theme.palette.error.main, 0.12),
+      icon: <ArrowDownwardIcon fontSize="small" />,
+      chipColor: 'error',
+      label: '-25%'
+    },
+    neutral: {
+      color: theme.palette.grey[500],
+      colorLight: alpha(theme.palette.grey[500], 0.12),
+      icon: <RemoveIcon fontSize="small" />,
+      chipColor: 'default',
+      label: '+5%'
+    }
   };
 
-  const labelColors = {
-    up: 'success',
-    down: 'error',
-    neutral: 'default',
+  // Choose icon based on title
+  const getIconForTitle = (title) => {
+    if (title.toLowerCase().includes('product')) return <ShoppingBagIcon />;
+    if (title.toLowerCase().includes('order')) return <ShoppingCartIcon />;
+    if (title.toLowerCase().includes('user')) return <PeopleAltIcon />;
+    return <ShoppingBagIcon />;
   };
 
-  const color = labelColors[trend];
-  const chartColor = trendColors[trend];
-  const trendValues = { up: '+25%', down: '-25%', neutral: '+5%' };
+  // Get current trend configuration
+  const currentTrend = trendConfig[trend];
 
   return (
-    <Card variant="outlined" sx={{ height: '100%', flexGrow: 1 }}>
-      <CardContent>
-        <Typography component="h2" variant="subtitle2" gutterBottom>
-          {title}
-        </Typography>
+    <Card 
+      variant="outlined" 
+      sx={{ 
+        height: '100%', 
+        position: 'relative',
+        overflow: 'visible',
+        borderRadius: 2,
+        transition: 'transform 0.3s, box-shadow 0.3s',
+        '&:hover': {
+          transform: 'translateY(-5px)',
+          boxShadow: `0 10px 20px ${alpha(theme.palette.primary.main, 0.1)}`,
+        }
+      }}
+    >
+      {/* Background decoration */}
+      <Box 
+        sx={{
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          width: '40%',
+          height: '100%',
+          background: `radial-gradient(circle at 100% 0%, ${alpha(currentTrend.color, 0.08)} 0%, transparent 70%)`,
+          zIndex: 0,
+          borderRadius: 'inherit'
+        }}
+      />
+      
+      <CardContent sx={{ position: 'relative', zIndex: 1 }}>
         <Stack
-          direction="column"
-          sx={{ justifyContent: 'space-between', flexGrow: '1', gap: 1 }}
+          direction="row"
+          spacing={2}
+          alignItems="flex-start"
+          justifyContent="space-between"
+          sx={{ mb: 3 }}
         >
-          <Stack sx={{ justifyContent: 'space-between' }}>
-            <Stack
-              direction="row"
-              sx={{ justifyContent: 'space-between', alignItems: 'center' }}
+          <Typography 
+            component="h2" 
+            variant="subtitle2" 
+            sx={{ 
+              color: 'text.secondary', 
+              fontWeight: 500,
+              fontSize: '0.875rem'
+            }}
+          >
+            {title}
+          </Typography>
+          
+          <Avatar 
+            sx={{ 
+              bgcolor: currentTrend.colorLight, 
+              color: currentTrend.color,
+              width: 40,
+              height: 40
+            }}
+          >
+            {getIconForTitle(title)}
+          </Avatar>
+        </Stack>
+        
+        <Stack spacing={1}>
+          <Typography 
+            variant="h3" 
+            component="p" 
+            sx={{ 
+              fontWeight: 700,
+              fontSize: '2rem',
+              letterSpacing: '-0.02em'
+            }}
+          >
+            {value}
+          </Typography>
+          
+          <Stack 
+            direction="row" 
+            spacing={1} 
+            alignItems="center"
+          >
+            <Chip 
+              size="small" 
+              icon={currentTrend.icon} 
+              label={currentTrend.label} 
+              color={currentTrend.chipColor}
+              sx={{ 
+                height: 24,
+                '& .MuiChip-icon': { fontSize: 16 },
+                fontWeight: 500
+              }}
+            />
+            
+            <Typography 
+              variant="caption" 
+              sx={{ 
+                color: 'text.secondary',
+                ml: 1
+              }}
             >
-              <Typography variant="h4" component="p">
-                {value}
-              </Typography>
-              <Chip size="small" color={color} label={trendValues[trend]} />
-            </Stack>
-            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
               {interval}
             </Typography>
           </Stack>
-          <Box sx={{ width: '100%', height: 50 }}>
-            <SparkLineChart
-              colors={[chartColor]}
-              data={data}
-              area
-              showHighlight
-              showTooltip
-              xAxis={{
-                scaleType: 'band',
-                data: daysInWeek, // Use the correct property 'data' for xAxis
-              }}
-              sx={{
-                [`& .${areaElementClasses.root}`]: {
-                  fill: `url(#area-gradient-${value})`,
-                },
-              }}
-            >
-              <AreaGradient color={chartColor} id={`area-gradient-${value}`} />
-            </SparkLineChart>
-          </Box>
         </Stack>
       </CardContent>
     </Card>
@@ -121,11 +163,11 @@ function StatCard({ title, value, interval, trend, data }) {
 }
 
 StatCard.propTypes = {
-  data: PropTypes.arrayOf(PropTypes.number).isRequired,
   interval: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   trend: PropTypes.oneOf(['down', 'neutral', 'up']).isRequired,
   value: PropTypes.string.isRequired,
+  // Remove data prop since we're not using the chart anymore
 };
 
 export default StatCard;
