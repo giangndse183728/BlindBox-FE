@@ -12,7 +12,7 @@ export const getAdminAccounts = async () => {
 
 export const updateAdminAccount = async (accountId, accountData) => {
     try {
-        const response = await api.patch(`/admins/accounts/${accountId}`, accountData);
+        const response = await api.put(`/admins/accounts/${accountId}`, accountData);
         return response.data;
     } catch (error) {
         console.error('Error updating admin account:', error);
@@ -53,13 +53,13 @@ const updatePostStatus = async (slug, id, status) => {
 
 
 export const fetchDashboardStats = async () => {
-  try {
-    const response = await api.get('/admins/dashboard/stats');
-    return response.data.result;
-  } catch (error) {
-    console.error('Error fetching dashboard stats:', error.response ? error.response.data : error.message);
-    throw new Error(error.response?.data?.message || 'Failed to fetch dashboard statistics');
-  }
+    try {
+        const response = await api.get('/admins/dashboard/stats');
+        return response.data.result;
+    } catch (error) {
+        console.error('Error fetching dashboard stats:', error.response ? error.response.data : error.message);
+        throw new Error(error.response?.data?.message || 'Failed to fetch dashboard statistics');
+    }
 };
 
 

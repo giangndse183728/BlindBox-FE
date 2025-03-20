@@ -3,7 +3,8 @@ import {
   Box, Typography, Paper, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, CircularProgress, Collapse, IconButton,
   TextField, InputAdornment, Select, MenuItem, FormControl, InputLabel,
-  Chip, Grid, Pagination, Stack, TableFooter
+  Chip, Grid, Pagination, Stack, TableFooter, Button, Dialog, DialogActions,
+  DialogContent, DialogContentText, DialogTitle, Menu
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
@@ -11,25 +12,35 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import PendingIcon from '@mui/icons-material/Pending';
-import StorefrontIcon from '@mui/icons-material/Storefront';
-import { getAdminAccounts } from '../../../../services/adminApi';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { getAdminAccounts, updateAdminAccount, deleteAdminAccount } from '../../../../services/adminApi';
 
 // User role and verification status config
 const USER_ROLES = {
   0: { label: 'User', color: '#2196F3', bgColor: 'rgba(33, 150, 243, 0.2)' },
   1: { label: 'Admin', color: '#f57c00', bgColor: 'rgba(245, 124, 0, 0.2)' },
-  2: { label: 'Super Admin', color: '#d32f2f', bgColor: 'rgba(211, 47, 47, 0.2)' },
   default: { label: 'Unknown', color: '#757575', bgColor: 'rgba(117, 117, 117, 0.2)' }
 };
 
 const VERIFY_STATUS = {
-  0: { label: 'Not Verified', color: '#F44336', bgColor: 'rgba(244, 67, 54, 0.2)', icon: <PendingIcon /> },
+  0: { label: 'Not Verified', color: '#FF9800', bgColor: 'rgba(255, 152, 0, 0.2)', icon: <PendingIcon /> },
   1: { label: 'Verified', color: '#4CAF50', bgColor: 'rgba(76, 175, 80, 0.2)', icon: <VerifiedIcon /> },
+  2: { label: 'Banned', color: '#F44336', bgColor: 'rgba(244, 67, 54, 0.2)', icon: <DeleteIcon /> },
   default: { label: 'Unknown', color: '#757575', bgColor: 'rgba(117, 117, 117, 0.2)', icon: <PendingIcon /> }
 };
 
-function UserRow({ user }) {
+function UserRow({ user, refreshUsers }) {
   const [open, setOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [newVerifyStatus, setNewVerifyStatus] = useState(user?.verify);
+  const [newRole, setNewRole] = useState(user?.role);
+  const [loading, setLoading] = useState(false);
+
+  const openActions = Boolean(anchorEl);
 
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
@@ -42,6 +53,52 @@ function UserRow({ user }) {
 
   const getVerifyConfig = (verifyStatus) => {
     return VERIFY_STATUS[verifyStatus] || VERIFY_STATUS.default;
+  };
+
+  const handleActionsClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleActionsClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleDeleteClick = () => {
+    setDeleteDialogOpen(true);
+    handleActionsClose();
+  };
+
+  const handleUpdateClick = () => {
+    setUpdateDialogOpen(true);
+    handleActionsClose();
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      setLoading(true);
+      await deleteAdminAccount(user._id);
+      setDeleteDialogOpen(false);
+      refreshUsers();
+    } catch (error) {
+      console.error('Failed to delete account:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateConfirm = async () => {
+    try {
+      setLoading(true);
+      await updateAdminAccount(user._id, {
+        verifyStatus: newVerifyStatus
+      });
+      setUpdateDialogOpen(false);
+      refreshUsers();
+    } catch (error) {
+      console.error('Failed to update account:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -83,7 +140,9 @@ function UserRow({ user }) {
                 color: getVerifyConfig(user.verify).color,
                 border: `1px solid ${getVerifyConfig(user.verify).color}`,
                 fontWeight: 'bold',
-                maxWidth: '100%'
+                maxWidth: '100%',
+                width: '120px',
+                justifyContent: 'center'
               }}
               icon={
                 <Box sx={{
@@ -123,6 +182,52 @@ function UserRow({ user }) {
               }}
             />
           )}
+        </TableCell>
+        <TableCell width="10%" sx={{ textAlign: 'center' }}>
+          <IconButton
+            aria-label="more actions"
+            size="small"
+            onClick={handleActionsClick}
+            sx={{ color: 'white' }}
+          >
+            <MoreVertIcon />
+          </IconButton>
+          <Menu
+            id="actions-menu"
+            anchorEl={anchorEl}
+            open={openActions}
+            onClose={handleActionsClose}
+            PaperProps={{
+              sx: {
+                backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                border: '1px solid rgba(255, 215, 0, 0.3)',
+                borderRadius: 1,
+              }
+            }}
+            transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+            anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+          >
+            <MenuItem
+              onClick={handleUpdateClick}
+              sx={{
+                color: 'white',
+                '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' }
+              }}
+            >
+              <EditIcon sx={{ mr: 1, fontSize: '1.2rem', color: '#2196F3' }} />
+              Update Status
+            </MenuItem>
+            <MenuItem
+              onClick={handleDeleteClick}
+              sx={{
+                color: 'white',
+                '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' }
+              }}
+            >
+              <DeleteIcon sx={{ mr: 1, fontSize: '1.2rem', color: '#F44336' }} />
+              Delete Account
+            </MenuItem>
+          </Menu>
         </TableCell>
       </TableRow>
       <TableRow>
@@ -203,6 +308,157 @@ function UserRow({ user }) {
           </Collapse>
         </TableCell>
       </TableRow>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        PaperProps={{
+          sx: {
+            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            color: 'white',
+            border: '1px solid rgba(255, 215, 0, 0.3)',
+            borderRadius: 2,
+          }
+        }}
+      >
+        <DialogTitle sx={{ fontFamily: "'Jersey 15', sans-serif", color: '#FFD700' }}>
+          Confirm Delete
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+            Are you sure you want to delete the account for <span style={{ color: '#FFD700', fontWeight: 'bold' }}>{user.userName}</span>?
+            This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button
+            onClick={() => setDeleteDialogOpen(false)}
+            sx={{
+              color: 'white',
+              borderColor: 'rgba(255, 255, 255, 0.3)',
+              '&:hover': { borderColor: 'white', backgroundColor: 'rgba(255, 255, 255, 0.1)' }
+            }}
+            variant="outlined"
+            disabled={loading}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleDeleteConfirm}
+            sx={{
+              backgroundColor: '#F44336',
+              color: 'white',
+              '&:hover': { backgroundColor: '#d32f2f' }
+            }}
+            variant="contained"
+            disabled={loading}
+            startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <DeleteIcon />}
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Update Status Dialog */}
+      <Dialog
+        open={updateDialogOpen}
+        onClose={() => setUpdateDialogOpen(false)}
+        PaperProps={{
+          sx: {
+            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            color: 'white',
+            border: '1px solid rgba(255, 215, 0, 0.3)',
+            borderRadius: 2,
+          }
+        }}
+      >
+        <DialogTitle sx={{ fontFamily: "'Jersey 15', sans-serif", color: '#FFD700' }}>
+          Update Account Status
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ color: 'rgba(255, 255, 255, 0.8)', mb: 2 }}>
+            Update verification status for <span style={{ color: '#FFD700', fontWeight: 'bold' }}>{user.userName}</span>
+          </DialogContentText>
+
+          <FormControl
+            fullWidth
+            variant="outlined"
+            sx={{
+              mb: 2,
+              '& .MuiOutlinedInput-notchedOutline': {
+                borderColor: 'rgba(255, 255, 255, 0.3)',
+              },
+              '&:hover .MuiOutlinedInput-notchedOutline': {
+                borderColor: 'rgba(255, 255, 255, 0.5)',
+              }
+            }}
+          >
+            <InputLabel sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Verification Status</InputLabel>
+            <Select
+              value={newVerifyStatus}
+              onChange={(e) => setNewVerifyStatus(e.target.value)}
+              label="Verification Status"
+              sx={{ color: 'white' }}
+            >
+              <MenuItem value={0}>Not Verified</MenuItem>
+              <MenuItem value={1}>Verified</MenuItem>
+              <MenuItem value={2}>Banned</MenuItem>
+            </Select>
+          </FormControl>
+
+          <FormControl
+            fullWidth
+            variant="outlined"
+            sx={{
+              '& .MuiOutlinedInput-notchedOutline': {
+                borderColor: 'rgba(255, 255, 255, 0.3)',
+              },
+              '&:hover .MuiOutlinedInput-notchedOutline': {
+                borderColor: 'rgba(255, 255, 255, 0.5)',
+              }
+            }}
+          >
+            <InputLabel sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>User Role</InputLabel>
+            <Select
+              value={newRole}
+              onChange={(e) => setNewRole(e.target.value)}
+              label="User Role"
+              sx={{ color: 'white' }}
+            >
+              <MenuItem value={0}>User</MenuItem>
+              <MenuItem value={1}>Admin</MenuItem>
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button
+            onClick={() => setUpdateDialogOpen(false)}
+            sx={{
+              color: 'white',
+              borderColor: 'rgba(255, 255, 255, 0.3)',
+              '&:hover': { borderColor: 'white', backgroundColor: 'rgba(255, 255, 255, 0.1)' }
+            }}
+            variant="outlined"
+            disabled={loading}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleUpdateConfirm}
+            sx={{
+              backgroundColor: '#2196F3',
+              color: 'white',
+              '&:hover': { backgroundColor: '#1976d2' }
+            }}
+            variant="contained"
+            disabled={loading}
+            startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <EditIcon />}
+          >
+            Update
+          </Button>
+        </DialogActions>
+      </Dialog>
     </React.Fragment>
   );
 }
@@ -257,6 +513,21 @@ export default function ManageUsers() {
 
   // Calculate total pages
   const totalPages = Math.ceil(filteredUsers.length / rowsPerPage);
+
+  // Add refreshUsers function to be passed to UserRow
+  const refreshUsers = async () => {
+    try {
+      setLoading(true);
+      const response = await getAdminAccounts();
+      if (response.result) {
+        setUsers(response.result);
+      }
+    } catch (error) {
+      console.error('Error refreshing users:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', p: 3 }}>
@@ -337,7 +608,6 @@ export default function ManageUsers() {
             <MenuItem value="all">All Roles</MenuItem>
             <MenuItem value="0">User</MenuItem>
             <MenuItem value="1">Admin</MenuItem>
-            <MenuItem value="2">Super Admin</MenuItem>
           </Select>
         </FormControl>
       </Box>
@@ -362,17 +632,18 @@ export default function ManageUsers() {
               <TableHead>
                 <TableRow>
                   <TableCell width="60px" />
-                  <TableCell width="18%" sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Username</TableCell>
-                  <TableCell width="25%" sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Email</TableCell>
-                  <TableCell width="15%" sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Phone</TableCell>
-                  <TableCell width="15%" sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif", textAlign: 'center' }}>Role</TableCell>
+                  <TableCell width="15%" sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Username</TableCell>
+                  <TableCell width="22%" sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Email</TableCell>
+                  <TableCell width="13%" sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Phone</TableCell>
+                  <TableCell width="13%" sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif", textAlign: 'center' }}>Role</TableCell>
                   <TableCell width="15%" sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif", textAlign: 'center' }}>Verification</TableCell>
-                  <TableCell width="15%" sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif", textAlign: 'center' }}>Seller</TableCell>
+                  <TableCell width="12%" sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif", textAlign: 'center' }}>Seller</TableCell>
+                  <TableCell width="10%" sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif", textAlign: 'center' }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {currentUsers.map((user) => (
-                  <UserRow key={user._id} user={user} />
+                  <UserRow key={user._id} user={user} refreshUsers={refreshUsers} />
                 ))}
               </TableBody>
             </Table>
