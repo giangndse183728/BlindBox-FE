@@ -31,3 +31,15 @@ export const fetchBeads= async () => {
       throw new Error('Failed to create custom accessory');
     }
   };
+
+export const updateBeadPrice = async (beadId, price) => {
+    try {
+      const response = await api.put(`/admins/beads/${beadId}`, { price });
+      return response.data;
+    } catch (error) {
+      console.error('Error updating bead price:', error);
+      throw new Error('Failed to update bead price');
+    }
+};
+
+  
