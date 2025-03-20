@@ -284,10 +284,28 @@ export default function ManageMyOrders() {
                                 value={sortOrder}
                                 onChange={handleSortOrderChange}
                                 size="small"
-                                sx={{ height: '50px', width: '150px', fontFamily: "'Jersey 15', sans-serif", fontSize: '1.2rem', backgroundColor: '#FFD700', '& .MuiOutlinedInput-notchedOutline': { borderColor: 'transparent' }, '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'black' }, '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'black' } }}
+                                IconComponent={() => <Box sx={{ display: 'none' }} />}
+                                sx={{
+                                    height: '50px',
+                                    width: '150px',
+                                    fontFamily: "'Jersey 15', sans-serif",
+                                    fontSize: '1.2rem',
+                                    backgroundColor: '#FFD700',
+                                    '& .MuiOutlinedInput-notchedOutline': { borderColor: 'transparent' },
+                                    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'black' },
+                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'black' }
+                                }}
                             >
-                                <MenuItem value="desc"><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><ArrowDownwardIcon /> Newest First</Box></MenuItem>
-                                <MenuItem value="asc"><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><ArrowUpwardIcon /> Oldest First</Box></MenuItem>
+                                <MenuItem value="desc">
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <ArrowDownwardIcon /> Newest First
+                                    </Box>
+                                </MenuItem>
+                                <MenuItem value="asc">
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <ArrowUpwardIcon /> Oldest First
+                                    </Box>
+                                </MenuItem>
                             </Select>
                         </FormControl>
                     </Box>
