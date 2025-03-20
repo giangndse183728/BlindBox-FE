@@ -46,7 +46,7 @@ export const createBlindbox = async (blindboxData) => {
     }
   };
 
-  export const uploadImage = async (file) => {
+export const uploadImage = async (file) => {
     try {
       const formData = new FormData();
       formData.append("image", file);
@@ -62,5 +62,25 @@ export const createBlindbox = async (blindboxData) => {
       console.error("Error uploading image:", error.response?.data || error.message);
       throw new Error(error.response?.data?.message || "Failed to upload image");
     }
-  };
+};
+
+export const updateBlindbox = async (productId, blindboxData) => {
+  try {
+    const response = await api.put(`/products/seller/blind-boxes/${productId}`, blindboxData);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating blindbox:", error.response ? error.response.data : error.message);
+    throw new Error(error.response?.data?.message || "Failed to update blindbox");
+  }
+};
+
+export const deleteBlindbox = async (productId) => {
+  try {
+    const response = await api.delete(`/products/seller/blind-boxes/${productId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting blindbox:", error.response ? error.response.data : error.message);
+    throw new Error(error.response?.data?.message || "Failed to delete blindbox");
+  }
+};
   

@@ -112,3 +112,29 @@ export const addCredit = async (amount = 10000) => {
     }
 };
 
+export const requestPasswordReset = async (email) => {
+    try {
+        const response = await api.post('/accounts/forgot-password', {
+            email: email
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error requesting password reset:', error.response ? error.response.data : error.message);
+        throw new Error(error.response?.data?.message || 'Failed to send reset link');
+    }
+};
+
+export const resetPassword = async (password, confirm_password, forgot_password_token) => {
+    try {
+        const response = await api.post('/accounts/reset-password', {
+            password,
+            confirm_password,
+            forgot_password_token
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error resetting password:', error.response ? error.response.data : error.message);
+        throw new Error(error.response?.data?.message || 'Failed to reset password');
+    }
+};
+

@@ -7,6 +7,7 @@ import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import { LineChart } from '@mui/x-charts/LineChart';
+import Box from '@mui/material/Box';
 
 function AreaGradient({ color, id }) {
   return (
@@ -24,24 +25,32 @@ AreaGradient.propTypes = {
   id: PropTypes.string.isRequired,
 };
 
-function getDaysInMonth(month, year) {
-  const date = new Date(year, month, 0);
-  const monthName = date.toLocaleDateString('en-US', {
-    month: 'short',
-  });
-  const daysInMonth = date.getDate();
-  const days = [];
-  let i = 1;
-  while (days.length < daysInMonth) {
-    days.push(`${monthName} ${i}`);
-    i += 1;
-  }
-  return days;
-}
-
-export default function SessionsChart() {
+export default function SessionsChart({ data = [] }) {
   const theme = useTheme();
-  const data = getDaysInMonth(4, 2024);
+  
+  // Format dates for x-axis
+  const dates = data.map(item => {
+    const date = new Date(item.date);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  });
+  
+  // Get orders data
+  const ordersData = data.map(item => item.orders);
+  
+  // Get revenue data (multiplied by 100 for better visualization if all zeros)
+  const revenueData = data.map(item => item.revenue || item.orders * 100);
+  
+  // Calculate total orders
+  const totalOrders = data.reduce((sum, item) => sum + item.orders, 0);
+  
+  // Calculate total revenue
+  const totalRevenue = data.reduce((sum, item) => sum + (item.revenue || 0), 0);
+  
+  // Calculate trend (comparing first and last day)
+  const trend = data.length >= 2 ? 
+    (data[data.length-1].orders > data[0].orders ? '+' : '-') + 
+    Math.round(Math.abs((data[data.length-1].orders / Math.max(data[0].orders, 1) - 1) * 100)) + '%' : 
+    '+0%';
 
   const colorPalette = [
     theme.palette.primary.light,
@@ -53,7 +62,7 @@ export default function SessionsChart() {
     <Card variant="outlined" sx={{ width: '100%' }}>
       <CardContent>
         <Typography component="h2" variant="subtitle2" gutterBottom>
-          Sessions
+          Order Activity
         </Typography>
         <Stack sx={{ justifyContent: 'space-between' }}>
           <Stack
@@ -65,92 +74,88 @@ export default function SessionsChart() {
             }}
           >
             <Typography variant="h4" component="p">
-              13,277
+              {totalOrders}
             </Typography>
-            <Chip size="small" color="success" label="+35%" />
+            <Chip 
+              size="small" 
+              color={trend.startsWith('+') ? 'success' : 'error'} 
+              label={trend} 
+            />
           </Stack>
           <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-            Sessions per day for the last 30 days
+            Orders per day for the recent period
           </Typography>
         </Stack>
-        <LineChart
-          colors={colorPalette}
-          xAxis={[
-            {
-              scaleType: 'point',
-              data,
-              tickInterval: (index, i) => (i + 1) % 5 === 0,
-            },
-          ]}
-          series={[
-            {
-              id: 'direct',
-              label: 'Direct',
-              showMark: false,
-              curve: 'linear',
-              stack: 'total',
-              area: true,
-              stackOrder: 'ascending',
-              data: [
-                300, 900, 600, 1200, 1500, 1800, 2400, 2100, 2700, 3000, 1800, 3300,
-                3600, 3900, 4200, 4500, 3900, 4800, 5100, 5400, 4800, 5700, 6000,
-                6300, 6600, 6900, 7200, 7500, 7800, 8100,
-              ],
-            },
-            {
-              id: 'referral',
-              label: 'Referral',
-              showMark: false,
-              curve: 'linear',
-              stack: 'total',
-              area: true,
-              stackOrder: 'ascending',
-              data: [
-                500, 900, 700, 1400, 1100, 1700, 2300, 2000, 2600, 2900, 2300, 3200,
-                3500, 3800, 4100, 4400, 2900, 4700, 5000, 5300, 5600, 5900, 6200,
-                6500, 5600, 6800, 7100, 7400, 7700, 8000,
-              ],
-            },
-            {
-              id: 'organic',
-              label: 'Organic',
-              showMark: false,
-              curve: 'linear',
-              stack: 'total',
-              stackOrder: 'ascending',
-              data: [
-                1000, 1500, 1200, 1700, 1300, 2000, 2400, 2200, 2600, 2800, 2500,
-                3000, 3400, 3700, 3200, 3900, 4100, 3500, 4300, 4500, 4000, 4700,
-                5000, 5200, 4800, 5400, 5600, 5900, 6100, 6300,
-              ],
-              area: true,
-            },
-          ]}
-          height={250}
-          margin={{ left: 50, right: 20, top: 20, bottom: 20 }}
-          grid={{ horizontal: true }}
-          sx={{
-            '& .MuiAreaElement-series-organic': {
-              fill: "url('#organic')",
-            },
-            '& .MuiAreaElement-series-referral': {
-              fill: "url('#referral')",
-            },
-            '& .MuiAreaElement-series-direct': {
-              fill: "url('#direct')",
-            },
-          }}
-          slotProps={{
-            legend: {
-              hidden: true,
-            },
-          }}
-        >
-          <AreaGradient color={theme.palette.primary.dark} id="organic" />
-          <AreaGradient color={theme.palette.primary.main} id="referral" />
-          <AreaGradient color={theme.palette.primary.light} id="direct" />
-        </LineChart>
+        
+        {data.length > 0 ? (
+          <LineChart
+            colors={colorPalette}
+            xAxis={[
+              {
+                scaleType: 'point',
+                data: dates,
+                tickInterval: (index, i) => (i + 1) % Math.max(1, Math.floor(dates.length / 5)) === 0,
+              },
+            ]}
+            series={[
+              {
+                id: 'orders',
+                label: 'Orders',
+                showMark: true,
+                curve: 'linear',
+                data: ordersData,
+                area: true,
+              },
+              {
+                id: 'revenue',
+                label: 'Revenue',
+                showMark: false,
+                curve: 'linear',
+                data: revenueData,
+                area: true,
+              },
+            ]}
+            height={250}
+            margin={{ left: 50, right: 20, top: 20, bottom: 20 }}
+            grid={{ horizontal: true }}
+            sx={{
+              '& .MuiAreaElement-series-orders': {
+                fill: "url('#orders')",
+              },
+              '& .MuiAreaElement-series-revenue': {
+                fill: "url('#revenue')",
+              },
+            }}
+            slotProps={{
+              legend: {
+                position: {
+                  vertical: 'top',
+                  horizontal: 'right',
+                },
+              },
+            }}
+          >
+            <AreaGradient color={theme.palette.primary.main} id="orders" />
+            <AreaGradient color={theme.palette.primary.dark} id="revenue" />
+          </LineChart>
+        ) : (
+          <Box sx={{ height: 250, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Typography variant="body2" color="text.secondary">
+              No data available for the selected period
+            </Typography>
+          </Box>
+        )}
       </CardContent>
     </Card>
   );
 }
+
+SessionsChart.propTypes = {
+  data: PropTypes.arrayOf(
+    PropTypes.shape({
+      date: PropTypes.string.isRequired,
+      orders: PropTypes.number.isRequired,
+      revenue: PropTypes.number,
+    })
+  ),
+};

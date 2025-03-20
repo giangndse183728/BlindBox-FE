@@ -5,7 +5,6 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
-import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
 import NoteAltOutlinedIcon from '@mui/icons-material/NoteAltOutlined';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 

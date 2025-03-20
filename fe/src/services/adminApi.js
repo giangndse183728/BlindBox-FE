@@ -22,7 +22,20 @@ const updatePostStatus = async (slug, id, status) => {
     }
 };
 
+
+export const fetchDashboardStats = async () => {
+  try {
+    const response = await api.get('/admins/dashboard/stats');
+    return response.data.result;
+  } catch (error) {
+    console.error('Error fetching dashboard stats:', error.response ? error.response.data : error.message);
+    throw new Error(error.response?.data?.message || 'Failed to fetch dashboard statistics');
+  }
+};
+
+
 export const adminApi = {
     getAllPosts,
-    updatePostStatus
+    updatePostStatus,
+    fetchDashboardStats
 }; 
