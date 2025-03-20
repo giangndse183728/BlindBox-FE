@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
     Box, Typography, Paper, Table, TableBody, TableCell, TableContainer,
     TableHead, TableRow, CircularProgress, Collapse, IconButton, Chip,
-    Tabs, Tab, Pagination, Divider
+    Tabs, Tab, Pagination, Divider, TextField, InputAdornment
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
@@ -11,6 +11,7 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import CancelIcon from '@mui/icons-material/Cancel';
 import PendingIcon from '@mui/icons-material/Pending';
+import SearchIcon from '@mui/icons-material/Search';
 import { getMyOrders } from '../../services/ordersApi';
 import GlassCard from '../../components/Decor/GlassCard';
 import OrderStatusStepper from '../../components/Order/OrderStatusStepper';
@@ -217,6 +218,7 @@ export default function ManageMyOrders() {
     const [page, setPage] = useState(1);
     const itemsPerPage = 5; // Fixed page size
     const [totalPages, setTotalPages] = useState(1);
+    const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -236,7 +238,7 @@ export default function ManageMyOrders() {
     }, []);
 
     useEffect(() => {
-        // Filter orders based on tabValue
+        // Filter orders based on tabValue and search query
         let newFilteredOrders;
         if (tabValue === 'all') {
             newFilteredOrders = orders;
@@ -244,9 +246,21 @@ export default function ManageMyOrders() {
             const status = parseInt(tabValue);
             newFilteredOrders = orders.filter(order => order.status === status);
         }
+
+        // Apply search filter if a search query exists
+        if (searchQuery) {
+            const query = searchQuery.toLowerCase();
+            newFilteredOrders = newFilteredOrders.filter(order =>
+                order._id.toLowerCase().includes(query) ||
+                order.items.some(item =>
+                    item.productName.toLowerCase().includes(query)
+                )
+            );
+        }
+
         setFilteredOrders(newFilteredOrders);
-        setPage(1); // Reset to first page when tab changes
-    }, [tabValue, orders]);
+        setPage(1); // Reset to first page when filters change
+    }, [tabValue, orders, searchQuery]);
 
     useEffect(() => {
         // Update displayed orders based on pagination
@@ -262,6 +276,10 @@ export default function ManageMyOrders() {
 
     const handlePageChange = (event, newPage) => {
         setPage(newPage);
+    };
+
+    const handleSearchChange = (event) => {
+        setSearchQuery(event.target.value);
     };
 
     return (
@@ -282,6 +300,38 @@ export default function ManageMyOrders() {
                     <Typography variant="h4" sx={{ fontFamily: "'Jersey 15', sans-serif", color: 'whitesmoke', mb: 3 }}>
                         My Orders 🗒️
                     </Typography>
+
+                    {/* Search Bar */}
+                    <Box sx={{ mb: 3 }}>
+                        <TextField
+                            placeholder="Search by order ID or product"
+                            value={searchQuery}
+                            onChange={handleSearchChange}
+                            variant="outlined"
+                            fullWidth
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <SearchIcon sx={{ color: 'rgba(255, 255, 255, 0.7)' }} />
+                                    </InputAdornment>
+                                ),
+                                sx: {
+                                    color: 'white',
+                                    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                                    borderRadius: 1,
+                                    '& .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: 'rgba(255, 255, 255, 0.3)',
+                                    },
+                                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: 'rgba(255, 255, 255, 0.5)',
+                                    },
+                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: '#FFD700',
+                                    },
+                                }
+                            }}
+                        />
+                    </Box>
 
                     {/* Tabs for status filtering */}
                     <Box sx={{
