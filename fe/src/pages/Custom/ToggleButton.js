@@ -17,7 +17,9 @@ const ToggleEngine = ({ value, onChange, onPriceChange }) => {
 
   // Get price for a specific bead type
   const getPriceForType = (type) => {
-    const bead = beadData.find(b => b.type === type);
+    // Convert type to number if it's a string
+    const typeNum = typeof type === 'string' ? parseInt(type, 10) : type;
+    const bead = beadData.find(b => b.type === typeNum);
     return bead ? bead.price : 0;
   };
 
@@ -29,7 +31,7 @@ const ToggleEngine = ({ value, onChange, onPriceChange }) => {
         
         // If onPriceChange callback exists, pass initial price
         if (onPriceChange) {
-          const initialType = selected === 'low' ? "0" : selected === 'spike' ? "1" : "2";
+          const initialType = selected === 'low' ? 0 : selected === 'spike' ? 1 : 2;
           const initialPrice = data.find(b => b.type === initialType)?.price || 0;
           onPriceChange(initialPrice);
         }
@@ -53,7 +55,7 @@ const ToggleEngine = ({ value, onChange, onPriceChange }) => {
     
     // Pass price to parent if callback exists
     if (onPriceChange && beadData.length > 0) {
-      const beadType = newValue === 'low' ? "0" : newValue === 'spike' ? "1" : "2";
+      const beadType = newValue === 'low' ? 0 : newValue === 'spike' ? 1 : 2;
       const price = getPriceForType(beadType);
       onPriceChange(price);
     }
@@ -89,7 +91,7 @@ const ToggleEngine = ({ value, onChange, onPriceChange }) => {
           </span>
           <span className="radio-label">
             Low-poly
-            {!loading && (<span className="price-tag">${getPriceForType("0")}</span>)}
+            {!loading && (<span className="price-tag">${getPriceForType(0)}</span>)}
           </span>
         </span>
       </label>
@@ -119,7 +121,7 @@ const ToggleEngine = ({ value, onChange, onPriceChange }) => {
           </span>
           <span className="radio-label">
             Spike
-            {!loading && (<span className="price-tag">${getPriceForType("1")}</span>)}
+            {!loading && (<span className="price-tag">${getPriceForType(1)}</span>)}
           </span>
         </span>
       </label>
@@ -151,7 +153,7 @@ const ToggleEngine = ({ value, onChange, onPriceChange }) => {
           </span>
           <span className="radio-label">
             Solid
-            {!loading && (<span className="price-tag">${getPriceForType("2")}</span>)}
+            {!loading && (<span className="price-tag">${getPriceForType(2)}</span>)}
           </span>
         </span>
       </label>
