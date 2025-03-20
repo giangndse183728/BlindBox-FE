@@ -14,7 +14,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import PendingIcon from '@mui/icons-material/Pending';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { postApi } from '../../../../services/postApi';
+import { adminApi } from '../../../../services/adminApi';
 
 const POST_STATUS = {
   0: { label: 'Pending', color: '#FF9800', bgColor: 'rgba(255, 152, 0, 0.2)', icon: <PendingIcon /> },
@@ -98,7 +98,7 @@ function PostRow({ post, refreshPosts, updatePostLocally }) {
   const handleStatusUpdate = async () => {
     setLoading(true);
     try {
-      await postApi.updatePostStatus(post.slug, post._id, statusToUpdate);
+      await adminApi.updatePostStatus(post.slug, post._id, statusToUpdate);
       updatePostLocally(post._id, statusToUpdate);
       setDialogOpen(false);
       handleMenuClose();
@@ -354,7 +354,7 @@ export default function ManagePosts() {
   const fetchPosts = async () => {
     try {
       setLoading(true);
-      const response = await postApi.getAllPosts();
+      const response = await adminApi.getAllPosts();
       if (response.result) {
         // Filter out any accessories that might slip through
         const productsOnly = response.result.filter(post => post.category === 0);

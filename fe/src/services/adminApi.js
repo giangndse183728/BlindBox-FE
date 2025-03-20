@@ -22,7 +22,7 @@ const updatePostStatus = async (slug, id, status) => {
     }
 };
 
-export const postApi = {
+export const adminApi = {
     getAllPosts,
     updatePostStatus
 }; 
