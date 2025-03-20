@@ -66,6 +66,15 @@ export const routes = createBrowserRouter([
       </Layout>
     ),
   },
+  {
+    path: '/reset-password',
+    element: (
+      <Layout showHeader={false}>
+        <ResetPassword />
+      </Layout>
+    ),
+  },
+  
 
   {
     path: '/login/oauth',
