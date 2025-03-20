@@ -51,18 +51,32 @@ export default function Home() {
             duration: 800,
             once: true
         });
+        
+        // Safety timeout - force loading to end after 8 seconds
+        const loadingTimeout = setTimeout(() => {
+            if (isLoading) {
+                console.log("Loading timeout reached, forcing content display");
+                setIsLoading(false);
+            }
+        }, 8000);
+        
+        return () => clearTimeout(loadingTimeout);
+    }, [isLoading]);
 
-       
-    }, []);
-
-    // Update loading state when both video and fonts are loaded
+    
     useEffect(() => {
-        if (videoLoaded ) {
+        if (videoLoaded) {
             setIsLoading(false);
         }
     }, [videoLoaded]);
+    
+   
+    const handleVideoError = () => {
+        console.error("Video failed to load");
+        setVideoLoaded(true); 
+    };
 
-    // Add new state and effect for scroll handling
+
     const [scale, setScale] = React.useState(1);
 
     useEffect(() => {
@@ -101,8 +115,9 @@ export default function Home() {
                     loop
                     playsInline
                     width="100%"
-                    preload="metadata"
+                    preload="auto"
                     onLoadedData={() => setVideoLoaded(true)}
+                    onError={handleVideoError}
                     style={{
                         position: 'absolute',
                         top: 0,
