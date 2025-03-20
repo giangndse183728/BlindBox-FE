@@ -42,9 +42,9 @@ const ThreeCustom = () => {
 
   // Type mapping
   const typeMap = {
-    'low': '0',
-    'spike': '1',
-    'solid': '2'
+    'low': 0,
+    'spike': 1,
+    'solid': 2
   };
 
   // Fetch bead data on component mount
@@ -52,6 +52,7 @@ const ThreeCustom = () => {
     const getBeads = async () => {
       try {
         const data = await fetchBeads();
+        console.log("Fetched bead data:", data);
         setBeadData(data);
       } catch (error) {
         console.error("Error fetching beads:", error);
@@ -268,14 +269,14 @@ const ThreeCustom = () => {
   }, [numberOfModels, radius]);
 
   const getBeadIdByType = (type) => {
-    const typeString = typeMap[type];
-    const bead = beadData.find(b => b.type === typeString);
+    const typeNum = typeMap[type];
+    const bead = beadData.find(b => b.type === typeNum);
     return bead ? bead._id : null;
   };
 
   const getPriceForType = (type) => {
-    const typeString = typeMap[type];
-    const bead = beadData.find(b => b.type === typeString);
+    const typeNum = typeMap[type];
+    const bead = beadData.find(b => b.type === typeNum);
     return bead ? parseFloat(bead.price) : 0;
   };
 

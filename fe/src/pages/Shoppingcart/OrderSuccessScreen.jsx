@@ -10,7 +10,6 @@ import { useEffect } from 'react';
 
 const accNumber = process.env.REACT_APP_ACC;
 const bankName = process.env.REACT_APP_BANK_NAME;
-console.log(accNumber, bankName);
 
 const OrderSuccessScreen = () => {
 

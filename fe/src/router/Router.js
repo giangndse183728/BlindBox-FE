@@ -16,6 +16,8 @@ import AccessoryDetailPage from '../pages/Detailpage/AccessoryDetailPage';
 import Dashboard from '../pages/Admin/dashboard/Dashboard';
 import ManageUsers from '../pages/Admin/dashboard/pages/ManageUsers';
 import ManagePosts from '../pages/Admin/dashboard/pages/ManagePosts';
+import SettingBeads from '../pages/Admin/dashboard/pages/SettingBeads';
+import ManageOrders from '../pages/Admin/dashboard/pages/ManageOrders';
 //User
 import CustomPage from '../pages/Custom/CustomPage';
 import ProfilePage from '../pages/ProfilePage/ProfilePage';
@@ -95,7 +97,14 @@ export const routes = createBrowserRouter([
         path: 'posts',
         element: <ManagePosts />
       },
-   
+      {
+        path: 'setting-beads',
+        element: <SettingBeads />
+      },
+      {
+        path: 'orders',
+        element: <ManageOrders />
+      },
     ],
   },
 
@@ -230,3 +239,5 @@ export const routes = createBrowserRouter([
     ),
   },
 ]);
+
+
