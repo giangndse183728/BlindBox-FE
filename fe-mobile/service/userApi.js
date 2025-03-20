@@ -42,3 +42,12 @@ export const logout = async () => {
     }
 };
 
+export const fetchUserData = async () => {
+    try {
+        const response = await api.get('/accounts/me');
+        return response.data.result;
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+        throw new Error('Failed to fetch user data');
+    }
+};

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box, Typography, Button, Grid, TextField,
   Dialog, DialogTitle, DialogContent, DialogActions, Slider,
@@ -43,7 +43,7 @@ const blindboxSchema = Yup.object({
     .typeError('Quantity must be a number')
 });
 
-const CreateBlindboxDialog = ({ open, onClose, onSuccess }) => {
+const CreateBlindboxDialog = ({ open, onClose, onSuccess, isEditing, productData, handleUpdate }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
   const [uploading, setUploading] = useState(false);
@@ -51,15 +51,37 @@ const CreateBlindboxDialog = ({ open, onClose, onSuccess }) => {
   const [isRemovingBg, setIsRemovingBg] = useState(false);
   const [originalImage, setOriginalImage] = useState(null);
   const [imageError, setImageError] = useState('');
-
-  const initialValues = {
+  const [formData, setFormData] = useState({
     name: '',
-    description: '',
-    quantity: 1,
-    price: '',
     brand: '',
-    size: '',
-  };
+    price: '',
+    quantity: '',
+    image: '',
+    // ... other fields
+  });
+
+  // Reset form when dialog opens/closes or when switching between create/edit
+  useEffect(() => {
+    if (open && isEditing && productData) {
+      setFormData({
+        name: productData.name,
+        brand: productData.brand,
+        price: productData.price,
+        quantity: productData.quantity,
+        image: productData.image,
+        // ... set other fields
+      });
+    } else if (!open) {
+      setFormData({
+        name: '',
+        brand: '',
+        price: '',
+        quantity: '',
+        image: '',
+        // ... reset other fields
+      });
+    }
+  }, [open, isEditing, productData]);
 
   const handleFileChange = (e, setFieldValue) => {
     const file = e.target.files[0];
@@ -136,51 +158,47 @@ const CreateBlindboxDialog = ({ open, onClose, onSuccess }) => {
     }
   };
 
-  const handleSubmit = async (values, { setSubmitting: setFormikSubmitting, resetForm }) => {
-    if (!selectedFile) {
-      setImageError('Please select an image');
-      setFormikSubmitting(false);
-      return;
-    }
-
+  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+    // No e.preventDefault() needed here as Formik handles that
     try {
       setSubmitting(true);
-   
-      setUploading(true);
-      const imageResponse = await uploadImage(selectedFile);
-      setUploading(false);
-
-      const productData = {
+      
+      // Upload image if there's a new selected file
+      let imageUrl = values.image;
+      if (selectedFile && selectedFile !== originalImage) {
+        const uploadResponse = await uploadImage(selectedFile);
+        imageUrl = uploadResponse.result;
+      }
+      
+      // Prepare the data with the image URL
+      const blindboxData = {
         ...values,
-        image: imageResponse.result 
+        image: imageUrl
       };
-
-      await createBlindbox(productData);
-
-      toast.success('PRODUCT_CREATED_SUCCESS');
-      onSuccess(); 
+      
+      // Submit based on whether we're editing or creating
+      if (isEditing) {
+        await handleUpdate(productData._id, blindboxData);
+      } else {
+        await createBlindbox(blindboxData);
+      }
+      
+      // Handle success
+      onSuccess();
+      onClose();
       resetForm();
-      handleClose(); 
+      toast.success(isEditing ? 'Product updated successfully' : 'Product created successfully');
     } catch (error) {
-      toast.error(error.message || 'Failed to create product');
+      toast.error(error.message || 'An error occurred');
     } finally {
       setSubmitting(false);
-      setFormikSubmitting(false);
     }
-  };
-
-  const handleClose = () => {
-    setSelectedFile(null);
-    setImagePreview('');
-    setOriginalImage(null);
-    setImageError('');
-    onClose(); 
   };
 
   return (
     <Dialog
       open={open}
-      onClose={handleClose}
+      onClose={onClose}
       maxWidth="lg"
       fullWidth
       disableBackdropClick
@@ -195,16 +213,25 @@ const CreateBlindboxDialog = ({ open, onClose, onSuccess }) => {
       }}
     >
       <DialogTitle variant='h5' sx={{ fontFamily: "'Jersey 15', sans-serif", color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        Create New Blindbox ???
-        <IconButton onClick={handleClose} sx={{ color: 'white' }}>
+        {isEditing ? 'Edit BlindBox' : 'Create New BlindBox'}
+        <IconButton onClick={onClose} sx={{ color: 'white' }}>
           <CloseIcon />
         </IconButton>
       </DialogTitle>
 
       <Formik
-        initialValues={initialValues}
+        initialValues={{
+          name: isEditing && productData ? productData.name : '',
+          brand: isEditing && productData ? productData.brand : '',
+          price: isEditing && productData ? productData.price : '',
+          quantity: isEditing && productData ? productData.quantity : 1,
+          size: isEditing && productData ? productData.size : '',
+          description: isEditing && productData ? productData.description : '',
+          image: isEditing && productData ? productData.image : ''
+        }}
         validationSchema={blindboxSchema}
         onSubmit={handleSubmit}
+        enableReinitialize
       >
         {({
           values,
@@ -566,7 +593,7 @@ const CreateBlindboxDialog = ({ open, onClose, onSuccess }) => {
                 </Typography>
 
                 <Box>
-                  <Button onClick={handleClose} sx={{ color: 'white' }}>
+                  <Button onClick={onClose} sx={{ color: 'white' }}>
                     Cancel
                   </Button>
                   <Button
@@ -585,7 +612,7 @@ const CreateBlindboxDialog = ({ open, onClose, onSuccess }) => {
                       }
                     }}
                   >
-                    {uploading ? 'Uploading Image...' : submitting || isSubmitting ? 'Creating...' : 'Create Product'}
+                    {isEditing ? 'Update' : 'Create'}
                   </Button>
                 </Box>
               </Box>

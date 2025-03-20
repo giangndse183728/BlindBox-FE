@@ -28,11 +28,13 @@ import LoadingScreen from '../../components/Loading/LoadingScreen';
 const Collectionpage = () => {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
-  const [priceRange, setPriceRange] = useState([0, 600]);
-  const [appliedPriceRange, setAppliedPriceRange] = useState([0, 5000]);
+  const [maxPrice, setMaxPrice] = useState(0);
+  const [priceRange, setPriceRange] = useState([0, 0]);
+  const [appliedPriceRange, setAppliedPriceRange] = useState([0, 0]);
   const [selectedBrand, setSelectedBrand] = useState([]);
   const [selectedType, setSelectedType] = useState([]);
   const [selectedRating, setSelectedRating] = useState(0);
+  const [brands, setBrands] = useState([]);
   const location = useLocation();
   const navigate = useNavigate();
   const query = new URLSearchParams(location.search);
@@ -47,9 +49,19 @@ const Collectionpage = () => {
         const data = await fetchBlindboxData();
         console.log("Fetched Data:", data);
 
-        if (Array.isArray(data)) { // Kiểm tra nếu dữ liệu là mảng
+        if (Array.isArray(data)) {
           setProducts(data);
           setFilteredProducts(data);
+          
+          // Extract unique brands from products
+          const uniqueBrands = [...new Set(data.map(product => product.brand))];
+          setBrands(uniqueBrands);
+
+          // Set max price from the highest product price
+          const highestPrice = Math.max(...data.map(product => product.price));
+          setMaxPrice(highestPrice);
+          setPriceRange([0, highestPrice]);
+          setAppliedPriceRange([0, highestPrice]);
         } else {
           console.error("Unexpected API response format:", data);
         }
@@ -107,8 +119,8 @@ const Collectionpage = () => {
   };
 
   const handleClearFilters = () => {
-    setPriceRange([0, 5000]);
-    setAppliedPriceRange([0, 5000]);
+    setPriceRange([0, maxPrice]);
+    setAppliedPriceRange([0, maxPrice]);
     setSelectedBrand([]);
     setSelectedType([]);
     setSelectedRating(0);
@@ -174,7 +186,7 @@ const Collectionpage = () => {
             onChange={handlePriceChange}
             valueLabelDisplay="auto"
             min={0}
-            max={600}
+            max={maxPrice}
             sx={{ color: "white" }}
           />
           <Grid container justifyContent="space-between" sx={{ mt: 1 }}>
@@ -189,7 +201,7 @@ const Collectionpage = () => {
           </ButtonCus>
           <Divider sx={{ bgcolor: "white", my: 2 }} />
           <Typography fontFamily="'Jersey 15', sans-serif" sx={{ mt: 2, fontSize:22 }}>Brand</Typography>
-          {["fpt", "Popmart"].map((brand) => (
+          {brands.map((brand) => (
             <FormControlLabel
               key={brand}
               control={
@@ -311,7 +323,7 @@ const Collectionpage = () => {
                           <img
                             src={product.image}
                             alt={product.name}
-                            style={{ width: 150, height: 150, borderRadius: "10px", marginTop: "-70px", cursor: "pointer" }}
+                            style={{ width: 210, height: 210, borderRadius: "10px", marginTop: "-75px", cursor: "pointer" }}
                           />
                           <Box sx={{ position: "absolute", bottom: 10, left: 10, color: "white", px: 1, py: 0.5, borderRadius: 1, textAlign: "left" }}>
                             <Typography variant="h6" sx={{ fontWeight: "bold", mt: "-15px" }}>

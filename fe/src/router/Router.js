@@ -6,6 +6,7 @@ import ButtonAppBar from '../layouts/Navbar';
 import Login from '../pages/Login/Login';
 import ForgotPassword from '../pages/Login/ForgotPassword';
 import AuthCallback from '../pages/Login/AuthCallBack';
+
 //General
 import Home from '../pages/Homepage/Homepage';
 import Collectionpage from '../pages/Collectionpage/CollectionPage';
@@ -59,13 +60,14 @@ export const routes = createBrowserRouter([
     ),
   },
   {
-    path: '/login/reset-password',
+    path: '/forgot-password',
     element: (
       <Layout showHeader={false}>
         <ForgotPassword />
       </Layout>
     ),
   },
+  
 
   {
     path: '/login/oauth',
