@@ -47,7 +47,7 @@ function UserRow({ user }) {
   return (
     <React.Fragment>
       <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
-        <TableCell>
+        <TableCell width="60px">
           <IconButton
             aria-label="expand row"
             size="small"
@@ -57,10 +57,10 @@ function UserRow({ user }) {
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
-        <TableCell sx={{ color: 'white' }}>{user?.userName || 'N/A'}</TableCell>
-        <TableCell sx={{ color: 'white' }}>{user?.email || 'N/A'}</TableCell>
-        <TableCell sx={{ color: 'white' }}>{user?.phoneNumber || 'N/A'}</TableCell>
-        <TableCell sx={{ textAlign: 'center' }}>
+        <TableCell width="18%" sx={{ color: 'white' }}>{user?.userName || 'N/A'}</TableCell>
+        <TableCell width="22%" sx={{ color: 'white' }}>{user?.email || 'N/A'}</TableCell>
+        <TableCell width="15%" sx={{ color: 'white' }}>{user?.phoneNumber || 'N/A'}</TableCell>
+        <TableCell width="15%" sx={{ textAlign: 'center' }}>
           {user && (
             <Chip
               label={getRoleConfig(user.role).label}
@@ -69,11 +69,12 @@ function UserRow({ user }) {
                 color: getRoleConfig(user.role).color,
                 border: `1px solid ${getRoleConfig(user.role).color}`,
                 fontWeight: 'bold',
+                maxWidth: '100%'
               }}
             />
           )}
         </TableCell>
-        <TableCell sx={{ textAlign: 'center' }}>
+        <TableCell width="15%" sx={{ textAlign: 'center' }}>
           {user && (
             <Chip
               label={getVerifyConfig(user.verify).label}
@@ -82,6 +83,7 @@ function UserRow({ user }) {
                 color: getVerifyConfig(user.verify).color,
                 border: `1px solid ${getVerifyConfig(user.verify).color}`,
                 fontWeight: 'bold',
+                maxWidth: '100%'
               }}
               icon={
                 <Box sx={{
@@ -97,16 +99,16 @@ function UserRow({ user }) {
             />
           )}
         </TableCell>
-        <TableCell sx={{ textAlign: 'center' }}>
+        <TableCell width="15%" sx={{ textAlign: 'center' }}>
           {user?.isRegisterSelling ? (
             <Chip
-              icon={<StorefrontIcon sx={{ fontSize: '1rem' }} />}
               label="Yes"
               sx={{
                 bgcolor: 'rgba(76, 175, 80, 0.2)',
                 color: '#4CAF50',
                 border: '1px solid #4CAF50',
                 fontWeight: 'bold',
+                maxWidth: '100%'
               }}
             />
           ) : (
@@ -117,6 +119,7 @@ function UserRow({ user }) {
                 color: '#757575',
                 border: '1px solid #757575',
                 fontWeight: 'bold',
+                maxWidth: '100%'
               }}
             />
           )}
@@ -350,16 +353,21 @@ export default function ManageUsers() {
       ) : (
         <>
           <TableContainer component={Paper} sx={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-            <Table>
+            <Table
+              sx={{
+                tableLayout: 'fixed',
+                width: '100%'
+              }}
+            >
               <TableHead>
                 <TableRow>
                   <TableCell width="60px" />
-                  <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Username</TableCell>
-                  <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Email</TableCell>
-                  <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Phone</TableCell>
-                  <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif", textAlign: 'center' }}>Role</TableCell>
-                  <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif", textAlign: 'center' }}>Verification</TableCell>
-                  <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif", textAlign: 'center' }}>Seller</TableCell>
+                  <TableCell width="18%" sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Username</TableCell>
+                  <TableCell width="25%" sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Email</TableCell>
+                  <TableCell width="15%" sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Phone</TableCell>
+                  <TableCell width="15%" sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif", textAlign: 'center' }}>Role</TableCell>
+                  <TableCell width="15%" sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif", textAlign: 'center' }}>Verification</TableCell>
+                  <TableCell width="15%" sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif", textAlign: 'center' }}>Seller</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
