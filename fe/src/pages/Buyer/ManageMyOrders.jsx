@@ -323,7 +323,13 @@ export default function ManageMyOrders() {
                                     </TableHead>
                                     <TableBody>
                                         {displayedOrders.map((order) => (
-                                            <OrderRow key={order._id} order={order} onOrderUpdate={fetchOrders} />
+                                            <React.Fragment key={order._id}>
+                                                <OrderRow order={order} onOrderUpdate={fetchOrders} />
+                                                {/* Add gap between orders */}
+                                                <TableRow>
+                                                    <TableCell colSpan={6} sx={{ height: '20px', padding: 0, borderBottom: 'none' }} />
+                                                </TableRow>
+                                            </React.Fragment>
                                         ))}
                                     </TableBody>
                                 </Table>
