@@ -40,4 +40,26 @@ export const updateOrderStatus = async (orderId, status) => {
   }
 };
 
+export const completeOrderStatus = async (orderId) => {
+  try {
+    const response = await api.patch(`/orders/${orderId}/complete`);
+    return response.data;
+  } catch (error) {
+    console.error('Error completing order:', error);
+    throw error.response?.data || new Error('Failed to complete order');
+  }
+};
+
+export const cancelOrder = async (orderId) => {
+  try {
+    const response = await api.patch(`/orders/${orderId}/cancel`);
+    return response.data;
+  } catch (error) {
+    console.error('Error cancelling order:', error);
+    throw error.response?.data || new Error('Failed to cancel order');
+  }
+};
+
+
+
 
