@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
     Box, Typography, Paper, Table, TableBody, TableCell, TableContainer,
     TableHead, TableRow, CircularProgress, Collapse, IconButton, Chip,
-    Tabs, Tab, Pagination, Divider, TextField, InputAdornment, Button
+    Tabs, Tab, Pagination, Divider, TextField, InputAdornment, Button, FormControl, Select, MenuItem
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
@@ -12,11 +12,14 @@ import ReceiptIcon from '@mui/icons-material/Receipt';
 import CancelIcon from '@mui/icons-material/Cancel';
 import PendingIcon from '@mui/icons-material/Pending';
 import SearchIcon from '@mui/icons-material/Search';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { getMyOrders, completeOrderStatus } from '../../services/ordersApi';
 import { cancelOrder } from '../../services/ordersApi'; // Import the cancelOrder function
 import GlassCard from '../../components/Decor/GlassCard';
 import ButtonCus from "../../components/Button/ButtonCus";
 import OrderStatusStepper from '../../components/Order/OrderStatusStepper';
+
 
 const ORDER_STATUS = {
     0: { label: 'Pending', color: '#FF9800', bgColor: 'rgba(255, 152, 0, 0.2)', icon: <PendingIcon /> },
@@ -275,6 +278,7 @@ export default function ManageMyOrders() {
     const itemsPerPage = 5;
     const [totalPages, setTotalPages] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
+    const [sortOrder, setSortOrder] = useState('desc');
 
     const fetchOrders = async () => {
         try {
@@ -321,6 +325,39 @@ export default function ManageMyOrders() {
     const handleTabChange = (event, newValue) => setTabValue(newValue);
     const handlePageChange = (event, newPage) => setPage(newPage);
     const handleSearchChange = (event) => setSearchQuery(event.target.value);
+    const handleSortOrderChange = (event) => {
+        setSortOrder(event.target.value);
+        const sortedOrders = [...orders].sort((a, b) => {
+            const dateA = new Date(a.createdAt);
+            const dateB = new Date(b.createdAt);
+            return event.target.value === 'asc'
+                ? dateA - dateB
+                : dateB - dateA;
+        });
+        setOrders(sortedOrders);
+    };
+
+    const getFilteredAndSortedOrders = () => {
+        if (!orders) return []; // Guard clause if orders is undefined
+
+        // First filter the orders based on search
+        let filteredOrders = orders;
+
+        if (searchQuery.trim()) {
+            filteredOrders = orders.filter(order => {
+                // Safely check if orderId exists and is a string
+                const orderIdString = String(order?._id || '');
+                return orderIdString.toLowerCase().includes(searchQuery.toLowerCase());
+            });
+        }
+
+        // Then sort the filtered orders
+        return filteredOrders.sort((a, b) => {
+            const dateA = new Date(a?.createdAt || 0);
+            const dateB = new Date(b?.createdAt || 0);
+            return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+        });
+    };
 
     return (
         <>
@@ -341,7 +378,7 @@ export default function ManageMyOrders() {
                         My Orders 🗒️
                     </Typography>
 
-                    <Box sx={{ mb: 3 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
                         <TextField
                             placeholder="Search by order ID or product"
                             value={searchQuery}
@@ -364,6 +401,37 @@ export default function ManageMyOrders() {
                                 }
                             }}
                         />
+
+                        <FormControl sx={{ minWidth: 120 }}>
+                            <Select
+                                value={sortOrder}
+                                onChange={handleSortOrderChange}
+                                displayEmpty
+                                size="small"
+                                IconComponent={() => null}
+                                sx={{
+                                    height: '50px',
+                                    width: '150px',
+                                    fontFamily: "'Jersey 15', sans-serif",
+                                    fontSize: '1.2rem',
+                                    backgroundColor: '#FFD700',
+                                    '& .MuiSelect-icon': {
+                                        display: 'none'
+                                    }
+                                }}
+                            >
+                                <MenuItem value="desc">
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <ArrowDownwardIcon /> Newest First
+                                    </Box>
+                                </MenuItem>
+                                <MenuItem value="asc">
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <ArrowUpwardIcon /> Oldest First
+                                    </Box>
+                                </MenuItem>
+                            </Select>
+                        </FormControl>
                     </Box>
 
                     <Box sx={{ width: '100%', mb: 2, borderBottom: 1, borderColor: 'rgba(255, 255, 255, 0.2)' }}>
@@ -411,11 +479,11 @@ export default function ManageMyOrders() {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {displayedOrders.map((order) => (
+                                        {getFilteredAndSortedOrders().map((order) => (
                                             <OrderRow
                                                 key={order._id}
                                                 order={order}
-                                                onOrderUpdate={fetchOrders} // Pass refresh function
+                                                onOrderUpdate={fetchOrders}
                                             />
                                         ))}
                                     </TableBody>
