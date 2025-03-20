@@ -18,9 +18,9 @@ import OrderStatusStepper from '../../components/Order/OrderStatusStepper';
 
 const ORDER_STATUS = {
     0: { label: 'Pending', color: '#FF9800', bgColor: 'rgba(255, 152, 0, 0.2)', icon: <PendingIcon /> },
-    1: { label: 'Processing', color: '#2196F3', bgColor: 'rgba(33, 150, 243, 0.2)', icon: <ReceiptIcon /> },
-    2: { label: 'Shipped', color: '#9C27B0', bgColor: 'rgba(156, 39, 176, 0.2)', icon: <LocalShippingIcon /> },
-    3: { label: 'Delivered', color: '#4CAF50', bgColor: 'rgba(76, 175, 80, 0.2)', icon: <CheckCircleIcon /> },
+    1: { label: 'Confirmed', color: '#2196F3', bgColor: 'rgba(33, 150, 243, 0.2)', icon: <ReceiptIcon /> },
+    2: { label: 'Processing', color: '#9C27B0', bgColor: 'rgba(156, 39, 176, 0.2)', icon: <LocalShippingIcon /> },
+    3: { label: 'Completed', color: '#4CAF50', bgColor: 'rgba(76, 175, 80, 0.2)', icon: <CheckCircleIcon /> },
     4: { label: 'Cancelled', color: '#F44336', bgColor: 'rgba(244, 67, 54, 0.2)', icon: <CancelIcon /> }
 };
 
@@ -213,7 +213,7 @@ export default function ManageMyOrders() {
     const [displayedOrders, setDisplayedOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [tabValue, setTabValue] = useState('all'); 
+    const [tabValue, setTabValue] = useState('all');
     const [page, setPage] = useState(1);
     const itemsPerPage = 5;
     const [totalPages, setTotalPages] = useState(1);
@@ -258,7 +258,7 @@ export default function ManageMyOrders() {
         }
 
         setFilteredOrders(newFilteredOrders);
-        setPage(1); 
+        setPage(1);
     }, [tabValue, orders, searchQuery]);
 
     useEffect(() => {
@@ -369,7 +369,7 @@ export default function ManageMyOrders() {
                                 }}
                             />
                             <Tab
-                                label="Processing"
+                                label="Confirmed"
                                 value="1"
                                 sx={{
                                     color: 'white',
@@ -379,7 +379,7 @@ export default function ManageMyOrders() {
                                 }}
                             />
                             <Tab
-                                label="Shipped"
+                                label="Processing"
                                 value="2"
                                 sx={{
                                     color: 'white',
@@ -389,7 +389,7 @@ export default function ManageMyOrders() {
                                 }}
                             />
                             <Tab
-                                label="Delivered"
+                                label="Completed"
                                 value="3"
                                 sx={{
                                     color: 'white',
