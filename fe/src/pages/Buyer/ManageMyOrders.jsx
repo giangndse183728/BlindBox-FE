@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
     Box, Typography, Paper, Table, TableBody, TableCell, TableContainer,
     TableHead, TableRow, CircularProgress, Collapse, IconButton, Chip,
-    Tabs, Tab, Pagination, Divider, TextField, InputAdornment
+    Tabs, Tab, Pagination, Divider, TextField, InputAdornment, Button
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
@@ -12,8 +12,10 @@ import ReceiptIcon from '@mui/icons-material/Receipt';
 import CancelIcon from '@mui/icons-material/Cancel';
 import PendingIcon from '@mui/icons-material/Pending';
 import SearchIcon from '@mui/icons-material/Search';
-import { getMyOrders } from '../../services/ordersApi';
+import { getMyOrders, completeOrderStatus } from '../../services/ordersApi';
+import { cancelOrder } from '../../services/ordersApi'; // Import the cancelOrder function
 import GlassCard from '../../components/Decor/GlassCard';
+import ButtonCus from "../../components/Button/ButtonCus";
 import OrderStatusStepper from '../../components/Order/OrderStatusStepper';
 
 const ORDER_STATUS = {
@@ -24,9 +26,10 @@ const ORDER_STATUS = {
     4: { label: 'Cancelled', color: '#F44336', bgColor: 'rgba(244, 67, 54, 0.2)', icon: <CancelIcon /> }
 };
 
-// expandable row
-function OrderRow({ order }) {
+// Expandable row
+function OrderRow({ order, onOrderUpdate }) {  // Added onOrderUpdate prop to refresh orders
     const [open, setOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('en-US', {
@@ -38,13 +41,35 @@ function OrderRow({ order }) {
         });
     };
 
+    const handleCompleteOrder = async (orderId) => {
+        try {
+            setLoading(true);
+            await completeOrderStatus(orderId);
+            onOrderUpdate(); // Refresh orders after completion
+        } catch (error) {
+            console.error('Error completing order:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleCancelOrder = async (orderId) => {
+        try {
+            setLoading(true);
+            await cancelOrder(orderId); // Use the imported cancelOrder function
+            onOrderUpdate(); // Refresh orders after cancellation
+        } catch (error) {
+            console.error('Error cancelling order:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <React.Fragment>
-            {/* Main Row: Order Items Card Section */}
             <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
                 <TableCell colSpan={6}>
                     <Box sx={{ mb: 2 }}>
-                        {/* Order ID and Status Chip */}
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                             <Typography sx={{ color: 'white', fontSize: '1rem', fontWeight: 'bold' }}>
                                 Order ID: {order._id}
@@ -103,7 +128,6 @@ function OrderRow({ order }) {
                                 </Typography>
                             </Box>
                         ))}
-                        {/* Summary Section */}
                         <Box sx={{ mt: 3, textAlign: 'right' }}>
                             {order.discount && (
                                 <Typography sx={{ color: '#F44336', fontSize: '1.1rem', mb: 1 }}>
@@ -128,16 +152,14 @@ function OrderRow({ order }) {
                 </TableCell>
             </TableRow>
 
-            {/* Collapsible Row: Order Details + Additional Details */}
             <TableRow>
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
                     <Collapse in={open} timeout="auto" unmountOnExit>
                         <Box sx={{ margin: 2 }}>
-                            {/* Order Details (Total Price, Receiver, Order Date) */}
                             <Table size="small">
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell width="60px" /> {/* Empty cell to align with header */}
+                                        <TableCell width="60px" />
                                         <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Total Price</TableCell>
                                         <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Receiver</TableCell>
                                         <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Order Date</TableCell>
@@ -145,7 +167,7 @@ function OrderRow({ order }) {
                                 </TableHead>
                                 <TableBody>
                                     <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
-                                        <TableCell width="60px" /> {/* Empty cell to align with header */}
+                                        <TableCell width="60px" />
                                         <TableCell sx={{ color: 'white' }}>${parseFloat(order.totalPrice).toFixed(2)}</TableCell>
                                         <TableCell sx={{ color: 'white' }}>{order.receiverInfo.fullName}</TableCell>
                                         <TableCell sx={{ color: 'white' }}>{formatDate(order.createdAt)}</TableCell>
@@ -153,21 +175,12 @@ function OrderRow({ order }) {
                                 </TableBody>
                             </Table>
 
-                            {/* Additional Details (Status Stepper, Shipping, Notes) */}
                             <Typography variant="h6" sx={{ fontFamily: "'Jersey 15', sans-serif", color: '#FFD700', mt: 2, mb: 2 }}>
                                 Order Details
                             </Typography>
-
-                            {/* Order Status Stepper */}
                             <OrderStatusStepper status={order.status} />
 
-                            {/* Shipping Information */}
-                            <Box sx={{
-                                p: 2,
-                                backgroundColor: 'rgba(0, 0, 0, 0.3)',
-                                borderRadius: 1,
-                                mb: 3,
-                            }}>
+                            <Box sx={{ p: 2, backgroundColor: 'rgba(0, 0, 0, 0.3)', borderRadius: 1, mb: 3 }}>
                                 <Typography sx={{ color: '#FFD700', fontWeight: 'bold', mb: 1 }}>
                                     Shipping Information
                                 </Typography>
@@ -181,13 +194,8 @@ function OrderRow({ order }) {
                                 </Box>
                             </Box>
 
-                            {/* Additional Info */}
                             {order.notes && (
-                                <Box sx={{
-                                    p: 2,
-                                    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-                                    borderRadius: 1,
-                                }}>
+                                <Box sx={{ p: 2, backgroundColor: 'rgba(0, 0, 0, 0.3)', borderRadius: 1 }}>
                                     <Typography sx={{ color: '#FFD700', fontWeight: 'bold', mb: 1 }}>
                                         Notes
                                     </Typography>
@@ -199,10 +207,59 @@ function OrderRow({ order }) {
                 </TableCell>
             </TableRow>
 
-            {/* Divider Row */}
             <TableRow>
                 <TableCell colSpan={6} sx={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)', py: 0.5 }} />
             </TableRow>
+
+            {/* Complete Order Button for Processing Orders */}
+            {order.status === 2 && (
+                <TableRow>
+                    <TableCell colSpan={6} sx={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)', py: 0.5 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', py: 1 }}>
+                            <ButtonCus
+                                variant="button-pixel-green"
+                                width="180px"
+                                height="40px"
+                                onClick={() => handleCompleteOrder(order._id)}
+                                disabled={loading}
+                            >
+                                <Typography variant="body1" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
+                                    Confirm Completion
+                                </Typography>
+                            </ButtonCus>
+                        </Box>
+                    </TableCell>
+                </TableRow>
+            )}
+
+            {/* Cancel Button - Only show for non-cancelled/completed orders */}
+            {order.status !== 4 && order.status !== 3 && (
+                <TableRow>
+                    <TableCell colSpan={6} sx={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)', py: 0.5 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', py: 1 }}>
+                            <ButtonCus
+                                variant="button-pixel-red"
+                                width="180px"
+                                height="40px"
+                                onClick={() => handleCancelOrder(order._id)}
+                                disabled={loading}
+                            >
+                                <Typography variant="body1" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
+                                    Cancel Order
+                                </Typography>
+                            </ButtonCus>
+                        </Box>
+                    </TableCell>
+                </TableRow>
+            )}
+
+            {loading && (
+                <TableRow>
+                    <TableCell colSpan={6} sx={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)', py: 0.5 }}>
+                        <CircularProgress size={24} sx={{ color: '#FFD700' }} />
+                    </TableCell>
+                </TableRow>
+            )}
         </React.Fragment>
     );
 }
@@ -219,41 +276,34 @@ export default function ManageMyOrders() {
     const [totalPages, setTotalPages] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
 
-    useEffect(() => {
-        const fetchOrders = async () => {
-            try {
-                const response = await getMyOrders();
-                setOrders(response.result);
-                setFilteredOrders(response.result);
-            } catch (err) {
-                setError(err.message || 'Failed to fetch orders');
-                console.error('Error fetching orders:', err);
-            } finally {
-                setLoading(false);
-            }
-        };
+    const fetchOrders = async () => {
+        try {
+            setLoading(true);
+            const response = await getMyOrders();
+            setOrders(response.result);
+            setFilteredOrders(response.result);
+        } catch (err) {
+            setError(err.message || 'Failed to fetch orders');
+            console.error('Error fetching orders:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    useEffect(() => {
         fetchOrders();
     }, []);
 
     useEffect(() => {
-        // Filter orders based on tabValue and search query
-        let newFilteredOrders;
-        if (tabValue === 'all') {
-            newFilteredOrders = orders;
-        } else {
-            const status = parseInt(tabValue);
-            newFilteredOrders = orders.filter(order => order.status === status);
-        }
+        let newFilteredOrders = tabValue === 'all'
+            ? orders
+            : orders.filter(order => order.status === parseInt(tabValue));
 
-        // Apply search filter if a search query exists
         if (searchQuery) {
             const query = searchQuery.toLowerCase();
             newFilteredOrders = newFilteredOrders.filter(order =>
                 order._id.toLowerCase().includes(query) ||
-                order.items.some(item =>
-                    item.productName.toLowerCase().includes(query)
-                )
+                order.items.some(item => item.productName.toLowerCase().includes(query))
             );
         }
 
@@ -262,24 +312,15 @@ export default function ManageMyOrders() {
     }, [tabValue, orders, searchQuery]);
 
     useEffect(() => {
-        // Update displayed orders based on pagination
         const startIndex = (page - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
         setDisplayedOrders(filteredOrders.slice(startIndex, endIndex));
         setTotalPages(Math.max(1, Math.ceil(filteredOrders.length / itemsPerPage)));
     }, [filteredOrders, page]);
 
-    const handleTabChange = (event, newValue) => {
-        setTabValue(newValue);
-    };
-
-    const handlePageChange = (event, newPage) => {
-        setPage(newPage);
-    };
-
-    const handleSearchChange = (event) => {
-        setSearchQuery(event.target.value);
-    };
+    const handleTabChange = (event, newValue) => setTabValue(newValue);
+    const handlePageChange = (event, newPage) => setPage(newPage);
+    const handleSearchChange = (event) => setSearchQuery(event.target.value);
 
     return (
         <>
@@ -300,7 +341,6 @@ export default function ManageMyOrders() {
                         My Orders 🗒️
                     </Typography>
 
-                    {/* Search Bar */}
                     <Box sx={{ mb: 3 }}>
                         <TextField
                             placeholder="Search by order ID or product"
@@ -318,96 +358,33 @@ export default function ManageMyOrders() {
                                     color: 'white',
                                     backgroundColor: 'rgba(0, 0, 0, 0.3)',
                                     borderRadius: 1,
-                                    '& .MuiOutlinedInput-notchedOutline': {
-                                        borderColor: 'rgba(255, 255, 255, 0.3)',
-                                    },
-                                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                                        borderColor: 'rgba(255, 255, 255, 0.5)',
-                                    },
-                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                        borderColor: '#FFD700',
-                                    },
+                                    '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.3)' },
+                                    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.5)' },
+                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#FFD700' },
                                 }
                             }}
                         />
                     </Box>
 
-                    {/* Tabs for status filtering */}
-                    <Box sx={{
-                        width: '100%',
-                        mb: 2,
-                        borderBottom: 1,
-                        borderColor: 'rgba(255, 255, 255, 0.2)'
-                    }}>
+                    <Box sx={{ width: '100%', mb: 2, borderBottom: 1, borderColor: 'rgba(255, 255, 255, 0.2)' }}>
                         <Tabs
                             value={tabValue}
                             onChange={handleTabChange}
-                            sx={{
-                                '& .MuiTabs-indicator': {
-                                    backgroundColor: '#FFD700'
-                                },
-                            }}
+                            sx={{ '& .MuiTabs-indicator': { backgroundColor: '#FFD700' } }}
                         >
-                            <Tab
-                                label="All"
-                                value="all"
-                                sx={{
-                                    color: 'white',
-                                    '&.Mui-selected': { color: '#FFD700' },
-                                    fontFamily: "'Jersey 15', sans-serif",
-                                    fontSize: '1.3rem'
-                                }}
-                            />
-                            <Tab
-                                label="Pending"
-                                value="0"
-                                sx={{
-                                    color: 'white',
-                                    '&.Mui-selected': { color: '#FFD700' },
-                                    fontFamily: "'Jersey 15', sans-serif",
-                                    fontSize: '1.3rem'
-                                }}
-                            />
-                            <Tab
-                                label="Confirmed"
-                                value="1"
-                                sx={{
-                                    color: 'white',
-                                    '&.Mui-selected': { color: '#FFD700' },
-                                    fontFamily: "'Jersey 15', sans-serif",
-                                    fontSize: '1.3rem'
-                                }}
-                            />
-                            <Tab
-                                label="Processing"
-                                value="2"
-                                sx={{
-                                    color: 'white',
-                                    '&.Mui-selected': { color: '#FFD700' },
-                                    fontFamily: "'Jersey 15', sans-serif",
-                                    fontSize: '1.3rem'
-                                }}
-                            />
-                            <Tab
-                                label="Completed"
-                                value="3"
-                                sx={{
-                                    color: 'white',
-                                    '&.Mui-selected': { color: '#FFD700' },
-                                    fontFamily: "'Jersey 15', sans-serif",
-                                    fontSize: '1.3rem'
-                                }}
-                            />
-                            <Tab
-                                label="Cancelled"
-                                value="4"
-                                sx={{
-                                    color: 'white',
-                                    '&.Mui-selected': { color: '#FFD700' },
-                                    fontFamily: "'Jersey 15', sans-serif",
-                                    fontSize: '1.3rem'
-                                }}
-                            />
+                            {['all', 'Pending', 'Confirmed', 'Processing', 'Completed', 'Cancelled'].map((label, index) => (
+                                <Tab
+                                    key={label}
+                                    label={label}
+                                    value={index === 0 ? 'all' : (index - 1).toString()}
+                                    sx={{
+                                        color: 'white',
+                                        '&.Mui-selected': { color: '#FFD700' },
+                                        fontFamily: "'Jersey 15', sans-serif",
+                                        fontSize: '1.3rem'
+                                    }}
+                                />
+                            ))}
                         </Tabs>
                     </Box>
 
@@ -427,35 +404,25 @@ export default function ManageMyOrders() {
                                 <Table>
                                     <TableHead>
                                         <TableRow>
-                                            <TableCell width="60px" /> {/* Expand/collapse control */}
-                                            <TableCell
-                                                sx={{
-                                                    color: '#FFD700',
-                                                    fontFamily: "'Jersey 15', sans-serif",
-                                                    fontSize: '1.5rem',
-
-                                                }}
-                                            >
+                                            <TableCell width="60px" />
+                                            <TableCell sx={{ color: '#FFD700', fontFamily: "'Jersey 15', sans-serif", fontSize: '1.5rem' }}>
                                                 Order Items
                                             </TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
                                         {displayedOrders.map((order) => (
-                                            <OrderRow key={order._id} order={order} />
+                                            <OrderRow
+                                                key={order._id}
+                                                order={order}
+                                                onOrderUpdate={fetchOrders} // Pass refresh function
+                                            />
                                         ))}
                                     </TableBody>
                                 </Table>
                             </TableContainer>
 
-                            {/* Pagination Controls */}
-                            <Box sx={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                mt: 3,
-                                px: 1
-                            }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 3, px: 1 }}>
                                 <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
                                     Showing {displayedOrders.length} of {filteredOrders.length} orders
                                 </Typography>
@@ -464,16 +431,12 @@ export default function ManageMyOrders() {
                                     page={page}
                                     onChange={handlePageChange}
                                     sx={{
-                                        '& .MuiPaginationItem-root': {
-                                            color: 'white',
-                                        },
+                                        '& .MuiPaginationItem-root': { color: 'white' },
                                         '& .MuiPaginationItem-page.Mui-selected': {
                                             backgroundColor: 'rgba(255, 215, 0, 0.3)',
                                             borderColor: '#FFD700',
                                         },
-                                        '& .MuiPaginationItem-page:hover': {
-                                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                                        },
+                                        '& .MuiPaginationItem-page:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' },
                                     }}
                                 />
                             </Box>
