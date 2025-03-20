@@ -18,12 +18,12 @@ const mainListItems = [
   { text: 'Home', icon: <HomeRoundedIcon />, path: '/dashboard' },
   { text: 'Manage Users', icon: <PeopleRoundedIcon />, path: '/dashboard/users' },
   { text: 'Manage Posts', icon: <AnalyticsRoundedIcon />, path: '/dashboard/posts' },
-  { text: 'Manage Promotion', icon: <AssignmentRoundedIcon />, path: '/dashboard/promotions' },
+  { text: 'Manage Orders', icon: <AssignmentRoundedIcon />, path: '/dashboard/orders' },
 ];
 
 const secondaryListItems = [
-  { text: 'About', icon: <InfoRoundedIcon />, path: '/dashboard/about' },
-  { text: 'Feedback', icon: <HelpRoundedIcon />, path: '/dashboard/feedback' },
+  { text: 'Promotions', icon: <InfoRoundedIcon />, path: '/dashboard/about' },
+  { text: 'Setting Accessory', icon: <SettingsRoundedIcon />, path: '/dashboard/setting-beads' },
 ];
 
 export default function MenuContent() {
