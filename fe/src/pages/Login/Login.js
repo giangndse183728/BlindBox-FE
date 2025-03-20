@@ -55,7 +55,7 @@ const tabItems = [
                 </Grid>
                 <Grid item xs={6} display="flex" justifyContent="flex-end">
                     <NavLink
-                        to="/Login/reset-password"
+                        to="/forgot-password"
                         style={({ isActive }) => ({
                             color: isActive ? 'white' : 'rgba(255, 255, 255, 0.7)',
                             textDecoration: 'none',
