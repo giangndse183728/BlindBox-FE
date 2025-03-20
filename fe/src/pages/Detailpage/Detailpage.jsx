@@ -104,7 +104,7 @@ const Detailpage = () => {
                     </Grid>
 
                     <Grid item xs={12} md={6} sx={{ color: "white" }}>
-                        <Typography variant="h4" fontFamily="'Jersey 15', sans-serif" sx={{ fontSize: 40, ...yellowGlowAnimation, color: "black" }}>
+                        <Typography variant="h4" fontFamily="'Jersey 15', sans-serif" sx={{ fontSize: 40, color: "whitewhite" }}>
                             {product.name}
                         </Typography>
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, ImageBackground, ActivityIndicator} from "react-native";
-import { Appbar, Card, Title, Provider as PaperProvider, Button } from "react-native-paper";
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, ImageBackground, ActivityIndicator, Image } from "react-native";
+import { Appbar, Card, Title, Provider as PaperProvider } from "react-native-paper";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from "@react-navigation/native";
 import Filter from "./Filter";
@@ -96,8 +96,14 @@ const CollectionScreen = () => {
           <Text style={styles.header}>BlindB!ox</Text>
 
           {isLoggedIn ? (
-            <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
-              <Icon name="user-circle" size={30} color="white" />
+            <TouchableOpacity 
+              onPress={() => navigation.navigate("Profile")}
+              style={styles.profileButton}
+            >
+              <Image 
+                source={require('../../assets/pfp.jpeg')} 
+                style={styles.profileImage}
+              />
             </TouchableOpacity>
           ) : (
             <TouchableOpacity onPress={() => navigation.navigate("Login", { setIsLoggedIn })} style={styles.loginButton}>
@@ -204,6 +210,19 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.6)",
     justifyContent: "center",
     padding: 20,
+  },
+  profileButton: {
+    width: 35,
+    height: 35,
+    borderRadius: 17.5,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'white',
+  },
+  profileImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
   },
 });
 
