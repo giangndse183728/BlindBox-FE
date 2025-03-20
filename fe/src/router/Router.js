@@ -11,12 +11,15 @@ import Home from '../pages/Homepage/Homepage';
 import Collectionpage from '../pages/Collectionpage/CollectionPage';
 import Detailpage from '../pages/Detailpage/Detailpage';
 import NotFoundPage from '../pages/Error404/NotFoundPage';
+import AccessoryDetailPage from '../pages/Detailpage/AccessoryDetailPage';
 //Admin
 import Dashboard from '../pages/Admin/dashboard/Dashboard';
 import ManageUsers from '../pages/Admin/dashboard/pages/ManageUsers';
+import ManagePosts from '../pages/Admin/dashboard/pages/ManagePosts';
 //User
 import CustomPage from '../pages/Custom/CustomPage';
 import ProfilePage from '../pages/ProfilePage/ProfilePage';
+import OrderSuccessScreen from '../pages/Shoppingcart/OrderSuccessScreen';
 //Seller
 import SubscriptionPage from '../pages/SubscriptionPage/SubscriptionPage';
 import CartPage from '../pages/Shoppingcart/CartPage';
@@ -87,6 +90,11 @@ export const routes = createBrowserRouter([
         path: 'users',
         element: <ManageUsers />
       },
+      {
+        path: 'posts',
+        element: <ManagePosts />
+      },
+   
     ],
   },
 
@@ -95,7 +103,7 @@ export const routes = createBrowserRouter([
     path: '/custom-accessories',
     element: (
       <Layout showHeader={true}>
-        <ProtectedRoute requiredRoles={[0, 1]}>
+        <ProtectedRoute requiredRoles={[1]}>
           <CustomPage />
         </ProtectedRoute>
       </Layout>
@@ -120,11 +128,19 @@ export const routes = createBrowserRouter([
     ),
   },
 
+  {
+    path: 'product/accessory/:slug',
+    element: (
+      <Layout showHeader={true}>
+        <AccessoryDetailPage />
+      </Layout>
+    ),
+  },
 
   {
     path: '/cart',
     element: (
-      <Layout showHeader={true}>
+      <Layout showHeader={false}>
         <ProtectedRoute requiredRoles={[1]}>
           <CartPage />
         </ProtectedRoute>
@@ -181,6 +197,14 @@ export const routes = createBrowserRouter([
     element: (
       <Layout showHeader={true} >
         <OrdersPage />
+      </Layout>
+    ),
+  },
+  {
+    path: "/order-success",
+    element: (
+      <Layout showHeader={false} >
+        <OrderSuccessScreen />
       </Layout>
     ),
   },
