@@ -16,7 +16,6 @@ import { getMyOrders } from '../../services/ordersApi';
 import GlassCard from '../../components/Decor/GlassCard';
 import OrderStatusStepper from '../../components/Order/OrderStatusStepper';
 
-// Define order status constants
 const ORDER_STATUS = {
     0: { label: 'Pending', color: '#FF9800', bgColor: 'rgba(255, 152, 0, 0.2)', icon: <PendingIcon /> },
     1: { label: 'Processing', color: '#2196F3', bgColor: 'rgba(33, 150, 243, 0.2)', icon: <ReceiptIcon /> },
@@ -25,7 +24,7 @@ const ORDER_STATUS = {
     4: { label: 'Cancelled', color: '#F44336', bgColor: 'rgba(244, 67, 54, 0.2)', icon: <CancelIcon /> }
 };
 
-// Sub-component for each expandable row
+// expandable row
 function OrderRow({ order }) {
     const [open, setOpen] = useState(false);
 
@@ -214,9 +213,9 @@ export default function ManageMyOrders() {
     const [displayedOrders, setDisplayedOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [tabValue, setTabValue] = useState('all'); // Default to show all orders
+    const [tabValue, setTabValue] = useState('all'); 
     const [page, setPage] = useState(1);
-    const itemsPerPage = 5; // Fixed page size
+    const itemsPerPage = 5;
     const [totalPages, setTotalPages] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -225,7 +224,7 @@ export default function ManageMyOrders() {
             try {
                 const response = await getMyOrders();
                 setOrders(response.result);
-                setFilteredOrders(response.result); // Initially show all orders
+                setFilteredOrders(response.result);
             } catch (err) {
                 setError(err.message || 'Failed to fetch orders');
                 console.error('Error fetching orders:', err);
@@ -259,7 +258,7 @@ export default function ManageMyOrders() {
         }
 
         setFilteredOrders(newFilteredOrders);
-        setPage(1); // Reset to first page when filters change
+        setPage(1); 
     }, [tabValue, orders, searchQuery]);
 
     useEffect(() => {
