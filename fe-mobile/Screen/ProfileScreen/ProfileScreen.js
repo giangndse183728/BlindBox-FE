@@ -82,58 +82,58 @@ const ProfileScreen = () => {
                         <Image source={require('../../assets/pfp.jpeg')} style={styles.avatar} />
                     </View>
                     <Text style={styles.header}>{userData.fullName}</Text>
-                    
+
                     <View style={styles.infoContainer}>
                         <Text style={styles.label}>User Name</Text>
-                        <TextInput 
-                            style={styles.input} 
-                            value={editedData?.userName} 
+                        <TextInput
+                            style={styles.input}
+                            value={editedData?.userName}
                             placeholder="Username"
                             editable={false}
                         />
 
                         <Text style={styles.label}>Email</Text>
-                        <TextInput 
-                            style={styles.input} 
-                            value={editedData?.email} 
-                            placeholder="Email" 
+                        <TextInput
+                            style={styles.input}
+                            value={editedData?.email}
+                            placeholder="Email"
                             keyboardType="email-address"
                             editable={false}
                         />
 
-                        <Text style={styles.label}>Full Name</Text>
-                        <TextInput 
-                            style={[styles.input, isEditing && styles.editableInput]} 
-                            value={editedData?.fullName} 
-                            placeholder="Full Name"
-                            editable={isEditing}
-                            onChangeText={(value) => handleInputChange('fullName', value)}
-                        />
-
-                        <Text style={styles.label}>Phone Number</Text>
-                        <TextInput 
-                            style={[styles.input, isEditing && styles.editableInput]} 
-                            value={editedData?.phoneNumber} 
-                            placeholder="Phone Number" 
-                            keyboardType="phone-pad"
-                            editable={isEditing}
-                            onChangeText={(value) => handleInputChange('phoneNumber', value)}
-                        />
-
                         <Text style={styles.label}>Address</Text>
-                        <TextInput 
-                            style={styles.input} 
-                            value={editedData?.address} 
+                        <TextInput
+                            style={styles.input}
+                            value={editedData?.address}
                             placeholder="Address"
                             multiline
                             numberOfLines={3}
                             editable={false}
                         />
 
+                        <Text style={styles.label}>Full Name</Text>
+                        <TextInput
+                            style={[styles.input, isEditing && styles.editableInput]}
+                            value={editedData?.fullName}
+                            placeholder="Full Name"
+                            editable={isEditing}
+                            onChangeText={(value) => handleInputChange('fullName', value)}
+                        />
+
+                        <Text style={styles.label}>Phone Number</Text>
+                        <TextInput
+                            style={[styles.input, isEditing && styles.editableInput]}
+                            value={editedData?.phoneNumber}
+                            placeholder="Phone Number"
+                            keyboardType="phone-pad"
+                            editable={isEditing}
+                            onChangeText={(value) => handleInputChange('phoneNumber', value)}
+                        />
+
                         <Text style={styles.label}>Biography</Text>
-                        <TextInput 
-                            style={[styles.input, styles.multilineInput, isEditing && styles.editableInput]} 
-                            value={editedData?.biography} 
+                        <TextInput
+                            style={[styles.input, styles.multilineInput, isEditing && styles.editableInput]}
+                            value={editedData?.biography}
                             placeholder="Biography"
                             multiline
                             numberOfLines={4}
@@ -173,27 +173,27 @@ const ProfileScreen = () => {
 };
 
 const styles = StyleSheet.create({
-    container: { 
+    container: {
         flex: 1,
     },
     scrollView: {
         flex: 1,
     },
-    avatarContainer: { 
-        marginTop: 20, 
-        alignItems: 'center' 
+    avatarContainer: {
+        marginTop: 20,
+        alignItems: 'center'
     },
-    avatar: { 
-        width: 100, 
-        height: 100, 
-        borderRadius: 50, 
-        borderWidth: 3, 
-        borderColor: '#FFD700' 
+    avatar: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        borderWidth: 3,
+        borderColor: '#FFD700'
     },
-    header: { 
-        fontSize: 24, 
-        fontWeight: 'bold', 
-        marginVertical: 20, 
+    header: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginVertical: 20,
         color: 'white',
         textAlign: 'center',
         fontFamily: 'Yusei Magic'
@@ -243,8 +243,8 @@ const styles = StyleSheet.create({
     logoutButton: {
         backgroundColor: '#F44336',
     },
-    buttonText: { 
-        color: 'white', 
+    buttonText: {
+        color: 'white',
         fontWeight: 'bold',
         fontSize: 16,
         fontFamily: 'Yusei Magic'
@@ -252,8 +252,8 @@ const styles = StyleSheet.create({
     buttonIcon: {
         marginRight: 8,
     },
-    errorText: { 
-        fontSize: 18, 
+    errorText: {
+        fontSize: 18,
         color: 'red',
         textAlign: 'center',
         marginTop: 20
