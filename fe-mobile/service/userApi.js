@@ -51,3 +51,23 @@ export const fetchUserData = async () => {
         throw new Error('Failed to fetch user data');
     }
 };
+
+export const updateUserData = async (updatedUser) => {
+    try {
+        // Only send the fields that have changed, excluding email
+        const changedFields = {};
+        Object.keys(updatedUser).forEach(key => {
+            // Skip email field and only include non-null/undefined values
+            if (key !== 'email' && updatedUser[key] !== undefined && updatedUser[key] !== null) {
+                changedFields[key] = updatedUser[key];
+            }
+        });
+
+        console.log('Updating user data with changed fields:', changedFields);
+        const response = await api.patch('/accounts/me', changedFields);
+        return response.data.result;
+    } catch (error) {
+        console.error('Error updating user data:', error.response?.data || error);
+        throw new Error(error.response?.data?.message || 'Failed to update user data');
+    }
+};

@@ -11,6 +11,7 @@ import LoginScreen from '../screen/LoginScreen/LoginScreen';
 import ProfileScreen from '../screen/ProfileScreen/ProfileScreen';
 import useCartStore from '../screen/CartScreen/CartStore';
 
+
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -40,28 +41,15 @@ const CollectionStackNavigator = () => {
   );
 };
 
-const CartStackNavigator = () => {
+const CartStack = createNativeStackNavigator();
+
+function CartStackScreen() {
   return (
-    <Stack.Navigator 
-      screenOptions={{ 
-        headerShown: true,
-        headerStyle: {
-          backgroundColor: 'transparent',
-          elevation: 0,
-          shadowOpacity: 0,
-        },
-        headerTransparent: true,
-        headerTintColor: 'yellow',
-        headerTitleStyle: {
-          fontWeight: 'bold',
-        },
-        headerTitle: '',
-      }}
-    >
-      <Stack.Screen name="Cart" component={CartScreen} />
-    </Stack.Navigator>
+    <CartStack.Navigator screenOptions={{ headerShown: false }}>
+      <CartStack.Screen name="CartMain" component={CartScreen} />
+    </CartStack.Navigator>
   );
-};
+}
 
 export default function App() {
   const { cart } = useCartStore();
@@ -117,7 +105,7 @@ export default function App() {
         })}
       >
         <Tab.Screen name="Home" component={CollectionStackNavigator} />
-        <Tab.Screen name="ShoppingCart" component={CartStackNavigator} />
+        <Tab.Screen name="ShoppingCart" component={CartStackScreen} />
       </Tab.Navigator>
     </NavigationContainer>
   );

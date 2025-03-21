@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { 
-  View, Text, StyleSheet, Button, ImageBackground, 
-  ActivityIndicator, Alert, TouchableOpacity, ScrollView 
-} from "react-native";
-import { Appbar, Card } from "react-native-paper";
+import { View, Text, StyleSheet, Button, ImageBackground, ActivityIndicator, Alert, TouchableOpacity, ScrollView } from "react-native";
+import { Card } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation, useRoute, useFocusEffect } from "@react-navigation/native";
 import { fetchBlindboxDetails } from "../../service/productApi"; 
@@ -97,7 +94,7 @@ const DetailScreen = () => {
   // Handle adding to cart
   const handleAddToCart = async () => {
     try {
-      await addToCart(productId, quantity); // Assuming addToCart takes productId and quantity
+      await addToCart(productId, quantity); 
       Alert.alert("Success", "Product added to cart!");
     } catch (error) {
       Alert.alert("Error", "Failed to add product to cart.");
