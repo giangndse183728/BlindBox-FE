@@ -278,7 +278,7 @@ function UserRow({ user, refreshUsers }) {
             >
               <MenuItem value={0}>Not Verified</MenuItem>
               {/* Verified (1) is not an option here */}
-              <MenuItem value={2}>Banned</MenuItem>
+              <MenuItem value={2}>Ban</MenuItem>
             </Select>
           </FormControl>
           <FormControl fullWidth variant="outlined" sx={{ '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.3)' } }}>
@@ -499,3 +499,4 @@ export default function ManageUsers() {
     </Box>
   );
 }
+
