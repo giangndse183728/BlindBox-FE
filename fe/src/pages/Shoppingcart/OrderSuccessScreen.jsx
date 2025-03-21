@@ -10,7 +10,6 @@ import { useEffect } from 'react';
 
 const accNumber = process.env.REACT_APP_ACC;
 const bankName = process.env.REACT_APP_BANK_NAME;
-console.log(accNumber, bankName);
 
 const OrderSuccessScreen = () => {
 
@@ -18,10 +17,10 @@ const OrderSuccessScreen = () => {
   const navigate = useNavigate();
   const orderData = location.state?.orderData;
   const paymentMethod = location.state?.paymentMethod;
-  const amount = orderData.totalPrice.toFixed(2) 
-  const description = `topupId ${orderData.buyerInfo.accountId}`; 
+  const amount = Math.round(orderData.totalPrice * 1000);
+  const description = `orderId ${orderData._id}`; 
 
-  const qrUrl = `https://qr.sepay.vn/img?acc=${accNumber}&bank=${bankName}&amount=10000&des=${encodeURIComponent(description)}&lock=true`;
+    const qrUrl = `https://qr.sepay.vn/img?acc=${accNumber}&bank=${bankName}&amount=${amount}&des=${encodeURIComponent(description)}&lock=true`;
 
   // If no order data is found, redirect to home
   useEffect(() => {
@@ -333,7 +332,7 @@ const OrderSuccessScreen = () => {
                 </ButtonCus>
               </Link>
 
-              <Link to="/profile" style={{ textDecoration: 'none' }}>
+              <Link to="/my-orders" style={{ textDecoration: 'none' }}>
                 <ButtonCus
                   variant="button-pixel-green"
                   width="180px"

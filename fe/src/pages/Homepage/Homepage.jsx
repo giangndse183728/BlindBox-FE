@@ -1,5 +1,5 @@
 import React, { useEffect, useState, Suspense, lazy } from 'react'
-import { Button, Grid, Typography, Card, CardMedia, CardContent, Box } from '@mui/material';
+import { Button, Grid, Typography, CardContent, Box } from '@mui/material';
 import Divider from '@mui/material/Divider';
 import Avatar from '@mui/material/Avatar';
 import Stack from '@mui/material/Stack';
@@ -12,7 +12,6 @@ import LoadingScreen from '../../components/Loading/LoadingScreen';
 import ButtonCus from '../../components/Button/ButtonCus';
 import GlassCard from '../../components/Decor/GlassCard';
 import Footer from '../../layouts/Footer';
-import { ArrowBack, ArrowForward } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
@@ -51,18 +50,32 @@ export default function Home() {
             duration: 800,
             once: true
         });
+        
+  
+        const loadingTimeout = setTimeout(() => {
+            if (isLoading) {
+                console.log("Loading timeout reached, forcing content display");
+                setIsLoading(false);
+            }
+        }, 5000);
+        
+        return () => clearTimeout(loadingTimeout);
+    }, [isLoading]);
 
-       
-    }, []);
-
-    // Update loading state when both video and fonts are loaded
+    
     useEffect(() => {
-        if (videoLoaded ) {
+        if (videoLoaded) {
             setIsLoading(false);
         }
     }, [videoLoaded]);
+    
+   
+    const handleVideoError = () => {
+        console.error("Video failed to load");
+        setVideoLoaded(true); 
+    };
 
-    // Add new state and effect for scroll handling
+
     const [scale, setScale] = React.useState(1);
 
     useEffect(() => {
@@ -101,8 +114,9 @@ export default function Home() {
                     loop
                     playsInline
                     width="100%"
-                    preload="metadata"
+                    preload="auto"
                     onLoadedData={() => setVideoLoaded(true)}
+                    onError={handleVideoError}
                     style={{
                         position: 'absolute',
                         top: 0,

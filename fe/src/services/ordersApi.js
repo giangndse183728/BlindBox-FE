@@ -12,7 +12,7 @@ export const createOrder = async (orderData) => {
 
 export const getMyOrders = async () => {
   try {
-    const response = await api.get('/orders/');
+    const response = await api.get('/orders');
     return response.data;
   } catch (error) {
     console.error('Error fetching orders:', error);
@@ -39,5 +39,27 @@ export const updateOrderStatus = async (orderId, status) => {
     throw error.response?.data || new Error('Failed to update order status');
   }
 };
+
+export const completeOrderStatus = async (orderId) => {
+  try {
+    const response = await api.patch(`/orders/${orderId}/complete`);
+    return response.data;
+  } catch (error) {
+    console.error('Error completing order:', error);
+    throw error.response?.data || new Error('Failed to complete order');
+  }
+};
+
+export const cancelOrder = async (orderId) => {
+  try {
+    const response = await api.patch(`/orders/${orderId}/cancel`);
+    return response.data;
+  } catch (error) {
+    console.error('Error cancelling order:', error);
+    throw error.response?.data || new Error('Failed to cancel order');
+  }
+};
+
+
 
 

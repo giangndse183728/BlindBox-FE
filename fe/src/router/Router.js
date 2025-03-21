@@ -1,4 +1,4 @@
-import { createBrowserRouter, Outlet } from 'react-router-dom';
+import { createBrowserRouter } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute';
 //Layout
 import ButtonAppBar from '../layouts/Navbar';
@@ -6,18 +6,24 @@ import ButtonAppBar from '../layouts/Navbar';
 import Login from '../pages/Login/Login';
 import ForgotPassword from '../pages/Login/ForgotPassword';
 import AuthCallback from '../pages/Login/AuthCallBack';
+
 //General
 import Home from '../pages/Homepage/Homepage';
 import Collectionpage from '../pages/Collectionpage/CollectionPage';
 import Detailpage from '../pages/Detailpage/Detailpage';
 import NotFoundPage from '../pages/Error404/NotFoundPage';
+import AccessoryDetailPage from '../pages/Detailpage/AccessoryDetailPage';
 //Admin
 import Dashboard from '../pages/Admin/dashboard/Dashboard';
 import ManageUsers from '../pages/Admin/dashboard/pages/ManageUsers';
+import ManagePosts from '../pages/Admin/dashboard/pages/ManagePosts';
+import SettingBeads from '../pages/Admin/dashboard/pages/SettingBeads';
+import ManageOrders from '../pages/Admin/dashboard/pages/ManageOrders';
 //User
 import CustomPage from '../pages/Custom/CustomPage';
 import ProfilePage from '../pages/ProfilePage/ProfilePage';
 import OrderSuccessScreen from '../pages/Shoppingcart/OrderSuccessScreen';
+import ManageMyOrders from '../pages/Buyer/ManageMyOrders';
 //Seller
 import SubscriptionPage from '../pages/SubscriptionPage/SubscriptionPage';
 import CartPage from '../pages/Shoppingcart/CartPage';
@@ -54,13 +60,14 @@ export const routes = createBrowserRouter([
     ),
   },
   {
-    path: '/login/reset-password',
+    path: '/forgot-password',
     element: (
       <Layout showHeader={false}>
         <ForgotPassword />
       </Layout>
     ),
   },
+  
 
   {
     path: '/login/oauth',
@@ -88,6 +95,18 @@ export const routes = createBrowserRouter([
         path: 'users',
         element: <ManageUsers />
       },
+      {
+        path: 'posts',
+        element: <ManagePosts />
+      },
+      {
+        path: 'setting-beads',
+        element: <SettingBeads />
+      },
+      {
+        path: 'orders',
+        element: <ManageOrders />
+      },
     ],
   },
 
@@ -96,7 +115,7 @@ export const routes = createBrowserRouter([
     path: '/custom-accessories',
     element: (
       <Layout showHeader={true}>
-        <ProtectedRoute requiredRoles={[0, 1]}>
+        <ProtectedRoute requiredRoles={[1]}>
           <CustomPage />
         </ProtectedRoute>
       </Layout>
@@ -121,6 +140,14 @@ export const routes = createBrowserRouter([
     ),
   },
 
+  {
+    path: 'product/accessory/:slug',
+    element: (
+      <Layout showHeader={true}>
+        <AccessoryDetailPage />
+      </Layout>
+    ),
+  },
 
   {
     path: '/cart',
@@ -198,9 +225,21 @@ export const routes = createBrowserRouter([
     element: (
       <Layout showHeader={true}  >
         <ProtectedRoute requiredRoles={[1]} requireSeller={true}>
-        <ManageProduct/>
+          <ManageProduct />
+        </ProtectedRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/my-orders",
+    element: (
+      <Layout showHeader={true}  >
+        <ProtectedRoute requiredRoles={[1]} requireSeller={false}>
+          <ManageMyOrders />
         </ProtectedRoute>
       </Layout>
     ),
   },
 ]);
+
+

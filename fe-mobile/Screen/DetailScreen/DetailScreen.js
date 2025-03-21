@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { 
   View, Text, StyleSheet, Button, ImageBackground, 
-  ActivityIndicator, Alert 
+  ActivityIndicator, Alert, TouchableOpacity, ScrollView 
 } from "react-native";
 import { Appbar, Card } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation, useRoute, useFocusEffect } from "@react-navigation/native";
 import { fetchBlindboxDetails } from "../../service/productApi"; 
+import useCartStore from '../CartScreen/CartStore';
 
 const DetailScreen = () => {
   const navigation = useNavigation();
@@ -17,8 +18,9 @@ const DetailScreen = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [quantity, setQuantity] = useState(1);
+  const { addToCart } = useCartStore();
 
-  // Kiểm tra đăng nhập trước khi load sản phẩm
+  // Check authentication before loading the product
   useFocusEffect(
     React.useCallback(() => {
       const checkAuth = async () => {
@@ -33,7 +35,7 @@ const DetailScreen = () => {
     }, [])
   );
 
-  // Fetch dữ liệu sản phẩm
+  // Fetch product data
   useEffect(() => {
     const loadProduct = async () => {
       try {
@@ -49,7 +51,21 @@ const DetailScreen = () => {
     loadProduct();
   }, [productId, slug]);
 
-  // Nếu đang loading
+  // Add this function to handle quantity changes
+  const handleQuantityChange = (increment) => {
+    const newQuantity = quantity + increment;
+    if (newQuantity < 1) {
+      Alert.alert("Invalid Quantity", "Quantity must be at least 1.");
+      return;
+    }
+    if (product && newQuantity > product.quantity) {
+      Alert.alert("Maximum Quantity", `You can't add more than ${product.quantity} items (Available stock).`);
+      return;
+    }
+    setQuantity(newQuantity);
+  };
+
+  // If loading
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -58,7 +74,7 @@ const DetailScreen = () => {
     );
   }
 
-  // Nếu có lỗi khi fetch dữ liệu
+  // If there's an error fetching data
   if (error) {
     return (
       <View style={styles.errorContainer}>
@@ -68,7 +84,7 @@ const DetailScreen = () => {
     );
   }
 
-  // Nếu sản phẩm không tồn tại
+  // If product doesn't exist
   if (!product) {
     return (
       <View style={styles.notFoundContainer}>
@@ -78,56 +94,250 @@ const DetailScreen = () => {
     );
   }
 
+  // Handle adding to cart
+  const handleAddToCart = async () => {
+    try {
+      await addToCart(productId, quantity); // Assuming addToCart takes productId and quantity
+      Alert.alert("Success", "Product added to cart!");
+    } catch (error) {
+      Alert.alert("Error", "Failed to add product to cart.");
+    }
+  };
+
   return (
     <ImageBackground source={require("../../assets/background.jpeg")} style={styles.container}>
-      <Appbar.Header>
-        <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content title={product.name} />
-      </Appbar.Header>
+      <ScrollView style={styles.scrollView}>
+        <Card style={styles.card}>
+          <Card.Cover source={{ uri: product.image }} style={styles.productImage} />
+          <Card.Content>
+            <Text style={styles.productName}>{product.name}</Text>
+            <Text style={styles.productBrand}>Brand: {product.brand}</Text>
+            <Text style={styles.productPrice}>${Number(product.price).toFixed(2)}</Text>
+            <Text style={styles.stockInfo}>Available Stock: {product.quantity}</Text>
 
-      <Card style={styles.card}>
-        <Card.Cover source={{ uri: product.image }} style={styles.productImage} />
-        <Card.Content>
-          <Text style={styles.productName}>{product.name}</Text>
-          <Text style={styles.productBrand}>Brand: {product.brand}</Text>
-          <Text style={styles.productPrice}>{product.price}</Text>
-          <Text style={styles.productDescription}>{product.description}</Text>
-
-          {/* Chọn số lượng */}
-          <View style={styles.quantityContainer}>
-            <Text style={styles.quantityText}>Quantity:</Text>
-            <View style={styles.quantityButtons}>
-              <Button title="-" onPress={() => setQuantity(Math.max(1, quantity - 1))} />
-              <Text style={styles.quantityValue}>{quantity}</Text>
-              <Button title="+" onPress={() => setQuantity(quantity + 1)} />
+            {/* Quantity selection */}
+            <View style={styles.quantityContainer}>
+              <Text style={styles.quantityText}>Quantity:</Text>
+              <View style={styles.quantityButtons}>
+                <TouchableOpacity 
+                  onPress={() => handleQuantityChange(-1)}
+                  style={styles.quantityButtonContainer}
+                >
+                  <Text style={styles.quantityButton}>-</Text>
+                </TouchableOpacity>
+                <Text style={styles.quantityValue}>{quantity}</Text>
+                <TouchableOpacity 
+                  onPress={() => handleQuantityChange(1)}
+                  style={[
+                    styles.quantityButtonContainer,
+                    quantity >= product.quantity && styles.disabledButton
+                  ]}
+                  disabled={quantity >= product.quantity}
+                >
+                  <Text style={[
+                    styles.quantityButton,
+                    quantity >= product.quantity && styles.disabledButtonText
+                  ]}>+</Text>
+                </TouchableOpacity>
+              </View>
+              {quantity >= product.quantity && (
+                <Text style={styles.maxQuantityText}>(Maximum stock reached)</Text>
+              )}
             </View>
-          </View>
 
-          <Button title="Add to Cart" color="#f8b400" />
-        </Card.Content>
-      </Card>
+            <TouchableOpacity 
+              style={[
+                styles.addToCartButton,
+                quantity > product.quantity && styles.disabledButton
+              ]}
+              onPress={handleAddToCart}
+              disabled={quantity > product.quantity}
+            >
+              <Text style={styles.addToCartButtonText}>Add to Cart</Text>
+            </TouchableOpacity>
+
+            <View style={styles.descriptionContainer}>
+              <Text style={styles.descriptionTitle}>Description</Text>
+              <Text style={styles.productDescription}>{product.description}</Text>
+            </View>
+          </Card.Content>
+        </Card>
+      </ScrollView>
     </ImageBackground>
   );
 };
 
 // Styles
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 10 },
-  card: { margin: 10, backgroundColor: "transparent" },
-  productImage: { height: 400, backgroundColor: "transparent" },
-  productName: { fontWeight: "bold", fontSize: 18, marginBottom: 5, color: "white" },
-  productBrand: { color: "white" },
-  productDescription: { color: "white" },
-  productPrice: { color: "white", fontSize: 16, marginBottom: 10 },
-  quantityContainer: { flexDirection: "row", alignItems: "center", justifyContent: "center", marginVertical: 10 },
-  quantityText: { fontSize: 16, marginRight: 10, color: "white" },
-  quantityButtons: { flexDirection: "row", alignItems: "center" },
-  quantityValue: { marginHorizontal: 10, fontSize: 16, color: "white" },
-  notFoundContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
-  notFoundText: { color: "white", fontSize: 24, marginBottom: 10 },
-  loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
-  errorContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
-  errorText: { color: "red", fontSize: 18, marginBottom: 10 },
+  container: { 
+    flex: 1, 
+    backgroundColor: "transparent"
+  },
+  scrollView: {
+    flex: 1,
+  },
+  card: { 
+    margin: 10, 
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    overflow: "hidden"
+  },
+  productImage: {
+    marginTop:20, 
+    height: 300, // Reduced height
+    backgroundColor: "transparent",
+    borderRadius: 15
+  },
+  productName: { 
+    fontSize: 24,
+    marginBottom: 10,
+    color: "white",
+    fontFamily: 'Jersey 15',
+    textAlign: "center"
+  },
+  productBrand: { 
+    color: "white",
+    fontSize: 18,
+    marginBottom: 5,
+    fontFamily: 'Jersey 15',
+    textAlign: "center"
+  },
+  productPrice: { 
+    color: "yellow",
+    fontSize: 24,
+    marginBottom: 15,
+    fontFamily: 'Jersey 15',
+    textAlign: "center",
+    fontWeight: "bold"
+  },
+  quantityContainer: {
+    marginVertical: 15,
+    alignItems: 'center',
+  },
+  quantityText: { 
+    fontSize: 18,
+    marginBottom: 10,
+    color: "white",
+    fontFamily: 'Jersey 15'
+  },
+  quantityButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    borderRadius: 10,
+    padding: 5,
+    marginTop: 5,
+  },
+  quantityButtonContainer: {
+    padding: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 8,
+    marginHorizontal: 10,
+    borderWidth: 1,
+    borderColor: 'white'
+  },
+  quantityButton: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'white',
+    width: 24,
+    textAlign: 'center',
+    fontFamily: 'Jersey 15'
+  },
+  quantityValue: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginHorizontal: 20,
+    color: 'white',
+    fontFamily: 'Jersey 15'
+  },
+  disabledButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    opacity: 0.5,
+  },
+  disabledButtonText: {
+    color: 'rgba(255, 255, 255, 0.5)',
+  },
+  maxQuantityText: {
+    color: '#ff6b6b',
+    fontSize: 14,
+    marginTop: 10,
+    fontFamily: 'Jersey 15'
+  },
+  stockInfo: {
+    color: 'yellow',
+    marginVertical: 10,
+    fontSize: 16,
+    fontFamily: 'Jersey 15',
+    textAlign: "center"
+  },
+  addToCartButton: {
+    backgroundColor: 'yellow',
+    padding: 15,
+    borderRadius: 10,
+    marginTop: 20,
+    borderWidth: 1,
+    borderColor: 'white'
+  },
+  addToCartButtonText: {
+    color: 'black',
+    textAlign: 'center',
+    fontSize: 18,
+    fontWeight: 'bold',
+    fontFamily: 'Jersey 15'
+  },
+  descriptionContainer: {
+    marginTop: 20,
+    padding: 15,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'white'
+  },
+  descriptionTitle: {
+    color: 'yellow',
+    fontSize: 20,
+    marginBottom: 10,
+    fontFamily: 'Jersey 15',
+    textAlign: 'center'
+  },
+  productDescription: { 
+    color: "white",
+    fontSize: 16,
+    lineHeight: 24,
+    fontFamily: 'Jersey 15',
+    textAlign: "center"
+  },
+  notFoundContainer: { 
+    flex: 1, 
+    justifyContent: "center", 
+    alignItems: "center",
+    backgroundColor: "transparent"
+  },
+  notFoundText: { 
+    color: "white", 
+    fontSize: 24, 
+    marginBottom: 10,
+    fontFamily: 'Jersey 15'
+  },
+  loadingContainer: { 
+    flex: 1, 
+    justifyContent: "center", 
+    alignItems: "center",
+    backgroundColor: "transparent"
+  },
+  errorContainer: { 
+    flex: 1, 
+    justifyContent: "center", 
+    alignItems: "center",
+    backgroundColor: "transparent"
+  },
+  errorText: { 
+    color: "#ff6b6b", 
+    fontSize: 18, 
+    marginBottom: 10,
+    fontFamily: 'Jersey 15'
+  },
 });
 
 export default DetailScreen;

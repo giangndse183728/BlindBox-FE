@@ -216,13 +216,13 @@ export default function ButtonAppBar() {
             </Typography>
           </Box>
           <Divider sx={{ bgcolor: "rgba(255,255,255,0.2)" }} />
-          
-          <MenuItem 
+
+          <MenuItem
             onClick={() => {
               navigate('/profile');
               handleClose();
             }}
-            sx={{ 
+            sx={{
               fontFamily: "'Jersey 15', sans-serif",
               display: 'flex',
               alignItems: 'center',
@@ -230,15 +230,15 @@ export default function ButtonAppBar() {
             }}
           >
             <AccountCircleOutlinedIcon fontSize="small" />
-             Profile
+            Profile
           </MenuItem>
 
-          <MenuItem 
+          <MenuItem
             onClick={() => {
-              navigate('/orders');
+              navigate('/my-orders');
               handleClose();
             }}
-            sx={{ 
+            sx={{
               fontFamily: "'Jersey 15', sans-serif",
               display: 'flex',
               alignItems: 'center',
@@ -250,11 +250,11 @@ export default function ButtonAppBar() {
           </MenuItem>
 
           <Divider sx={{ bgcolor: "rgba(255,255,255,0.2)" }} />
-          
-          <MenuItem 
-            onClick={handleLogout} 
-            sx={{ 
-              color: "error.main", 
+
+          <MenuItem
+            onClick={handleLogout}
+            sx={{
+              color: "error.main",
               fontFamily: "'Jersey 15', sans-serif",
               display: 'flex',
               alignItems: 'center',

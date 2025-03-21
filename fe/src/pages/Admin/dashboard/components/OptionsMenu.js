@@ -10,6 +10,8 @@ import ListItemIcon, { listItemIconClasses } from '@mui/material/ListItemIcon';
 import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
 import MenuButton from './MenuButton';
+import { logout } from '../../../../services/userApi';
+import { toast } from 'react-toastify';
 
 const MenuItem = styled(MuiMenuItem)({
   margin: '2px 0',
@@ -24,6 +26,18 @@ export default function OptionsMenu() {
   const handleClose = () => {
     setAnchorEl(null);
   };
+  
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast.success('Logged out successfully');
+    } catch (error) {
+      toast.error('Failed to logout. Please try again.');
+      console.error('Logout error:', error);
+    }
+    handleClose();
+  };
+  
   return (
     <React.Fragment>
       <MenuButton
@@ -53,13 +67,8 @@ export default function OptionsMenu() {
           },
         }}
       >
-      
-        <MenuItem onClick={handleClose}>My account</MenuItem>
-        <Divider />
-   
-    
         <MenuItem
-          onClick={handleClose}
+          onClick={handleLogout}
           sx={{
             [`& .${listItemIconClasses.root}`]: {
               ml: 'auto',
