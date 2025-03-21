@@ -1,5 +1,5 @@
 import React, { useEffect, useState, Suspense, lazy } from 'react'
-import { Button, Grid, Typography, Card, CardMedia, CardContent, Box } from '@mui/material';
+import { Button, Grid, Typography, CardContent, Box } from '@mui/material';
 import Divider from '@mui/material/Divider';
 import Avatar from '@mui/material/Avatar';
 import Stack from '@mui/material/Stack';
@@ -12,7 +12,6 @@ import LoadingScreen from '../../components/Loading/LoadingScreen';
 import ButtonCus from '../../components/Button/ButtonCus';
 import GlassCard from '../../components/Decor/GlassCard';
 import Footer from '../../layouts/Footer';
-import { ArrowBack, ArrowForward } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
@@ -52,13 +51,13 @@ export default function Home() {
             once: true
         });
         
-        // Safety timeout - force loading to end after 8 seconds
+  
         const loadingTimeout = setTimeout(() => {
             if (isLoading) {
                 console.log("Loading timeout reached, forcing content display");
                 setIsLoading(false);
             }
-        }, 8000);
+        }, 5000);
         
         return () => clearTimeout(loadingTimeout);
     }, [isLoading]);
