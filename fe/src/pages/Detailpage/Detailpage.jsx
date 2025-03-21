@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
-import { Box, Typography, Button, Grid, Rating, Avatar, Divider } from "@mui/material";
+import { Box, Typography, Button, Grid, Rating, Avatar, Divider, TextField, Paper, IconButton, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import ProductNotFound from "./ProductNotFound";
 import { fetchBlindboxDetails } from '../../services/productApi';
 import ButtonCus from "../../components/Button/ButtonCus";
@@ -11,6 +11,7 @@ import LoadingScreen from '../../components/Loading/LoadingScreen';
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import GlassCard from "../../components/Decor/GlassCard";
 import { yellowGlowAnimation } from '../../components/Text/YellowEffect';
+import ProductFeedback from './ProductFeedback';
 
 const Detailpage = () => {
     const { slug } = useParams();
@@ -23,6 +24,13 @@ const Detailpage = () => {
     const [error, setError] = useState(null);
     const { addToCart } = useCartStore();
     const [quantity, setQuantity] = useState(1);
+    const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+    
+    // Keep the userInfo state for other parts of the component
+    const [userInfo, setUserInfo] = useState(() => {
+        const storedUser = localStorage.getItem('user');
+        return storedUser ? JSON.parse(storedUser) : { id: 'guest-user', username: 'Guest' };
+    });
 
     useEffect(() => {
         const getProductDetails = async () => {
@@ -55,7 +63,6 @@ const Detailpage = () => {
     // Check if product has accessories
     const hasAccessories = product.accessories && product.accessories.length > 0;
     
-    const feedbackList = product.feedback || [];
     const price = typeof product.price === 'number' ? product.price : parseFloat(product.price) || 0;
 
     const handleAddToCart = () => {
@@ -72,6 +79,19 @@ const Detailpage = () => {
         if (quantity > 1) {
             setQuantity(quantity - 1);
         }
+    };
+
+    // Add a handler for feedback actions from the ProductFeedback component
+    const handleFeedbackAction = (result) => {
+        setSnackbar({
+            open: true,
+            message: result.message,
+            severity: result.type
+        });
+    };
+
+    const handleCloseSnackbar = () => {
+        setSnackbar({ ...snackbar, open: false });
     };
 
     return (
@@ -240,38 +260,80 @@ const Detailpage = () => {
                 </Box>
             </GlassCard>
             
-            {/* Description and Feedback Section */}
-            <Box sx={{ mt: 5, top: 100, position: "relative", margin: "auto", p: 4, borderRadius: 4, width: "90%", boxShadow: 3 }}>
-                <Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ fontSize: 40, mr: 2, color: "white" }}>
-                    Description:
-                </Typography>
-                <Typography sx={{ fontSize: 19, color: "white", ml: 4 }}>{product.description || "No description available."}</Typography>
+            {/* Description and Feedback Sections */}
+            <Box sx={{ mt: 5, top: 130, position: "relative", margin: "auto", width: "100%", maxWidth: "1400px", px: 2 }}>
+                {/* Description Section */}
+                <Box sx={{ mb: 5 }}>
+                    <Typography 
+                        variant="h4" 
+                        fontFamily="'Jersey 15', sans-serif" 
+                        sx={{ 
+                            fontSize: 40, 
+                            color: "#f8b400", 
+                            mb: 2, 
+                            display: 'flex',
+                            alignItems: 'center'
+                        }}
+                    >
+                        Description
+                        <Divider sx={{ 
+                            ml: 2, 
+                            flex: 1, 
+                            borderColor: 'rgba(248, 180, 0, 0.3)',
+                            borderWidth: 1
+                        }} />
+                    </Typography>
+                    <Box sx={{ 
+                        backgroundColor: 'rgba(0, 0, 0, 0.3)', 
+                        p: 3, 
+                        borderRadius: 2,
+                        borderLeft: '4px solid #f8b400'
+                    }}>
+                        <Typography 
+                            sx={{ 
+                                fontSize: 19, 
+                                color: "white", 
+                                lineHeight: 1.8
+                            }}
+                        >
+                            {product.description || "No description available."}
+                        </Typography>
+                    </Box>
+                </Box>
 
-                {/* Show feedback section only if product doesn't have accessories */}
+                {/* Feedback Section - only if product doesn't have accessories */}
                 {!hasAccessories && (
-                    <>
-                        <Typography variant="h5" fontFamily="'Jersey 15', sans-serif" sx={{ fontSize: 35, color: "#f8b400", mb: 2, mt: 2 }}>Feedback</Typography>
-                        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                            <Typography variant="h4" fontFamily="'Jersey 15', sans-serif" sx={{ fontSize: 50, color: "#f8b400", mr: 2 }}>{(product.rating || 0).toFixed(1)}</Typography>
-                            <Rating value={product.rating || 0} readOnly precision={0.1} />
-                            <Typography fontFamily="'Jersey 15', sans-serif" sx={{ fontSize: 25, ml: 1, color: "white" }}>({feedbackList.length} reviews)</Typography>
-                        </Box>
-                        <Box sx={{ mt: 3 }}>
-                            {feedbackList.map((fb, index) => (
-                                <Box key={index} sx={{ display: "flex", alignItems: "center", bgcolor: "white", p: 2, borderRadius: 1, mb: 1 }}>
-                                    <Avatar sx={{ mr: 2 }}>{fb.user.charAt(0)}</Avatar>
-                                    <Box>
-                                        <Typography variant="h6">{fb.user}</Typography>
-                                        <Rating value={fb.rating} readOnly precision={0.1} />
-                                        <Typography>{fb.comment}</Typography>
-                                        <Typography variant="caption" sx={{ color: "gray" }}>{fb.time}</Typography>
-                                    </Box>
-                                </Box>
-                            ))}
-                        </Box>
-                    </>
+                    <Box sx={{ mt: 6, width: "100%" }}>
+                        <ProductFeedback 
+                            productId={id} 
+                            productName={product.name}
+                            onFeedbackAction={handleFeedbackAction}
+                        />
+                    </Box>
                 )}
             </Box>
+            
+            {/* Snackbar for notifications */}
+            <Snackbar 
+                open={snackbar.open} 
+                autoHideDuration={6000} 
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+                <Alert 
+                    onClose={handleCloseSnackbar} 
+                    severity={snackbar.severity} 
+                    variant="filled"
+                    sx={{ 
+                        width: '100%',
+                        fontFamily: "'Jersey 15', sans-serif",
+                        fontSize: '1rem',
+                        alignItems: 'center'
+                    }}
+                >
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </>
     );
 };

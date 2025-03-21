@@ -332,7 +332,7 @@ const OrderSuccessScreen = () => {
                 </ButtonCus>
               </Link>
 
-              <Link to="/profile" style={{ textDecoration: 'none' }}>
+              <Link to="/my-orders" style={{ textDecoration: 'none' }}>
                 <ButtonCus
                   variant="button-pixel-green"
                   width="180px"
