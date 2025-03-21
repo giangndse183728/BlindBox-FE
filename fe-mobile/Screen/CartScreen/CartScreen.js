@@ -95,49 +95,54 @@ const CartScreen = () => {
         <Text style={styles.emptyCartText}>Your cart is empty!</Text>
       ) : (
         <>
-          <FlatList
-            data={cart.items}
-            keyExtractor={(item) => item.product._id.toString()}
-            renderItem={({ item }) => (
-              <View style={styles.cartItem}>
-                <Text style={styles.productName}>
-                  {truncateString(item.product?.name || "Unnamed Product")}
-                </Text>
-                <View style={styles.quantityButtons}>
-                  <TouchableOpacity 
-                    onPress={() => handleUpdateQuantity(item.product._id, item.cartQuantity - 1, item.product.quantity)}
-                    style={styles.quantityButtonContainer}
-                  >
-                    <Text style={styles.quantityButton}>-</Text>
-                  </TouchableOpacity>
-                  <Text style={styles.quantityText}>
-                    {item.cartQuantity}
-                    {item.cartQuantity >= item.product.quantity && ' (Max)'}
+          <View style={styles.cartContainer}>
+            <FlatList
+              data={cart.items}
+              keyExtractor={(item) => item.product._id.toString()}
+              renderItem={({ item }) => (
+                <View style={styles.cartItem}>
+                  <Text style={styles.productName}>
+                    {truncateString(item.product?.name || "Unnamed Product")}
                   </Text>
+                  <View style={styles.quantityButtons}>
+                    <TouchableOpacity 
+                      onPress={() => handleUpdateQuantity(item.product._id, item.cartQuantity - 1, item.product.quantity)}
+                      style={styles.quantityButtonContainer}
+                    >
+                      <Text style={styles.quantityButton}>-</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.quantityText}>
+                      {item.cartQuantity}
+                      {item.cartQuantity >= item.product.quantity && ' (Max)'}
+                    </Text>
+                    <TouchableOpacity 
+                      onPress={() => handleUpdateQuantity(item.product._id, item.cartQuantity + 1, item.product.quantity)}
+                      style={[
+                        styles.quantityButtonContainer,
+                        item.cartQuantity >= item.product.quantity && styles.disabledButton
+                      ]}
+                      disabled={item.cartQuantity >= item.product.quantity}
+                    >
+                      <Text style={[
+                        styles.quantityButton,
+                        item.cartQuantity >= item.product.quantity && styles.disabledButtonText
+                      ]}>+</Text>
+                    </TouchableOpacity>
+                  </View>
+
                   <TouchableOpacity 
-                    onPress={() => handleUpdateQuantity(item.product._id, item.cartQuantity + 1, item.product.quantity)}
-                    style={[
-                      styles.quantityButtonContainer,
-                      item.cartQuantity >= item.product.quantity && styles.disabledButton
-                    ]}
-                    disabled={item.cartQuantity >= item.product.quantity}
+                    onPress={() => handleRemove(item.product._id)}
+                    style={styles.removeButton}
                   >
-                    <Text style={[
-                      styles.quantityButton,
-                      item.cartQuantity >= item.product.quantity && styles.disabledButtonText
-                    ]}>+</Text>
+                    <Text style={styles.removeText}>Remove</Text>
                   </TouchableOpacity>
                 </View>
-
-                <TouchableOpacity 
-                  onPress={() => handleRemove(item.product._id)}
-                  style={styles.removeButton}
-                >
-                  <Text style={styles.removeText}>Remove</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          />
+              )}
+            />
+            <TouchableOpacity onPress={handleClearCart} style={styles.clearButton}>
+              <Text style={styles.clearButtonText}>Clear Cart</Text>
+            </TouchableOpacity>
+          </View>
 
           <View style={styles.footer}>
             <Text style={styles.totalText}>
@@ -147,12 +152,8 @@ const CartScreen = () => {
               )}
             </Text>
 
-            <TouchableOpacity onPress={handleClearCart} style={styles.clearButton}>
-              <Text style={styles.buttonText}>Clear Cart</Text>
-            </TouchableOpacity>
-
             <TouchableOpacity style={styles.checkoutButton}>
-              <Text style={styles.buttonText}>Check Out</Text>
+              <Text style={styles.buttonText}>Place Order</Text>
             </TouchableOpacity>
           </View>
         </>
@@ -171,7 +172,10 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 16,
     color: 'white',
-    textAlign: 'center'
+    textAlign: 'center',
+    textShadowColor: 'yellow',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
   },
   emptyCartText: {
     fontSize: 16,
@@ -241,6 +245,7 @@ const styles = StyleSheet.create({
     padding: 15,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     borderRadius: 10,
+    marginHorizontal: 10
   },
   totalText: {
     fontSize: 18,
@@ -250,19 +255,27 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   },
   clearButton: {
-    marginTop: 10,
-    padding: 15,
+    padding: 8,
     backgroundColor: "rgba(255, 0, 0, 0.7)",
-    borderRadius: 5,
+    marginHorizontal: 10,
+    marginVertical: 10,
+    alignSelf: 'center',
+    width: 80
+  },
+  clearButtonText: {
+    color: "white",
+    textAlign: "center",
+    fontWeight: 'bold',
+    fontSize: 12
   },
   checkoutButton: {
     marginTop: 10,
     padding: 15,
-    backgroundColor: "rgba(0, 255, 0, 0.5)",
+    backgroundColor: "yellow",
     borderRadius: 5,
   },
   buttonText: {
-    color: "white",
+    color: "black",
     textAlign: "center",
     fontWeight: 'bold',
     fontSize: 16
@@ -278,6 +291,10 @@ const styles = StyleSheet.create({
   },
   disabledButtonText: {
     color: 'rgba(255, 255, 255, 0.5)',
+  },
+  cartContainer: {
+    flex: 1,
+    marginBottom: 10
   },
 });
 

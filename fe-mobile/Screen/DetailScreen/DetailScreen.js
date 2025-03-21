@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { 
   View, Text, StyleSheet, Button, ImageBackground, 
-  ActivityIndicator, Alert, TouchableOpacity 
+  ActivityIndicator, Alert, TouchableOpacity, ScrollView 
 } from "react-native";
 import { Appbar, Card } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -106,57 +106,63 @@ const DetailScreen = () => {
 
   return (
     <ImageBackground source={require("../../assets/background.jpeg")} style={styles.container}>
-      <Card style={styles.card}>
-        <Card.Cover source={{ uri: product.image }} style={styles.productImage} />
-        <Card.Content>
-          <Text style={styles.productName}>{product.name}</Text>
-          <Text style={styles.productBrand}>Brand: {product.brand}</Text>
-          <Text style={styles.productPrice}>Price: ${product.price}</Text>
-          <Text style={styles.productDescription}>Description: {product.description}</Text>
-          <Text style={styles.stockInfo}>Available Stock: {product.quantity}</Text>
+      <ScrollView style={styles.scrollView}>
+        <Card style={styles.card}>
+          <Card.Cover source={{ uri: product.image }} style={styles.productImage} />
+          <Card.Content>
+            <Text style={styles.productName}>{product.name}</Text>
+            <Text style={styles.productBrand}>Brand: {product.brand}</Text>
+            <Text style={styles.productPrice}>${Number(product.price).toFixed(2)}</Text>
+            <Text style={styles.stockInfo}>Available Stock: {product.quantity}</Text>
 
-          {/* Quantity selection */}
-          <View style={styles.quantityContainer}>
-            <Text style={styles.quantityText}>Quantity:</Text>
-            <View style={styles.quantityButtons}>
-              <TouchableOpacity 
-                onPress={() => handleQuantityChange(-1)}
-                style={styles.quantityButtonContainer}
-              >
-                <Text style={styles.quantityButton}>-</Text>
-              </TouchableOpacity>
-              <Text style={styles.quantityValue}>{quantity}</Text>
-              <TouchableOpacity 
-                onPress={() => handleQuantityChange(1)}
-                style={[
-                  styles.quantityButtonContainer,
-                  quantity >= product.quantity && styles.disabledButton
-                ]}
-                disabled={quantity >= product.quantity}
-              >
-                <Text style={[
-                  styles.quantityButton,
-                  quantity >= product.quantity && styles.disabledButtonText
-                ]}>+</Text>
-              </TouchableOpacity>
+            {/* Quantity selection */}
+            <View style={styles.quantityContainer}>
+              <Text style={styles.quantityText}>Quantity:</Text>
+              <View style={styles.quantityButtons}>
+                <TouchableOpacity 
+                  onPress={() => handleQuantityChange(-1)}
+                  style={styles.quantityButtonContainer}
+                >
+                  <Text style={styles.quantityButton}>-</Text>
+                </TouchableOpacity>
+                <Text style={styles.quantityValue}>{quantity}</Text>
+                <TouchableOpacity 
+                  onPress={() => handleQuantityChange(1)}
+                  style={[
+                    styles.quantityButtonContainer,
+                    quantity >= product.quantity && styles.disabledButton
+                  ]}
+                  disabled={quantity >= product.quantity}
+                >
+                  <Text style={[
+                    styles.quantityButton,
+                    quantity >= product.quantity && styles.disabledButtonText
+                  ]}>+</Text>
+                </TouchableOpacity>
+              </View>
+              {quantity >= product.quantity && (
+                <Text style={styles.maxQuantityText}>(Maximum stock reached)</Text>
+              )}
             </View>
-            {quantity >= product.quantity && (
-              <Text style={styles.maxQuantityText}>(Maximum stock reached)</Text>
-            )}
-          </View>
 
-          <TouchableOpacity 
-            style={[
-              styles.addToCartButton,
-              quantity > product.quantity && styles.disabledButton
-            ]}
-            onPress={handleAddToCart}
-            disabled={quantity > product.quantity}
-          >
-            <Text style={styles.addToCartButtonText}>Add to Cart</Text>
-          </TouchableOpacity>
-        </Card.Content>
-      </Card>
+            <TouchableOpacity 
+              style={[
+                styles.addToCartButton,
+                quantity > product.quantity && styles.disabledButton
+              ]}
+              onPress={handleAddToCart}
+              disabled={quantity > product.quantity}
+            >
+              <Text style={styles.addToCartButtonText}>Add to Cart</Text>
+            </TouchableOpacity>
+
+            <View style={styles.descriptionContainer}>
+              <Text style={styles.descriptionTitle}>Description</Text>
+              <Text style={styles.productDescription}>{product.description}</Text>
+            </View>
+          </Card.Content>
+        </Card>
+      </ScrollView>
     </ImageBackground>
   );
 };
@@ -165,48 +171,88 @@ const DetailScreen = () => {
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
-    padding: 10 
+    backgroundColor: "transparent"
   },
-  card: { margin: 10, backgroundColor: "transparent" },
-  productImage: { height: 400, backgroundColor: "transparent" },
-  productName: { fontWeight: "bold", fontSize: 18, marginBottom: 5, color: "white" },
-  productBrand: { color: "white" },
-  productDescription: { color: "white" },
-  productPrice: { color: "white", fontSize: 16, marginBottom: 10 },
+  scrollView: {
+    flex: 1,
+  },
+  card: { 
+    margin: 10, 
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    overflow: "hidden"
+  },
+  productImage: {
+    marginTop:20, 
+    height: 300, // Reduced height
+    backgroundColor: "transparent",
+    borderRadius: 15
+  },
+  productName: { 
+    fontSize: 24,
+    marginBottom: 10,
+    color: "white",
+    fontFamily: 'Jersey 15',
+    textAlign: "center"
+  },
+  productBrand: { 
+    color: "white",
+    fontSize: 18,
+    marginBottom: 5,
+    fontFamily: 'Jersey 15',
+    textAlign: "center"
+  },
+  productPrice: { 
+    color: "yellow",
+    fontSize: 24,
+    marginBottom: 15,
+    fontFamily: 'Jersey 15',
+    textAlign: "center",
+    fontWeight: "bold"
+  },
   quantityContainer: {
     marginVertical: 15,
     alignItems: 'center',
   },
-  quantityText: { fontSize: 16, marginRight: 10, color: "white" },
+  quantityText: { 
+    fontSize: 18,
+    marginBottom: 10,
+    color: "white",
+    fontFamily: 'Jersey 15'
+  },
   quantityButtons: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'transparent',
-    borderRadius: 5,
+    borderRadius: 10,
     padding: 5,
     marginTop: 5,
   },
   quantityButtonContainer: {
-    padding: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 4,
+    padding: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 8,
     marginHorizontal: 10,
+    borderWidth: 1,
+    borderColor: 'white'
   },
   quantityButton: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
     color: 'white',
-    width: 20,
+    width: 24,
     textAlign: 'center',
+    fontFamily: 'Jersey 15'
   },
   quantityValue: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: 'bold',
-    marginHorizontal: 15,
+    marginHorizontal: 20,
     color: 'white',
+    fontFamily: 'Jersey 15'
   },
   disabledButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
     opacity: 0.5,
   },
   disabledButtonText: {
@@ -214,29 +260,84 @@ const styles = StyleSheet.create({
   },
   maxQuantityText: {
     color: '#ff6b6b',
-    fontSize: 12,
-    marginTop: 5,
+    fontSize: 14,
+    marginTop: 10,
+    fontFamily: 'Jersey 15'
   },
   stockInfo: {
-    color: '#666',
-    marginVertical: 5,
+    color: 'yellow',
+    marginVertical: 10,
+    fontSize: 16,
+    fontFamily: 'Jersey 15',
+    textAlign: "center"
   },
   addToCartButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: 'yellow',
     padding: 15,
-    borderRadius: 5,
-    marginTop: 10,
+    borderRadius: 10,
+    marginTop: 20,
+    borderWidth: 1,
+    borderColor: 'white'
   },
   addToCartButtonText: {
-    color: 'white',
+    color: 'black',
     textAlign: 'center',
+    fontSize: 18,
     fontWeight: 'bold',
+    fontFamily: 'Jersey 15'
   },
-  notFoundContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
-  notFoundText: { color: "white", fontSize: 24, marginBottom: 10 },
-  loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
-  errorContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
-  errorText: { color: "red", fontSize: 18, marginBottom: 10 },
+  descriptionContainer: {
+    marginTop: 20,
+    padding: 15,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'white'
+  },
+  descriptionTitle: {
+    color: 'yellow',
+    fontSize: 20,
+    marginBottom: 10,
+    fontFamily: 'Jersey 15',
+    textAlign: 'center'
+  },
+  productDescription: { 
+    color: "white",
+    fontSize: 16,
+    lineHeight: 24,
+    fontFamily: 'Jersey 15',
+    textAlign: "center"
+  },
+  notFoundContainer: { 
+    flex: 1, 
+    justifyContent: "center", 
+    alignItems: "center",
+    backgroundColor: "transparent"
+  },
+  notFoundText: { 
+    color: "white", 
+    fontSize: 24, 
+    marginBottom: 10,
+    fontFamily: 'Jersey 15'
+  },
+  loadingContainer: { 
+    flex: 1, 
+    justifyContent: "center", 
+    alignItems: "center",
+    backgroundColor: "transparent"
+  },
+  errorContainer: { 
+    flex: 1, 
+    justifyContent: "center", 
+    alignItems: "center",
+    backgroundColor: "transparent"
+  },
+  errorText: { 
+    color: "#ff6b6b", 
+    fontSize: 18, 
+    marginBottom: 10,
+    fontFamily: 'Jersey 15'
+  },
 });
 
 export default DetailScreen;
