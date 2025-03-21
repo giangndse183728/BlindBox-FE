@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,7 +9,10 @@ import {
   ActivityIndicator,
   ImageBackground,
 } from "react-native";
-import useCartStore from "./CartStore"; // Adjust the import path
+import { useNavigation } from "@react-navigation/native";
+import useCartStore from "./CartStore";
+import OrderInfoDialog from "./OrderInfoDialog";
+import { fetchUserData } from "../../service/userApi";
 
 const truncateString = (str, maxLength = 15) => {
   if (str.length <= maxLength) return str;
@@ -17,30 +20,52 @@ const truncateString = (str, maxLength = 15) => {
 };
 
 const CartScreen = () => {
+  const navigation = useNavigation();
   const { cart, fetchCartItems, isLoading, removeFromCart, clearCart, updateQuantity } =
     useCartStore();
 
+  const [orderInfo, setOrderInfo] = useState({
+    fullName: '',
+    phoneNumber: '',
+    address: '',
+  });
+
+  const [openOrderDialog, setOpenOrderDialog] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [checkoutError, setCheckoutError] = useState(null);
+
   useEffect(() => {
     fetchCartItems();
-    console.log('Cart structure:', cart);
+  }, []);
+
+  useEffect(() => {
+    const getUserProfile = async () => {
+      try {
+        const userData = await fetchUserData();
+        setOrderInfo({
+          fullName: userData.fullName || '',
+          phoneNumber: userData.phoneNumber || '',
+          address: userData.address || ''
+        });
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+        Alert.alert('Error', 'Failed to load user information');
+      }
+    };
+
+    getUserProfile();
   }, []);
 
   const handleRemove = (productId) => {
-    console.log('Cart items:', cart.items); // Debug log to see all items
-    console.log('Attempting to remove product with ID:', productId);
-    
     Alert.alert("Remove Item", "Are you sure you want to remove this item?", [
       { text: "Cancel" },
       { 
         text: "OK", 
         onPress: async () => {
           try {
-            // Remove the find logic and just pass the productId directly
-            console.log('Using ID to remove:', productId);
             await removeFromCart(productId);
             Alert.alert("Success", "Item removed from cart.");
           } catch (error) {
-            console.log('Error details:', error);
             Alert.alert("Error", error.message);
           }
         } 
@@ -49,7 +74,6 @@ const CartScreen = () => {
   };
 
   const handleUpdateQuantity = async (itemId, newQuantity, maxQuantity) => {
-    console.log('Cart item structure:', cart.items);
     if (newQuantity < 1) {
       Alert.alert("Invalid Quantity", "Quantity must be at least 1.");
       return;
@@ -62,7 +86,6 @@ const CartScreen = () => {
       await updateQuantity(itemId, newQuantity);
       await fetchCartItems();
     } catch (error) {
-      console.log('Error details:', error);
       Alert.alert("Error", "Failed to update quantity. Please try again.");
     }
   };
@@ -75,6 +98,23 @@ const CartScreen = () => {
         Alert.alert("Success", "Cart cleared.");
       }},
     ]);
+  };
+
+  const handleCheckout = async () => {
+    try {
+      setCheckoutLoading(true);
+      await clearCart();
+      setOpenOrderDialog(false);
+      navigation.navigate('Home');
+    } catch (error) {
+      console.error('Checkout error:', error);
+      Alert.alert(
+        "Error",
+        "Failed to complete checkout. Please try again."
+      );
+    } finally {
+      setCheckoutLoading(false);
+    }
   };
 
   if (isLoading) {
@@ -152,12 +192,25 @@ const CartScreen = () => {
               )}
             </Text>
 
-            <TouchableOpacity style={styles.checkoutButton}>
+            <TouchableOpacity 
+              style={styles.checkoutButton}
+              onPress={() => setOpenOrderDialog(true)}
+            >
               <Text style={styles.buttonText}>Place Order</Text>
             </TouchableOpacity>
           </View>
         </>
       )}
+
+      <OrderInfoDialog
+        visible={openOrderDialog}
+        onClose={() => setOpenOrderDialog(false)}
+        orderInfo={orderInfo}
+        cart={cart}
+        onSubmit={handleCheckout}
+        isLoading={checkoutLoading}
+        error={checkoutError}
+      />
     </ImageBackground>
   );
 };
@@ -241,11 +294,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   footer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
     marginTop: 20,
     padding: 15,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    borderRadius: 10,
-    marginHorizontal: 10
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 215, 0, 0.3)',
+    paddingBottom: 25
   },
   totalText: {
     fontSize: 18,
@@ -271,8 +329,16 @@ const styles = StyleSheet.create({
   checkoutButton: {
     marginTop: 10,
     padding: 15,
-    backgroundColor: "yellow",
+    backgroundColor: "#f8b400",
     borderRadius: 5,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   buttonText: {
     color: "black",
@@ -294,7 +360,7 @@ const styles = StyleSheet.create({
   },
   cartContainer: {
     flex: 1,
-    marginBottom: 10
+    marginBottom: 120
   },
 });
 

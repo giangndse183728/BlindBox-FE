@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, ImageBackground, ActivityIndicator, Image } from "react-native";
-import { Appbar, Card, Title, Provider as PaperProvider, Menu, Button } from "react-native-paper";
+import { Card, Title, Provider as PaperProvider, Menu } from "react-native-paper";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from "@react-navigation/native";
 import Filter from "./Filter";
@@ -120,28 +120,33 @@ const CollectionScreen = () => {
   return (
     <PaperProvider>
       <ImageBackground source={require('../../assets/background.jpeg')} style={styles.container}>
-        {/* Header + Nút Login hoặc Icon User */}
+        {/* Header + Login/Profile Button */}
         <View style={styles.headerContainer}>
-          <Text style={[styles.header, styles.yellowGlow]}>BlindB!ox</Text>
-
-          {isLoggedIn ? (
-            <TouchableOpacity 
-              onPress={() => navigation.navigate("Profile")}
-              style={styles.profileButton}
-            >
-              <Image 
-                source={require('../../assets/pfp.jpeg')} 
-                style={styles.profileImage}
-              />
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity 
-              onPress={() => navigation.navigate("Login", { setIsLoggedIn })} 
-              style={styles.loginButton}
-            >
-              <Text style={styles.loginButtonText}>Login</Text>
-            </TouchableOpacity>
-          )}
+          <View style={styles.titleContainer}>
+            <Text style={[styles.header, styles.yellowGlow]}>BlindB!ox</Text>
+          </View>
+          <View style={styles.buttonContainer}>
+            {isLoggedIn ? (
+              <TouchableOpacity 
+                onPress={() => navigation.navigate("Profile")}
+                style={styles.profileButton}
+                activeOpacity={0.7}
+              >
+                <Image 
+                  source={require('../../assets/pfp.jpeg')} 
+                  style={styles.profileImage}
+                />
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity 
+                onPress={() => navigation.navigate("Login", { setIsLoggedIn })} 
+                style={styles.loginButton}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.loginButtonText}>Login</Text>
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
 
         {/* Filter and Sort Row */}
@@ -213,12 +218,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
     paddingTop: 40,
+    paddingHorizontal: 15,
+    height: 100,
+  },
+  titleContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonContainer: {
+    width: 80,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'flex-end',
   },
   header: {
     fontSize: 32,
     color: "white",
     textAlign: "center",
-    flex: 1,
     fontFamily: 'Jersey 15',
   },
   yellowGlow: {
@@ -231,14 +248,30 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 8,
-    marginRight: 10,
     borderWidth: 1,
     borderColor: 'yellow',
+    minWidth: 80,
+    minHeight: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   loginButtonText: {
     color: "yellow",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  profileButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: 'yellow',
+  },
+  profileImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
   },
   productCard: {
     margin: 5,
@@ -291,19 +324,6 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.8)",
     justifyContent: "center",
     padding: 20,
-  },
-  profileButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: 'yellow',
-  },
-  profileImage: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
   },
   filterSortRow: {
     flexDirection: 'row',
