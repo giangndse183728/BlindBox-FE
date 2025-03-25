@@ -1,0 +1,4 @@
+{
+  "rootDirectory": "fe",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}
