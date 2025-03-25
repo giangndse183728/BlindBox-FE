@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Demo1",
-    "slug": "Demo1",
+    "name": "fe-mobile",
+    "slug": "fe-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

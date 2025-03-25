@@ -3,13 +3,16 @@ import { View, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Ionicons } from '@expo/vector-icons'; // Import thư viện icon
+import { Ionicons } from '@expo/vector-icons'; 
 import CollectionScreen from '../screen/CollectionScreen/CollectionScreen';
 import DetailScreen from '../screen/DetailScreen/DetailScreen';
 import CartScreen from '../screen/CartScreen/CartScreen';
+import OrderSuccess from '../screen/CartScreen/OrderSuccess';
 import LoginScreen from '../screen/LoginScreen/LoginScreen';
 import ProfileScreen from '../screen/ProfileScreen/ProfileScreen';
+import OrdersScreen from '../screen/OrdersScreen/OrdersScreen';
 import useCartStore from '../screen/CartScreen/CartStore';
+
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -40,30 +43,18 @@ const CollectionStackNavigator = () => {
   );
 };
 
-const CartStackNavigator = () => {
-  return (
-    <Stack.Navigator 
-      screenOptions={{ 
-        headerShown: true,
-        headerStyle: {
-          backgroundColor: 'transparent',
-          elevation: 0,
-          shadowOpacity: 0,
-        },
-        headerTransparent: true,
-        headerTintColor: 'yellow',
-        headerTitleStyle: {
-          fontWeight: 'bold',
-        },
-        headerTitle: '',
-      }}
-    >
-      <Stack.Screen name="Cart" component={CartScreen} />
-    </Stack.Navigator>
-  );
-};
+const CartStack = createNativeStackNavigator();
 
-export default function App() {
+function CartStackScreen() {
+  return (
+    <CartStack.Navigator screenOptions={{ headerShown: false }}>
+      <CartStack.Screen name="CartMain" component={CartScreen} />
+      <CartStack.Screen name="OrderSuccess" component={OrderSuccess} />
+    </CartStack.Navigator>
+  );
+}
+
+const Navigator = () => {
   const { cart } = useCartStore();
 
   return (
@@ -108,6 +99,8 @@ export default function App() {
                   </View>
                 );
               }
+            } else if (route.name === 'Orders') {
+              iconName = 'list-outline';
             }
 
             return <Ionicons name={iconName} size={size} color={color} />;
@@ -117,8 +110,10 @@ export default function App() {
         })}
       >
         <Tab.Screen name="Home" component={CollectionStackNavigator} />
-        <Tab.Screen name="ShoppingCart" component={CartStackNavigator} />
+        <Tab.Screen name="ShoppingCart" component={CartStackScreen} />
       </Tab.Navigator>
     </NavigationContainer>
   );
-}
+};
+
+export default Navigator;
