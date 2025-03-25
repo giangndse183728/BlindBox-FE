@@ -3,7 +3,6 @@ import { View, Text, TextInput, TouchableOpacity, Image, ActivityIndicator, Styl
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { logout, fetchUserData, updateUserData } from '../../service/userApi';
 import { useNavigation } from '@react-navigation/native';
-import { CommonActions } from '@react-navigation/native';
 import EditIcon from 'react-native-vector-icons/MaterialIcons';
 
 const ProfileScreen = () => {
@@ -63,9 +62,7 @@ const ProfileScreen = () => {
             await logout();
             await AsyncStorage.removeItem('accessToken');
             await AsyncStorage.removeItem('refreshToken');
-            navigation.dispatch(
-                CommonActions.reset({ index: 0, routes: [{ name: 'Collection' }] })
-            );
+            navigation.navigate('Collection');
         } catch (error) {
             console.error('Logout error:', error.message);
             Alert.alert('Error', 'Failed to logout');

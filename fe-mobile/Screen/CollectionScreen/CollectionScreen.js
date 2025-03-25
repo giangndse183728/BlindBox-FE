@@ -54,7 +54,7 @@ const CollectionScreen = () => {
 
   const applyFilters = (filters) => {
     const { priceRange, selectedBrand, selectedRating } = filters;
-    let filtered = [...products]; // Create a copy of products array
+    let filtered = [...products]; 
 
     // Apply price filter
     filtered = filtered.filter(
