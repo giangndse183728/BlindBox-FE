@@ -6,91 +6,213 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  TextInput,
+  Switch,
   ActivityIndicator
 } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const OrderInfoDialog = ({
   visible,
   onClose,
   orderInfo,
-  cart,
   onSubmit,
   isLoading,
-  error
+  error,
+  setOrderInfo
 }) => {
-  if (!cart || !cart.items) return null;
+  const handleGiftToggle = (value) => {
+    setOrderInfo(prev => ({
+      ...prev,
+      isGift: value
+    }));
+  };
 
-  const totalAmount = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
+  const handlePaymentMethodChange = (method) => {
+    setOrderInfo(prev => ({
+      ...prev,
+      paymentMethod: method
+    }));
+  };
+
+  const handleInputChange = (name, value) => {
+    if (name.startsWith('gift.')) {
+      const giftField = name.split('.')[1];
+      setOrderInfo(prev => ({
+        ...prev,
+        giftRecipient: {
+          ...prev.giftRecipient,
+          [giftField]: value
+        }
+      }));
+    } else {
+      setOrderInfo(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+  };
+
+  const isFormValid = () => {
+    if (orderInfo.isGift) {
+      return (
+        orderInfo.giftRecipient.fullName &&
+        orderInfo.giftRecipient.phoneNumber &&
+        orderInfo.giftRecipient.address
+      );
+    }
+    return (
+      orderInfo.fullName &&
+      orderInfo.phoneNumber &&
+      orderInfo.address
+    );
+  };
 
   return (
     <Modal
       visible={visible}
+      animationType="slide"
       transparent={true}
-      animationType="fade"
       onRequestClose={onClose}
     >
-      <View style={styles.modalOverlay}>
+      <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <Text style={styles.title}>Order Information</Text>
+          <View style={styles.header}>
+            <Text style={styles.title}>Order Information</Text>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+              <Icon name="close" size={24} color="white" />
+            </TouchableOpacity>
+          </View>
 
           <ScrollView style={styles.scrollView}>
-            {/* Your Information */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Your Information</Text>
-              <View style={styles.infoRow}>
-                <Text style={styles.label}>Name:</Text>
-                <Text style={styles.value}>{orderInfo.fullName}</Text>
-              </View>
-              <View style={styles.infoRow}>
-                <Text style={styles.label}>Phone:</Text>
-                <Text style={styles.value}>{orderInfo.phoneNumber}</Text>
-              </View>
-              <View style={styles.infoRow}>
-                <Text style={styles.label}>Address:</Text>
-                <Text style={styles.value}>{orderInfo.address}</Text>
+            <View style={styles.giftSection}>
+              <View style={styles.giftToggle}>
+                <Icon name="card-giftcard" size={24} color="#FFD700" />
+                <Text style={styles.giftText}>Send as Gift</Text>
+                <Switch
+                  value={orderInfo.isGift}
+                  onValueChange={handleGiftToggle}
+                  trackColor={{ false: '#767577', true: '#FFD700' }}
+                  thumbColor={orderInfo.isGift ? '#f5dd4b' : '#f4f3f4'}
+                />
               </View>
             </View>
 
-            {/* Order Summary */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Order Summary</Text>
-              {cart.items.map((item, index) => (
-                <View key={index} style={styles.itemRow}>
-                  <Text style={styles.itemName}>{item.product.name}</Text>
-                  <View style={styles.itemDetails}>
-                    <Text style={styles.itemQuantity}>x{item.cartQuantity}</Text>
-                    <Text style={styles.itemPrice}>${item.totalPrice}</Text>
-                  </View>
-                </View>
-              ))}
-              <View style={styles.totalRow}>
-                <Text style={styles.totalLabel}>Total Amount:</Text>
-                <Text style={styles.totalValue}>${totalAmount.toFixed(2)}</Text>
+            {!orderInfo.isGift ? (
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Your Information</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Full Name"
+                  placeholderTextColor="rgba(255,255,255,0.5)"
+                  value={orderInfo.fullName}
+                  onChangeText={(text) => handleInputChange('fullName', text)}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Phone Number"
+                  placeholderTextColor="rgba(255,255,255,0.5)"
+                  value={orderInfo.phoneNumber}
+                  onChangeText={(text) => handleInputChange('phoneNumber', text)}
+                  keyboardType="phone-pad"
+                />
+                <TextInput
+                  style={[styles.input, styles.addressInput]}
+                  placeholder="Shipping Address"
+                  placeholderTextColor="rgba(255,255,255,0.5)"
+                  value={orderInfo.address}
+                  onChangeText={(text) => handleInputChange('address', text)}
+                  multiline
+                />
               </View>
+            ) : (
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Gift Recipient Information</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Recipient's Full Name"
+                  placeholderTextColor="rgba(255,255,255,0.5)"
+                  value={orderInfo.giftRecipient.fullName}
+                  onChangeText={(text) => handleInputChange('gift.fullName', text)}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Recipient's Phone Number"
+                  placeholderTextColor="rgba(255,255,255,0.5)"
+                  value={orderInfo.giftRecipient.phoneNumber}
+                  onChangeText={(text) => handleInputChange('gift.phoneNumber', text)}
+                  keyboardType="phone-pad"
+                />
+                <TextInput
+                  style={[styles.input, styles.addressInput]}
+                  placeholder="Recipient's Shipping Address"
+                  placeholderTextColor="rgba(255,255,255,0.5)"
+                  value={orderInfo.giftRecipient.address}
+                  onChangeText={(text) => handleInputChange('gift.address', text)}
+                  multiline
+                />
+              </View>
+            )}
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Payment Method</Text>
+              <TouchableOpacity
+                style={[
+                  styles.paymentOption,
+                  orderInfo.paymentMethod === 0 && styles.selectedPayment
+                ]}
+                onPress={() => handlePaymentMethodChange(1)}
+              >
+                <Icon name="local-shipping" size={24} color={orderInfo.paymentMethod === 0 ? '#FFD700' : 'white'} />
+                <Text style={[styles.paymentText, orderInfo.paymentMethod === 1 && styles.selectedPaymentText]}>
+                  Cash on Delivery
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.paymentOption,
+                  orderInfo.paymentMethod === 1 && styles.selectedPayment
+                ]}
+                onPress={() => handlePaymentMethodChange(1)}
+              >
+                <Icon name="account-balance" size={24} color={orderInfo.paymentMethod === 1 ? '#FFD700' : 'white'} />
+                <Text style={[styles.paymentText, orderInfo.paymentMethod === 1 && styles.selectedPaymentText]}>
+                  Bank Transfer
+                </Text>
+              </TouchableOpacity>
             </View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Order Notes</Text>
+              <TextInput
+                style={[styles.input, styles.notesInput]}
+                placeholder="Add notes for your order (optional)"
+                placeholderTextColor="rgba(255,255,255,0.5)"
+                value={orderInfo.notes}
+                onChangeText={(text) => handleInputChange('notes', text)}
+                multiline
+              />
+            </View>
+
+            {error && (
+              <Text style={styles.errorText}>{error}</Text>
+            )}
           </ScrollView>
 
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity 
-              style={styles.cancelButton} 
-              onPress={onClose}
-              disabled={isLoading}
-            >
-              <Text style={styles.buttonText}>Cancel</Text>
+          <View style={styles.footer}>
+            <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
+              <Text style={styles.cancelButtonText}>Cancel</Text>
             </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={[
-                styles.confirmButton,
-                (!orderInfo.fullName || !orderInfo.phoneNumber || !orderInfo.address) && styles.disabledButton
-              ]} 
+            <TouchableOpacity
+              style={[styles.submitButton, !isFormValid() && styles.disabledButton]}
               onPress={onSubmit}
-              disabled={isLoading || !orderInfo.fullName || !orderInfo.phoneNumber || !orderInfo.address}
+              disabled={!isFormValid() || isLoading}
             >
               {isLoading ? (
                 <ActivityIndicator color="white" />
               ) : (
-                <Text style={styles.buttonText}>Confirm</Text>
+                <Text style={styles.submitButtonText}>Place Order</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -101,131 +223,136 @@ const OrderInfoDialog = ({
 };
 
 const styles = StyleSheet.create({
-  modalOverlay: {
+  modalContainer: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
   },
   modalContent: {
-    width: '90%',
-    maxHeight: '80%',
-    backgroundColor: 'rgba(0, 0, 0, 0.9)',
-    borderRadius: 10,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 215, 0, 0.3)',
+    backgroundColor: '#1a1a1a',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: '90%',
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFD700',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  scrollView: {
-    maxHeight: '70%',
-  },
-  section: {
-    marginBottom: 20,
-    padding: 15,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: 8,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFD700',
-    marginBottom: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 215, 0, 0.3)',
-    paddingBottom: 8,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    marginBottom: 8,
-  },
-  label: {
-    flex: 1,
-    color: 'rgba(255, 255, 255, 0.7)',
-  },
-  value: {
-    flex: 2,
-    color: 'white',
-  },
-  itemRow: {
+  header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
-    paddingVertical: 8,
+    padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+    borderBottomColor: 'rgba(255,215,0,0.3)',
   },
-  itemName: {
-    flex: 2,
+  title: {
+    color: '#FFD700',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  closeButton: {
+    padding: 5,
+  },
+  scrollView: {
+    maxHeight: '80%',
+  },
+  section: {
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.1)',
+  },
+  sectionTitle: {
+    color: '#FFD700',
+    fontSize: 16,
+    marginBottom: 10,
+    fontWeight: 'bold',
+  },
+  giftSection: {
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.1)',
+  },
+  giftToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,215,0,0.1)',
+    padding: 10,
+    borderRadius: 8,
+  },
+  giftText: {
+    color: 'white',
+    marginLeft: 10,
+    flex: 1,
+  },
+  input: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 10,
     color: 'white',
   },
-  itemDetails: {
-    flex: 1,
+  addressInput: {
+    height: 80,
+    textAlignVertical: 'top',
+  },
+  notesInput: {
+    height: 100,
+    textAlignVertical: 'top',
+  },
+  paymentOption: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    padding: 15,
+    borderRadius: 8,
+    marginBottom: 10,
   },
-  itemQuantity: {
-    color: 'rgba(255, 255, 255, 0.7)',
+  selectedPayment: {
+    backgroundColor: 'rgba(255,215,0,0.2)',
+    borderWidth: 1,
+    borderColor: '#FFD700',
   },
-  itemPrice: {
-    color: '#FFD700',
-  },
-  totalRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 15,
-    paddingTop: 15,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 215, 0, 0.3)',
-  },
-  totalLabel: {
-    fontSize: 16,
-    fontWeight: 'bold',
+  paymentText: {
     color: 'white',
-  },
-  totalValue: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#FFD700',
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
-  },
-  cancelButton: {
-    flex: 1,
-    backgroundColor: '#333',
-    padding: 15,
-    borderRadius: 8,
-    marginRight: 10,
-  },
-  confirmButton: {
-    flex: 1,
-    backgroundColor: '#f8b400',
-    padding: 15,
-    borderRadius: 8,
     marginLeft: 10,
   },
-  disabledButton: {
-    opacity: 0.5,
+  selectedPaymentText: {
+    color: '#FFD700',
   },
-  buttonText: {
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 15,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,215,0,0.3)',
+  },
+  cancelButton: {
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    flex: 1,
+    marginRight: 10,
+  },
+  cancelButtonText: {
     color: 'white',
     textAlign: 'center',
     fontWeight: 'bold',
   },
-  errorText: {
-    color: '#FF5252',
+  submitButton: {
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: '#4CAF50',
+    flex: 2,
+  },
+  submitButtonText: {
+    color: 'white',
     textAlign: 'center',
-    marginTop: 10,
+    fontWeight: 'bold',
+  },
+  disabledButton: {
+    backgroundColor: 'rgba(76,175,80,0.5)',
+  },
+  errorText: {
+    color: '#ff4444',
+    padding: 15,
+    textAlign: 'center',
   },
 });
 

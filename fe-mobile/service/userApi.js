@@ -19,25 +19,11 @@ export const login = async (email, password) => {
 
 export const logout = async () => {
     try {
-        const refreshToken = await AsyncStorage.getItem('refreshToken');
-        
-        if (!refreshToken) {
-            throw new Error('No refresh token found');
-        }
-
-        const response = await api.post('/accounts/logout', { refreshToken });
-
-        if (response.status === 200) { 
-            await AsyncStorage.removeItem('accessToken');
-            await AsyncStorage.removeItem('refreshToken');
-            return true;
-        } else {
-            console.error('Logout failed:', response.data);
-            throw new Error('Logout API did not return success');
-        }
-
+        // Simply clear all auth data without making an API call
+        await AsyncStorage.multiRemove(['accessToken', 'refreshToken', 'userData']);
+        return true;
     } catch (error) {
-        console.error('Error logging out:', error.response ? error.response.data : error.message);
+        console.error('Error clearing auth data:', error);
         throw new Error('Failed to logout');
     }
 };
