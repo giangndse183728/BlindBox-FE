@@ -37,7 +37,7 @@ const LoadingScreen = () => {
           fontFamily: 'Yusei Magic',
         }}
       >
-        Loading BlindBoxx...
+        Loading BlindBoxx...!
       </Typography>
     </Box>
   );
