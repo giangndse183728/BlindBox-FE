@@ -2,10 +2,10 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL: process.env.REACT_APP_API_URL || "http://localhost:5000", 
-  withCredentials: true,  // Important for sending/receiving cookies
+  withCredentials: true,  
 });
 
-// Request interceptor
+
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -30,18 +30,18 @@ api.interceptors.response.use(
           `${process.env.REACT_APP_API_URL}/accounts/refresh-token`,
           {},  
           { 
-            withCredentials: true,  // Important for sending cookies
+            withCredentials: true,  
           }
         );
 
-        // Only handle access token, refresh token is handled by backend via cookie
+
         if (response.data.result.accessToken) {
           localStorage.setItem('token', response.data.result.accessToken);
           originalRequest.headers['Authorization'] = `Bearer ${response.data.result.accessToken}`;
           return api(originalRequest);
         }
       } catch (refreshError) {
-        // If refresh fails, clear access token and redirect to login
+    
         localStorage.removeItem('token');
         window.location.href = '/login';
         return Promise.reject(refreshError);

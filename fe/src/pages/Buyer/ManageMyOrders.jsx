@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
     Box, Typography, Paper, Table, TableBody, TableCell, TableContainer,
     TableHead, TableRow, CircularProgress, Collapse, IconButton, Chip,
-    Tabs, Tab, Pagination, Divider, TextField, InputAdornment, FormControl, Select, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions
+    Tabs, Tab, Pagination, Divider, TextField, InputAdornment, FormControl, Select, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions, Grid
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
@@ -19,6 +19,7 @@ import GlassCard from '../../components/Decor/GlassCard';
 import ButtonCus from "../../components/Button/ButtonCus";
 import OrderStatusStepper from '../../components/Order/OrderStatusStepper';
 import { toast } from 'react-toastify';
+import OrderPdfExport from '../../components/Order/OrderPdfExport';
 
 const ORDER_STATUS = {
     0: { label: 'Pending', color: '#FF9800', bgColor: 'rgba(255, 152, 0, 0.2)', icon: <PendingIcon /> },
@@ -119,16 +120,16 @@ function OrderRow({ order, onOrderUpdate }) {
                                 Order ID: {order._id}
                             </Typography>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <Chip
-                                    label={ORDER_STATUS[order.status].label}
-                                    sx={{
-                                        bgcolor: ORDER_STATUS[order.status].bgColor,
-                                        color: ORDER_STATUS[order.status].color,
-                                        border: `1px solid ${ORDER_STATUS[order.status].color}`,
-                                        fontWeight: 'bold',
-                                    }}
-                                    icon={<Box sx={{ '& svg': { color: ORDER_STATUS[order.status].color, fontSize: '1rem', mr: -0.5 } }}>{ORDER_STATUS[order.status].icon}</Box>}
-                                />
+                            <Chip
+                                label={ORDER_STATUS[order.status].label}
+                                sx={{
+                                    bgcolor: ORDER_STATUS[order.status].bgColor,
+                                    color: ORDER_STATUS[order.status].color,
+                                    border: `1px solid ${ORDER_STATUS[order.status].color}`,
+                                    fontWeight: 'bold',
+                                }}
+                                icon={<Box sx={{ '& svg': { color: ORDER_STATUS[order.status].color, fontSize: '1rem', mr: -0.5 } }}>{ORDER_STATUS[order.status].icon}</Box>}
+                            />
 
                                 {/* Show cancellation reason in a secondary chip if applicable */}
                                 {order.status === 4 && cancellationReason && (
@@ -147,21 +148,115 @@ function OrderRow({ order, onOrderUpdate }) {
                             </Box>
                         </Box>
                         <Divider sx={{ backgroundColor: 'rgba(255, 255, 255, 0.2)', mb: 2 }} />
+                        <Box sx={{ mt: 2 }}>
+                            <Typography sx={{ color: '#FFD700', fontWeight: 'bold', mb: 2, borderBottom: '1px solid rgba(255, 255, 255, 0.2)', pb: 1 }}>
+                                Order Items ({order.items.length})
+                            </Typography>
+                            
+                            <Box sx={{ mb: 2 }}>
                         {order.items.map((item) => (
-                            <Box key={item._id} sx={{ display: 'flex', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)', borderRadius: 1, p: 3, mb: 2, border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                                <Box component="img" src={item.image} alt={item.productName} sx={{ width: 130, height: 130, objectFit: 'cover', borderRadius: 1, mr: 3 }} />
-                                <Box sx={{ flex: 1 }}>
-                                    <Typography sx={{ color: 'white', fontSize: '1.1rem', fontWeight: 'bold', mb: 1 }}>{item.productName}</Typography>
-                                    <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '1rem' }}>x{item.quantity}</Typography>
+                                    <Box 
+                                        key={item._id} 
+                                        sx={{ 
+                                            display: 'flex', 
+                                            alignItems: 'center',
+                                            backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+                                            borderRadius: 1, 
+                                            p: 2, 
+                                            mb: 1,
+                                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                                            '&:hover': {
+                                                borderColor: 'rgba(255, 215, 0, 0.3)',
+                                                backgroundColor: 'rgba(0, 0, 0, 0.6)'
+                                            }
+                                        }}
+                                    >
+                                        <Box 
+                                            component="img" 
+                                            src={item.image} 
+                                            alt={item.productName} 
+                                            sx={{ 
+                                                width: 60, 
+                                                height: 60, 
+                                                objectFit: 'cover', 
+                                                borderRadius: 1, 
+                                                mr: 2
+                                            }} 
+                                        />
+                                        <Box sx={{ 
+                                            flex: 1,
+                                            display: 'flex',
+                                            flexDirection: {xs: 'column', sm: 'row'},
+                                            alignItems: {xs: 'flex-start', sm: 'center'},
+                                            justifyContent: 'space-between'
+                                        }}>
+                                            <Box>
+                                                <Typography sx={{ 
+                                                    color: 'white', 
+                                                    fontWeight: 'bold',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    display: '-webkit-box',
+                                                    WebkitLineClamp: 1,
+                                                    WebkitBoxOrient: 'vertical',
+                                                }}>
+                                                    {item.productName}
+                                                </Typography>
+                                                <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.9rem' }}>
+                                                    ${parseFloat(item.price).toFixed(2)} 
+                                                </Typography>
+                                                  <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.9rem' }}>
+                                                     {formatDate(order.createdAt)}
+                                                </Typography>
+                                            </Box>
+                                            <Box sx={{ 
+                                                display: 'flex', 
+                                                alignItems: 'center',
+                                                mt: {xs: 1, sm: 0}
+                                            }}>
+                                                <Chip
+                                                    label={`x${item.quantity}`}
+                                                    size="small"
+                                                    sx={{
+                                                        mr: 2,
+                                                        bgcolor: 'rgba(0, 0, 0, 0.5)',
+                                                        color: 'white',
+                                                        border: '1px solid rgba(255, 255, 255, 0.3)',
+                                                        minWidth: '45px'
+                                                    }}
+                                                />
+                                                <Typography sx={{ color: '#FFD700', fontWeight: 'bold', minWidth: '80px', textAlign: 'right' }}>
+                                                    ${(parseFloat(item.price) * item.quantity).toFixed(2)}
+                                                </Typography>
+                                            </Box>
                                 </Box>
-                                <Typography sx={{ color: '#FFD700', fontWeight: 'bold', fontSize: '1rem' }}>${(parseFloat(item.price) * item.quantity).toFixed(2)}</Typography>
                             </Box>
                         ))}
-                        <Box sx={{ mt: 3, textAlign: 'right' }}>
-                            {order.discount && <Typography sx={{ color: '#F44336', fontSize: '1.1rem', mb: 1 }}>Combo Discount: -${parseFloat(order.discount).toFixed(2)}</Typography>}
-                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-                                <Typography sx={{ color: '#FFD700', fontWeight: 'bold', fontSize: '1.2rem', mr: 2 }}>Total: ${parseFloat(order.totalPrice).toFixed(2)}</Typography>
-                                <IconButton aria-label="expand row" size="medium" onClick={() => setOpen(!open)} sx={{ color: 'white' }}>
+                            </Box>
+                            
+                            {/* Summary row */}
+                            <Box sx={{ 
+                                mt: 2, 
+                                display: 'flex', 
+                                justifyContent: 'flex-end', 
+                                alignItems: 'center',
+                                borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                                pt: 2
+                            }}>
+                                {order.discount && (
+                                    <Typography sx={{ color: '#F44336', fontSize: '1rem', mr: 2 }}>
+                                        Discount: -${parseFloat(order.discount).toFixed(2)}
+                                    </Typography>
+                                )}
+                                <Typography sx={{ color: '#FFD700', fontWeight: 'bold', fontSize: '1.2rem' }}>
+                                    Total: ${parseFloat(order.totalPrice).toFixed(2)}
+                                </Typography>
+                                <IconButton 
+                                    aria-label="expand row" 
+                                    size="medium" 
+                                    onClick={() => setOpen(!open)} 
+                                    sx={{ ml: 2, color: 'white' }}
+                                >
                                     {open ? <KeyboardArrowUpIcon fontSize="large" /> : <KeyboardArrowDownIcon fontSize="large" />}
                                 </IconButton>
                             </Box>
@@ -174,26 +269,49 @@ function OrderRow({ order, onOrderUpdate }) {
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
                     <Collapse in={open} timeout="auto" unmountOnExit>
                         <Box sx={{ margin: 2 }}>
-                            <Table size="small">
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell width="60px" />
-                                        <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Total Price</TableCell>
-                                        <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Receiver</TableCell>
-                                        <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Order Date</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
-                                        <TableCell width="60px" />
-                                        <TableCell sx={{ color: 'white' }}>${parseFloat(order.totalPrice).toFixed(2)}</TableCell>
-                                        <TableCell sx={{ color: 'white' }}>{order.receiverInfo.fullName}</TableCell>
-                                        <TableCell sx={{ color: 'white' }}>{formatDate(order.createdAt)}</TableCell>
-                                    </TableRow>
-                                </TableBody>
-                            </Table>
+                        
                             <Typography variant="h6" sx={{ fontFamily: "'Jersey 15', sans-serif", color: '#FFD700', mt: 2, mb: 2 }}>Order Details</Typography>
                             <OrderStatusStepper status={order.status} />
+
+                       
+            
+                            <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'end', mb:3}}>
+                    {order.status === 3 && (
+                        <OrderPdfExport
+                            order={order}
+                            paymentMethod={order.paymentMethod === 0 ? 'cod' : 'banking'}
+                        />
+                    )}
+                    
+                    {order.status === 2 && (
+                        <ButtonCus
+                            variant="button-pixel-green"
+                            width="180px"
+                            height="40px"
+                            onClick={() => handleCompleteOrder(order._id)}
+                            disabled={loading}
+                        >
+                            <Typography variant="body1" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
+                                Confirm Completion
+                            </Typography>
+                        </ButtonCus>
+                    )}
+
+                    {order.status !== 4 && order.status !== 3 && (
+                        <ButtonCus
+                            variant="button-pixel-red"
+                            width="180px"
+                            height="40px"
+                            onClick={handleOpenCancelDialog}
+                            disabled={loading}
+                        >
+                            <Typography variant="body1" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
+                                Cancel Order
+                            </Typography>
+                        </ButtonCus>
+                    )}
+                    </Box>
+          
 
                             {/* Add cancellation reason detail section if applicable */}
                             {order.status === 4 && cancellationReason && (
@@ -236,41 +354,9 @@ function OrderRow({ order, onOrderUpdate }) {
                 </TableCell>
             </TableRow>
 
-            <TableRow>
-                <TableCell colSpan={6} sx={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)', py: 0.5 }} />
-            </TableRow>
 
-            {order.status === 2 && (
-                <TableRow>
-                    <TableCell colSpan={6} sx={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)', py: 0.5 }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', py: 1 }}>
-                            <ButtonCus variant="button-pixel-green" width="180px" height="40px" onClick={() => handleCompleteOrder(order._id)} disabled={loading}>
-                                <Typography variant="body1" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>Confirm Completion</Typography>
-                            </ButtonCus>
-                        </Box>
-                    </TableCell>
-                </TableRow>
-            )}
 
-            {order.status !== 4 && order.status !== 3 && (
-                <TableRow>
-                    <TableCell colSpan={6} sx={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)', py: 0.5 }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', py: 1 }}>
-                            <ButtonCus
-                                variant="button-pixel-red"
-                                width="180px"
-                                height="40px"
-                                onClick={handleOpenCancelDialog}
-                                disabled={loading}
-                            >
-                                <Typography variant="body1" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
-                                    Cancel Order
-                                </Typography>
-                            </ButtonCus>
-                        </Box>
-                    </TableCell>
-                </TableRow>
-            )}
+           
 
             {/* Cancel Order Dialog */}
             <Dialog
