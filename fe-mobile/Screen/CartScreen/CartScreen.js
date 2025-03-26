@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -8,8 +8,16 @@ import {
   Alert,
   ActivityIndicator,
   ImageBackground,
+  Image,
+  TextInput,
+  ScrollView
 } from "react-native";
-import useCartStore from "./CartStore"; // Adjust the import path
+import { useNavigation } from "@react-navigation/native";
+import useCartStore from "./CartStore";
+import OrderInfoDialog from "./OrderInfoDialog";
+import { fetchUserData } from "../../service/userApi";
+import { createOrder } from '../../service/ordersApi';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const truncateString = (str, maxLength = 15) => {
   if (str.length <= maxLength) return str;
@@ -17,30 +25,62 @@ const truncateString = (str, maxLength = 15) => {
 };
 
 const CartScreen = () => {
+  const navigation = useNavigation();
   const { cart, fetchCartItems, isLoading, removeFromCart, clearCart, updateQuantity } =
     useCartStore();
 
+  const [orderInfo, setOrderInfo] = useState({
+    fullName: '',
+    phoneNumber: '',
+    address: '',
+    paymentMethod: 1, // 0 for COD, 1 for Banking
+    isGift: false,
+    notes: '',
+    giftRecipient: {
+      fullName: '',
+      phoneNumber: '',
+      address: ''
+    }
+  });
+
+  const [openOrderDialog, setOpenOrderDialog] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [checkoutError, setCheckoutError] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(false);
+
   useEffect(() => {
     fetchCartItems();
-    console.log('Cart structure:', cart);
+    loadUserProfile();
   }, []);
 
+  const loadUserProfile = async () => {
+    try {
+      setProfileLoading(true);
+      const userData = await fetchUserData();
+      setOrderInfo(prev => ({
+        ...prev,
+        fullName: userData.fullName || '',
+        phoneNumber: userData.phoneNumber || '',
+        address: userData.address || ''
+      }));
+    } catch (error) {
+      console.error('Error loading profile:', error);
+      Alert.alert('Error', 'Failed to load user profile');
+    } finally {
+      setProfileLoading(false);
+    }
+  };
+
   const handleRemove = (productId) => {
-    console.log('Cart items:', cart.items); // Debug log to see all items
-    console.log('Attempting to remove product with ID:', productId);
-    
     Alert.alert("Remove Item", "Are you sure you want to remove this item?", [
       { text: "Cancel" },
       { 
         text: "OK", 
         onPress: async () => {
           try {
-            // Remove the find logic and just pass the productId directly
-            console.log('Using ID to remove:', productId);
             await removeFromCart(productId);
             Alert.alert("Success", "Item removed from cart.");
           } catch (error) {
-            console.log('Error details:', error);
             Alert.alert("Error", error.message);
           }
         } 
@@ -49,7 +89,6 @@ const CartScreen = () => {
   };
 
   const handleUpdateQuantity = async (itemId, newQuantity, maxQuantity) => {
-    console.log('Cart item structure:', cart.items);
     if (newQuantity < 1) {
       Alert.alert("Invalid Quantity", "Quantity must be at least 1.");
       return;
@@ -62,7 +101,6 @@ const CartScreen = () => {
       await updateQuantity(itemId, newQuantity);
       await fetchCartItems();
     } catch (error) {
-      console.log('Error details:', error);
       Alert.alert("Error", "Failed to update quantity. Please try again.");
     }
   };
@@ -77,7 +115,83 @@ const CartScreen = () => {
     ]);
   };
 
-  if (isLoading) {
+  const handleCheckout = async () => {
+    try {
+      setCheckoutLoading(true);
+
+      // Validate required fields
+      const recipientInfo = orderInfo.isGift ? orderInfo.giftRecipient : orderInfo;
+      if (!recipientInfo.fullName || !recipientInfo.phoneNumber || !recipientInfo.address) {
+        throw new Error('Please fill in all required shipping information');
+      }
+
+      // Check if cart exists and has items
+      if (!cart?.items || cart.items.length === 0) {
+        throw new Error('Your cart is empty');
+      }
+
+      // Format items for the order - using the correct item ID format
+      const items = cart.items.map(item => ({
+        itemId: item._id,
+        quantity: item.cartQuantity
+      }));
+
+      console.log('Cart items being sent:', items); // Debug log
+
+      // Create order data
+      const orderData = {
+        receiverInfo: {
+          fullName: recipientInfo.fullName,
+          phoneNumber: recipientInfo.phoneNumber,
+          address: recipientInfo.address
+        },
+        orderType: 1,
+        promotionId: "",
+        notes: orderInfo.notes || (orderInfo.isGift ? "This is a gift order" : ""),
+        paymentMethod: orderInfo.paymentMethod === 'cod' ? 0 : 1,
+        items: items
+      };
+
+      console.log('Sending order data:', orderData); // Debug log
+
+      const response = await createOrder(orderData);
+      
+      // Clear cart after successful order
+      await clearCart();
+
+      // Navigate to success screen
+      navigation.navigate('OrderSuccess', {
+        orderData: response.result,
+        paymentMethod: orderInfo.paymentMethod
+      });
+
+    } catch (error) {
+      console.error('Checkout error:', error);
+      Alert.alert(
+        "Error",
+        error.message || "Failed to complete checkout. Please try again."
+      );
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
+
+  const handleQuantityChange = (productId, newQuantity) => {
+    if (newQuantity > 0) {
+      handleUpdateQuantity(productId, newQuantity, cart.items.find((item) => item.product._id === productId).product.quantity);
+    }
+  };
+
+  const calculateTotal = () => {
+    if (!cart || !cart.items || !Array.isArray(cart.items)) {
+      return 0;
+    }
+    return cart.items.reduce((total, item) => {
+      return total + (item.product.price * item.cartQuantity);
+    }, 0);
+  };
+
+  if (isLoading || profileLoading) {
     return (
       <ImageBackground source={require('../../assets/background.jpeg')} style={styles.container}>
         <View style={styles.loadingContainer}>
@@ -87,76 +201,98 @@ const CartScreen = () => {
     );
   }
 
+  if (!cart || !cart.items) {
+    return (
+      <ImageBackground source={require('../../assets/background.jpeg')} style={styles.container}>
+        <Text style={styles.title}>Your Cart</Text>
+        <Text style={styles.emptyCartText}>Your cart is empty!</Text>
+      </ImageBackground>
+    );
+  }
+
   return (
     <ImageBackground source={require('../../assets/background.jpeg')} style={styles.container}>
       <Text style={styles.title}>Your Cart</Text>
 
-      {cart === null || cart.items.length === 0 ? (
+      {cart.items.length === 0 ? (
         <Text style={styles.emptyCartText}>Your cart is empty!</Text>
       ) : (
         <>
-          <FlatList
-            data={cart.items}
-            keyExtractor={(item) => item.product._id.toString()}
-            renderItem={({ item }) => (
-              <View style={styles.cartItem}>
-                <Text style={styles.productName}>
-                  {truncateString(item.product?.name || "Unnamed Product")}
-                </Text>
-                <View style={styles.quantityButtons}>
+          <View style={styles.cartContainer}>
+            <FlatList
+              data={cart.items}
+              keyExtractor={(item) => item.product._id.toString()}
+              renderItem={({ item }) => (
+                <View style={styles.cartItem}>
+                  <Image 
+                    source={{ uri: item.product?.image || 'https://via.placeholder.com/80' }} 
+                    style={styles.itemImage}
+                  />
+                  <View style={styles.itemDetails}>
+                    <Text style={styles.productName}>
+                      {truncateString(item.product?.name || "Unnamed Product")}
+                    </Text>
+                    <Text style={styles.itemPrice}>${parseFloat(item.product.price).toFixed(2)}</Text>
+                    
+                    <View style={styles.quantityContainer}>
+                      <TouchableOpacity 
+                        style={styles.quantityButton}
+                        onPress={() => handleQuantityChange(item.product._id, item.cartQuantity - 1)}
+                        disabled={item.cartQuantity <= 1}
+                      >
+                        <Text style={styles.quantityButtonText}>-</Text>
+                      </TouchableOpacity>
+                      
+                      <Text style={styles.quantityText}>{item.cartQuantity}</Text>
+                      
+                      <TouchableOpacity 
+                        style={styles.quantityButton}
+                        onPress={() => handleQuantityChange(item.product._id, item.cartQuantity + 1)}
+                        disabled={item.cartQuantity >= item.product.quantity}
+                      >
+                        <Text style={styles.quantityButtonText}>+</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+
                   <TouchableOpacity 
-                    onPress={() => handleUpdateQuantity(item.product._id, item.cartQuantity - 1, item.product.quantity)}
-                    style={styles.quantityButtonContainer}
+                    onPress={() => handleRemove(item.product._id)}
+                    style={styles.removeButton}
                   >
-                    <Text style={styles.quantityButton}>-</Text>
-                  </TouchableOpacity>
-                  <Text style={styles.quantityText}>
-                    {item.cartQuantity}
-                    {item.cartQuantity >= item.product.quantity && ' (Max)'}
-                  </Text>
-                  <TouchableOpacity 
-                    onPress={() => handleUpdateQuantity(item.product._id, item.cartQuantity + 1, item.product.quantity)}
-                    style={[
-                      styles.quantityButtonContainer,
-                      item.cartQuantity >= item.product.quantity && styles.disabledButton
-                    ]}
-                    disabled={item.cartQuantity >= item.product.quantity}
-                  >
-                    <Text style={[
-                      styles.quantityButton,
-                      item.cartQuantity >= item.product.quantity && styles.disabledButtonText
-                    ]}>+</Text>
+                    <Text style={styles.removeText}>Remove</Text>
                   </TouchableOpacity>
                 </View>
-
-                <TouchableOpacity 
-                  onPress={() => handleRemove(item.product._id)}
-                  style={styles.removeButton}
-                >
-                  <Text style={styles.removeText}>Remove</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          />
+              )}
+            />
+            <TouchableOpacity onPress={handleClearCart} style={styles.clearButton}>
+              <Text style={styles.clearButtonText}>Clear Cart</Text>
+            </TouchableOpacity>
+          </View>
 
           <View style={styles.footer}>
             <Text style={styles.totalText}>
-              Total Items: {cart.totalItems} | Total Price: ${cart.items.reduce(
-                (sum, item) => sum + item.totalPrice,
-                0
-              )}
+              Total Items: {cart.items.length} | Total Price: ${calculateTotal().toFixed(2)}
             </Text>
 
-            <TouchableOpacity onPress={handleClearCart} style={styles.clearButton}>
-              <Text style={styles.buttonText}>Clear Cart</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.checkoutButton}>
-              <Text style={styles.buttonText}>Check Out</Text>
+            <TouchableOpacity 
+              style={styles.checkoutButton}
+              onPress={() => setOpenOrderDialog(true)}
+            >
+              <Text style={styles.buttonText}>Place Order</Text>
             </TouchableOpacity>
           </View>
         </>
       )}
+
+      <OrderInfoDialog
+        visible={openOrderDialog}
+        onClose={() => setOpenOrderDialog(false)}
+        orderInfo={orderInfo}
+        cart={cart}
+        onSubmit={handleCheckout}
+        isLoading={checkoutLoading}
+        error={checkoutError}
+      />
     </ImageBackground>
   );
 };
@@ -171,7 +307,10 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 16,
     color: 'white',
-    textAlign: 'center'
+    textAlign: 'center',
+    textShadowColor: 'yellow',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
   },
   emptyCartText: {
     fontSize: 16,
@@ -190,6 +329,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)'
   },
+  itemImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+  },
+  itemDetails: {
+    flex: 1,
+    marginLeft: 12,
+  },
   productName: {
     flex: 1,
     fontSize: 14,
@@ -197,24 +345,24 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold'
   },
-  priceText: {
+  itemPrice: {
     color: 'white',
     fontSize: 14,
   },
-  quantityButtons: {
+  quantityContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'transparent',
     borderRadius: 5,
     padding: 5,
   },
-  quantityButtonContainer: {
+  quantityButton: {
     padding: 8,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     borderRadius: 4,
     marginHorizontal: 10,
   },
-  quantityButton: {
+  quantityButtonText: {
     fontSize: 18,
     fontWeight: 'bold',
     color: 'white',
@@ -237,10 +385,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   footer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
     marginTop: 20,
     padding: 15,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    borderRadius: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 215, 0, 0.3)',
+    paddingBottom: 25
   },
   totalText: {
     fontSize: 18,
@@ -250,19 +404,35 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   },
   clearButton: {
-    marginTop: 10,
-    padding: 15,
+    padding: 8,
     backgroundColor: "rgba(255, 0, 0, 0.7)",
-    borderRadius: 5,
+    marginHorizontal: 10,
+    marginVertical: 10,
+    alignSelf: 'center',
+    width: 80
+  },
+  clearButtonText: {
+    color: "white",
+    textAlign: "center",
+    fontWeight: 'bold',
+    fontSize: 12
   },
   checkoutButton: {
     marginTop: 10,
     padding: 15,
-    backgroundColor: "rgba(0, 255, 0, 0.5)",
+    backgroundColor: "#f8b400",
     borderRadius: 5,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   buttonText: {
-    color: "white",
+    color: "black",
     textAlign: "center",
     fontWeight: 'bold',
     fontSize: 16
@@ -272,12 +442,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center"
   },
-  disabledButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    opacity: 0.5,
-  },
-  disabledButtonText: {
-    color: 'rgba(255, 255, 255, 0.5)',
+  cartContainer: {
+    flex: 1,
+    marginBottom: 120
   },
 });
 

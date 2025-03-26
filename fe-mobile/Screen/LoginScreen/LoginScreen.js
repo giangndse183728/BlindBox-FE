@@ -8,8 +8,6 @@ const LoginScreen = ({ navigation, route }) => {
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const setIsLoggedIn = route.params?.setIsLoggedIn || (() => { });
-
     const handleLogin = async () => {
         try {
             setLoading(true);
@@ -17,7 +15,9 @@ const LoginScreen = ({ navigation, route }) => {
 
             if (tokens) {
                 await AsyncStorage.setItem("accessToken", tokens.accessToken);
-                setIsLoggedIn(true);
+                if (route.params?.onLoginSuccess) {
+                    route.params.onLoginSuccess();
+                }
                 navigation.replace("Collection");
             }
         } catch (error) {
