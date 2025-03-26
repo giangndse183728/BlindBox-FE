@@ -30,9 +30,9 @@ export const getSellerOrders = async () => {
   }
 };
 
-export const updateOrderStatus = async (orderId, status) => {
+export const updateOrderStatus = async (orderId, status, reason) => {
   try {
-    const response = await api.patch(`/orders/seller/${orderId}/${status}`);
+    const response = await api.patch(`/orders/seller/${orderId}/${status}`, reason);
     return response.data;
   } catch (error) {
     console.error('Error updating order status:', error);
@@ -50,16 +50,12 @@ export const completeOrderStatus = async (orderId) => {
   }
 };
 
-export const cancelOrder = async (orderId) => {
+export const cancelOrder = async (orderId, reason) => {
   try {
-    const response = await api.patch(`/orders/${orderId}/cancel`);
+    const response = await api.patch(`/orders/${orderId}/cancel`, reason);
     return response.data;
   } catch (error) {
-    console.error('Error cancelling order:', error);
     throw error.response?.data || new Error('Failed to cancel order');
+
   }
 };
-
-
-
-

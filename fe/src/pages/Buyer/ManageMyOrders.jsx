@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
     Box, Typography, Paper, Table, TableBody, TableCell, TableContainer,
     TableHead, TableRow, CircularProgress, Collapse, IconButton, Chip,
-    Tabs, Tab, Pagination, Divider, TextField, InputAdornment, FormControl, Select, MenuItem
+    Tabs, Tab, Pagination, Divider, TextField, InputAdornment, FormControl, Select, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
@@ -18,6 +18,7 @@ import { getMyOrders, completeOrderStatus, cancelOrder } from '../../services/or
 import GlassCard from '../../components/Decor/GlassCard';
 import ButtonCus from "../../components/Button/ButtonCus";
 import OrderStatusStepper from '../../components/Order/OrderStatusStepper';
+import { toast } from 'react-toastify';
 
 const ORDER_STATUS = {
     0: { label: 'Pending', color: '#FF9800', bgColor: 'rgba(255, 152, 0, 0.2)', icon: <PendingIcon /> },
@@ -32,6 +33,31 @@ const ITEMS_PER_PAGE = 5;
 function OrderRow({ order, onOrderUpdate }) {
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [showCancelDialog, setShowCancelDialog] = useState(false);
+    const [cancelReason, setCancelReason] = useState('');
+
+    // Pre-defined cancellation reasons
+    const cancelReasons = [
+        "Changed my mind",
+        "Found a better deal elsewhere",
+        "Ordered by mistake",
+        "Shipping will take too long",
+        "Financial reasons",
+        "Issues with payment method",
+        "Other"
+    ];
+
+    // Get the cancellation reason from status history if available
+    const getCancellationReason = () => {
+        if (order.status === 4 && order.statusHistory && order.statusHistory.length > 0) {
+            // Find the most recent status 4 entry in the history
+            const cancelEntry = order.statusHistory.find(entry => entry.status === 4);
+            return cancelEntry ? cancelEntry.reason : 'No reason provided';
+        }
+        return null;
+    };
+
+    const cancellationReason = getCancellationReason();
 
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('en-US', {
@@ -55,13 +81,29 @@ function OrderRow({ order, onOrderUpdate }) {
         }
     };
 
+    const handleOpenCancelDialog = () => {
+        setShowCancelDialog(true);
+    };
+
+    const handleCloseCancelDialog = () => {
+        setShowCancelDialog(false);
+        setCancelReason('');
+    };
+
     const handleCancelOrder = async (orderId) => {
         try {
+            if (!cancelReason) {
+                toast.error("Please select a reason for cancellation");
+                return;
+            }
+
             setLoading(true);
-            await cancelOrder(orderId);
+            await cancelOrder(orderId, { reason: cancelReason });
+            handleCloseCancelDialog();
             onOrderUpdate();
         } catch (error) {
             console.error('Error cancelling order:', error);
+            toast.error(error.message || "Failed to cancel order");
         } finally {
             setLoading(false);
         }
@@ -76,16 +118,33 @@ function OrderRow({ order, onOrderUpdate }) {
                             <Typography sx={{ color: 'white', fontSize: '1rem', fontWeight: 'bold' }}>
                                 Order ID: {order._id}
                             </Typography>
-                            <Chip
-                                label={ORDER_STATUS[order.status].label}
-                                sx={{
-                                    bgcolor: ORDER_STATUS[order.status].bgColor,
-                                    color: ORDER_STATUS[order.status].color,
-                                    border: `1px solid ${ORDER_STATUS[order.status].color}`,
-                                    fontWeight: 'bold',
-                                }}
-                                icon={<Box sx={{ '& svg': { color: ORDER_STATUS[order.status].color, fontSize: '1rem', mr: -0.5 } }}>{ORDER_STATUS[order.status].icon}</Box>}
-                            />
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Chip
+                                    label={ORDER_STATUS[order.status].label}
+                                    sx={{
+                                        bgcolor: ORDER_STATUS[order.status].bgColor,
+                                        color: ORDER_STATUS[order.status].color,
+                                        border: `1px solid ${ORDER_STATUS[order.status].color}`,
+                                        fontWeight: 'bold',
+                                    }}
+                                    icon={<Box sx={{ '& svg': { color: ORDER_STATUS[order.status].color, fontSize: '1rem', mr: -0.5 } }}>{ORDER_STATUS[order.status].icon}</Box>}
+                                />
+
+                                {/* Show cancellation reason in a secondary chip if applicable */}
+                                {order.status === 4 && cancellationReason && (
+                                    <Chip
+                                        label={cancellationReason}
+                                        size="small"
+                                        sx={{
+                                            bgcolor: 'rgba(244, 67, 54, 0.1)',
+                                            color: 'rgba(255, 255, 255, 0.8)',
+                                            border: '1px solid rgba(244, 67, 54, 0.3)',
+                                            fontStyle: 'italic',
+                                            ml: 1
+                                        }}
+                                    />
+                                )}
+                            </Box>
                         </Box>
                         <Divider sx={{ backgroundColor: 'rgba(255, 255, 255, 0.2)', mb: 2 }} />
                         {order.items.map((item) => (
@@ -135,6 +194,30 @@ function OrderRow({ order, onOrderUpdate }) {
                             </Table>
                             <Typography variant="h6" sx={{ fontFamily: "'Jersey 15', sans-serif", color: '#FFD700', mt: 2, mb: 2 }}>Order Details</Typography>
                             <OrderStatusStepper status={order.status} />
+
+                            {/* Add cancellation reason detail section if applicable */}
+                            {order.status === 4 && cancellationReason && (
+                                <Box sx={{
+                                    p: 2,
+                                    backgroundColor: 'rgba(244, 67, 54, 0.1)',
+                                    borderRadius: 1,
+                                    mb: 3,
+                                    border: '1px solid rgba(244, 67, 54, 0.3)'
+                                }}>
+                                    <Typography sx={{ color: '#F44336', fontWeight: 'bold', mb: 1, display: 'flex', alignItems: 'center' }}>
+                                        <CancelIcon sx={{ mr: 1 }} /> Cancellation Reason
+                                    </Typography>
+                                    <Typography sx={{ color: 'white', ml: 2 }}>
+                                        {cancellationReason}
+                                    </Typography>
+                                    {order.statusHistory && order.statusHistory.find(entry => entry.status === 4)?.timestamp && (
+                                        <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)', ml: 2, mt: 1, fontSize: '0.9rem', fontStyle: 'italic' }}>
+                                            Cancelled on: {formatDate(order.statusHistory.find(entry => entry.status === 4).timestamp)}
+                                        </Typography>
+                                    )}
+                                </Box>
+                            )}
+
                             <Box sx={{ p: 2, backgroundColor: 'rgba(0, 0, 0, 0.3)', borderRadius: 1, mb: 3 }}>
                                 <Typography sx={{ color: '#FFD700', fontWeight: 'bold', mb: 1 }}>Shipping Information</Typography>
                                 <Box sx={{ ml: 2 }}>
@@ -173,13 +256,132 @@ function OrderRow({ order, onOrderUpdate }) {
                 <TableRow>
                     <TableCell colSpan={6} sx={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)', py: 0.5 }}>
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', py: 1 }}>
-                            <ButtonCus variant="button-pixel-red" width="180px" height="40px" onClick={() => handleCancelOrder(order._id)} disabled={loading}>
-                                <Typography variant="body1" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>Cancel Order</Typography>
+                            <ButtonCus
+                                variant="button-pixel-red"
+                                width="180px"
+                                height="40px"
+                                onClick={handleOpenCancelDialog}
+                                disabled={loading}
+                            >
+                                <Typography variant="body1" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
+                                    Cancel Order
+                                </Typography>
                             </ButtonCus>
                         </Box>
                     </TableCell>
                 </TableRow>
             )}
+
+            {/* Cancel Order Dialog */}
+            <Dialog
+                open={showCancelDialog}
+                onClose={handleCloseCancelDialog}
+                PaperProps={{
+                    sx: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid rgba(255, 215, 0, 0.3)',
+                        borderRadius: 2,
+                        maxWidth: '500px',
+                        width: '100%'
+                    }
+                }}
+            >
+                <DialogTitle sx={{
+                    color: '#FFD700',
+                    fontFamily: "'Jersey 15', sans-serif",
+                    borderBottom: '1px solid rgba(255, 215, 0, 0.3)',
+                    pb: 2
+                }}>
+                    Cancel Order
+                </DialogTitle>
+                <DialogContent sx={{ py: 3 }}>
+                    <Typography sx={{ color: 'white', mb: 2 }}>
+                        Please select a reason for cancellation:
+                    </Typography>
+
+                    <FormControl fullWidth>
+                        <Select
+                            value={cancelReason}
+                            onChange={(e) => setCancelReason(e.target.value)}
+                            displayEmpty
+                            inputProps={{ 'aria-label': 'Cancel reason' }}
+                            sx={{
+                                color: 'white',
+                                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                '& .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: 'rgba(255, 255, 255, 0.3)'
+                                },
+                                '&:hover .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: 'rgba(255, 255, 255, 0.5)'
+                                },
+                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: '#FFD700'
+                                }
+                            }}
+                            MenuProps={{
+                                PaperProps: {
+                                    sx: {
+                                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                                        backdropFilter: 'blur(10px)',
+                                        border: '1px solid rgba(255, 215, 0, 0.3)',
+                                    }
+                                }
+                            }}
+                        >
+                            <MenuItem disabled value="">
+                                <em>Select a reason</em>
+                            </MenuItem>
+                            {cancelReasons.map((reason) => (
+                                <MenuItem
+                                    key={reason}
+                                    value={reason}
+                                    sx={{
+                                        color: 'white',
+                                        '&:hover': { backgroundColor: 'rgba(255, 215, 0, 0.1)' },
+                                        '&.Mui-selected': {
+                                            backgroundColor: 'rgba(255, 215, 0, 0.2)',
+                                            '&:hover': { backgroundColor: 'rgba(255, 215, 0, 0.3)' }
+                                        }
+                                    }}
+                                >
+                                    {reason}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                </DialogContent>
+                <DialogActions sx={{ p: 2, borderTop: '1px solid rgba(255, 215, 0, 0.3)' }}>
+                    <ButtonCus
+                        variant="button-pixel"
+                        width="120px"
+                        height="40px"
+                        onClick={handleCloseCancelDialog}
+                        disabled={loading}
+                    >
+                        <Typography variant="body1" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
+                            Back
+                        </Typography>
+                    </ButtonCus>
+                    <ButtonCus
+                        variant="button-pixel-red"
+                        width="160px"
+                        height="40px"
+                        onClick={() => handleCancelOrder(order._id)}
+                        disabled={loading || !cancelReason}
+                    >
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {loading ? (
+                                <CircularProgress size={20} sx={{ color: 'white' }} />
+                            ) : (
+                                <Typography variant="body1" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
+                                    Confirm Cancel
+                                </Typography>
+                            )}
+                        </Box>
+                    </ButtonCus>
+                </DialogActions>
+            </Dialog>
 
             {loading && (
                 <TableRow>
