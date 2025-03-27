@@ -109,7 +109,7 @@ export const routes = createBrowserRouter([
         element: <ManageOrders />
       },
       {
-        path: 'promotions',
+        path: 'discounts',
         element: <ManagePromotions />
       },
     ],
