@@ -10,13 +10,15 @@ export const getAdminAccounts = async () => {
     }
 };
 
-export const updateAdminAccount = async (accountId, accountData) => {
+export const updateAccountStatus = async (accountId, verifyStatus) => {
     try {
-        const response = await api.put(`/admins/accounts/${accountId}`, accountData);
+        const response = await api.put(`/admins/accounts/${accountId}`, {
+            verifyStatus: verifyStatus
+        });
         return response.data;
     } catch (error) {
-        console.error('Error updating admin account:', error);
-        throw error.response?.data || new Error('Failed to update admin account');
+        console.error('Error updating account status:', error);
+        throw error.response?.data || new Error('Failed to update account status');
     }
 };
 

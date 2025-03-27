@@ -6,6 +6,8 @@ import {
   Chip, Grid, Pagination, Stack, Button, Dialog, DialogActions,
   DialogContent, DialogContentText, DialogTitle, Menu
 } from '@mui/material';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -15,7 +17,7 @@ import PendingIcon from '@mui/icons-material/Pending';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { getAdminAccounts, updateAdminAccount } from '../../../../services/adminApi';
+import { getAdminAccounts, updateAccountStatus } from '../../../../services/adminApi';
 
 // Configuration for user roles and verification status
 const USER_ROLES = {
@@ -27,7 +29,8 @@ const USER_ROLES = {
 const VERIFY_STATUS = {
   0: { label: 'Unverified', color: '#FF8900', bgColor: 'rgba(255, 152, 0, 0.2)', icon: <PendingIcon /> },
   1: { label: 'Verified', color: '#4CAF50', bgColor: 'rgba(76, 175, 80, 0.2)', icon: <VerifiedIcon /> },
-  2: { label: 'Banned', color: '#F44336', bgColor: 'rgba(244, 67, 54, 0.2)', icon: <DeleteIcon /> }
+  2: { label: 'Banned', color: '#F44336', bgColor: 'rgba(244, 67, 54, 0.2)', icon: <DeleteIcon /> },
+  default: { label: 'Unknown', color: '#757575', bgColor: 'rgba(117, 117, 117, 0.2)', icon: <PendingIcon /> }
 };
 
 // Utility function to format dates
@@ -45,13 +48,11 @@ const getVerifyConfig = (verifyStatus) =>
 function UserRow({ user, refreshUsers }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
-  const [banConfirmDialogOpen, setBanConfirmDialogOpen] = useState(false);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
-  const [newVerifyStatus, setNewVerifyStatus] = useState(user?.verify ?? 0); // Default to 0 if undefined
-  const [newRole, setNewRole] = useState(user?.role ?? 1); // Default to 1 if undefined
+  const [newVerifyStatus, setNewVerifyStatus] = useState(user?.verify ?? 0);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Early return if user is invalid
   if (!user || !user._id) {
     return (
       <TableRow>
@@ -74,28 +75,31 @@ function UserRow({ user, refreshUsers }) {
   };
 
   const handleVerifyStatusChange = (e) => {
-    const value = Number(e.target.value);
-    if (value === 2) {
-      setBanConfirmDialogOpen(true);
-    } else {
-      setNewVerifyStatus(value);
-    }
+    setNewVerifyStatus(Number(e.target.value));
   };
 
-  const handleBanConfirm = async () => {
-    setNewVerifyStatus(2);
-    setBanConfirmDialogOpen(false);
-    await handleUpdateConfirm();
+  const handleUpdateConfirm = () => {
+    setConfirmDialogOpen(true);
   };
 
-  const handleUpdateConfirm = async () => {
+  const handleConfirmAction = async () => {
     try {
       setIsLoading(true);
-      await updateAdminAccount(user._id, { verifyStatus: newVerifyStatus });
-      setUpdateDialogOpen(false);
-      refreshUsers();
+      const updateData = { verify: newVerifyStatus }; // Sending "verify" as per GET
+      const response = await updateAccountStatus(user._id, updateData);
+
+      // Validate flat PUT response structure with "verifyStatus"
+      if (response?.verifyStatus !== undefined && typeof response.verifyStatus === 'number') {
+        setUpdateDialogOpen(false);
+        setConfirmDialogOpen(false);
+        refreshUsers(); // Refresh to get "verify" from GET
+        toast.success(`Account status updated to ${VERIFY_STATUS[newVerifyStatus].label}`);
+      } else {
+        throw new Error('Invalid response structure from server');
+      }
     } catch (error) {
       console.error('Failed to update account:', error);
+      toast.error(error.message || 'Failed to update account status');
     } finally {
       setIsLoading(false);
     }
@@ -237,6 +241,7 @@ function UserRow({ user, refreshUsers }) {
               sx={{ color: 'white' }}
             >
               <MenuItem value={0}>Unverified</MenuItem>
+              <MenuItem value={1}>Verified</MenuItem>
               <MenuItem value={2}>Banned</MenuItem>
             </Select>
           </FormControl>
@@ -254,7 +259,7 @@ function UserRow({ user, refreshUsers }) {
             onClick={handleUpdateConfirm}
             sx={{ backgroundColor: '#2196F3', color: 'white', '&:hover': { backgroundColor: '#1976d2' } }}
             variant="contained"
-            disabled={isLoading}
+            disabled={isLoading || newVerifyStatus === user.verify}
             startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <EditIcon />}
           >
             Update
@@ -262,21 +267,27 @@ function UserRow({ user, refreshUsers }) {
         </DialogActions>
       </Dialog>
 
-      {/* Ban Confirmation Dialog */}
+      {/* Confirmation Dialog */}
       <Dialog
-        open={banConfirmDialogOpen}
-        onClose={() => setBanConfirmDialogOpen(false)}
+        open={confirmDialogOpen}
+        onClose={() => setConfirmDialogOpen(false)}
         PaperProps={{ sx: { backgroundColor: 'rgba(0, 0, 0, 0.9)', color: 'white', border: '1px solid rgba(255, 215, 0, 0.3)', borderRadius: 2 } }}
       >
-        <DialogTitle sx={{ fontFamily: "'Jersey 15', sans-serif", color: '#FFD700' }}>Confirm Ban</DialogTitle>
+        <DialogTitle sx={{ fontFamily: "'Jersey 15', sans-serif", color: '#FFD700' }}>
+          Confirm Status Change
+        </DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
-            Are you sure you want to ban the account for <span style={{ color: '#FFD700', fontWeight: 'bold' }}>{user.userName || 'Unknown User'}</span>?
+            Are you sure you want to change the status to{' '}
+            <span style={{ color: getVerifyConfig(newVerifyStatus).color, fontWeight: 'bold' }}>
+              {getVerifyConfig(newVerifyStatus).label}
+            </span>
+            {' '}for <span style={{ color: '#FFD700', fontWeight: 'bold' }}>{user.userName || 'Unknown User'}</span>?
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button
-            onClick={() => setBanConfirmDialogOpen(false)}
+            onClick={() => setConfirmDialogOpen(false)}
             sx={{ color: 'white', borderColor: 'rgba(255, 255, 255, 0.3)', '&:hover': { borderColor: 'white', backgroundColor: 'rgba(255, 255, 255, 0.1)' } }}
             variant="outlined"
             disabled={isLoading}
@@ -284,13 +295,17 @@ function UserRow({ user, refreshUsers }) {
             Cancel
           </Button>
           <Button
-            onClick={handleBanConfirm}
-            sx={{ backgroundColor: '#F44336', color: 'white', '&:hover': { backgroundColor: '#d32f2f' } }}
+            onClick={handleConfirmAction}
+            sx={{
+              backgroundColor: getVerifyConfig(newVerifyStatus).color,
+              color: 'white',
+              '&:hover': { backgroundColor: `${getVerifyConfig(newVerifyStatus).color}CC` }
+            }}
             variant="contained"
             disabled={isLoading}
-            startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <DeleteIcon />}
+            startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <EditIcon />}
           >
-            Ban
+            Confirm
           </Button>
         </DialogActions>
       </Dialog>
@@ -316,14 +331,20 @@ export default function ManageUsers() {
       setIsLoading(true);
       const response = await getAdminAccounts();
       if (response?.result && Array.isArray(response.result)) {
-        setUsers(response.result);
+        const validatedUsers = response.result.map(user => ({
+          ...user,
+          verify: typeof user.verify === 'number' ? user.verify : 0
+        }));
+        setUsers(validatedUsers);
       } else {
         setUsers([]);
+        toast.warn('Unexpected response format from server');
         console.warn('Unexpected API response format:', response);
       }
     } catch (error) {
       console.error('Error fetching users:', error);
       setUsers([]);
+      toast.error('Failed to load users');
     } finally {
       setIsLoading(false);
     }
@@ -351,6 +372,18 @@ export default function ManageUsers() {
 
   return (
     <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', p: 3 }}>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
       <Typography variant="h4" sx={{ mb: 3, fontFamily: "'Jersey 15', sans-serif", color: 'whitesmoke', textAlign: 'center' }}>
         Manage Users 👥
       </Typography>
@@ -385,8 +418,8 @@ export default function ManageUsers() {
             sx={{ color: 'white' }}
           >
             <MenuItem value="all">All Roles</MenuItem>
-            <MenuItem value="0">Admin</MenuItem>
-            <MenuItem value="1">User</MenuItem>
+            <MenuItem value={0}>Admin</MenuItem>
+            <MenuItem value={1}>User</MenuItem>
           </Select>
         </FormControl>
       </Box>
