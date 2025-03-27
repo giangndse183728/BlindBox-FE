@@ -84,16 +84,166 @@ function ConfirmationDialog({ open, onClose, onConfirm, title, message }) {
   );
 }
 
+function CancelOrderDialog({ open, onClose, onConfirm, loading }) {
+  const [cancelReason, setCancelReason] = useState('');
+  
+  // Predefined reasons for sellers to cancel orders
+  const cancelReasons = [
+    "Out of stock",
+    "Unable to fulfill order",
+    "Pricing error",
+    "Shipping restrictions",
+    "Suspected fraudulent order",
+    "Product discontinued",
+    "Customer requested cancellation",
+    "Other"
+  ];
+
+  const handleConfirm = () => {
+    if (!cancelReason) {
+      toast.error("Please select a reason for cancellation");
+      return;
+    }
+    onConfirm(cancelReason);
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      PaperProps={{
+        sx: {
+          backgroundColor: 'rgba(0, 0, 0, 0.9)',
+          color: 'white',
+          border: '1px solid rgba(255, 215, 0, 0.3)',
+          borderRadius: 2,
+          maxWidth: '500px',
+          width: '100%'
+        }
+      }}
+    >
+      <DialogTitle sx={{ fontFamily: "'Jersey 15', sans-serif", color: '#FFD700' }}>
+        Cancel Order
+      </DialogTitle>
+      <DialogContent>
+        <DialogContentText sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 2 }}>
+          Please select a reason for cancelling this order:
+        </DialogContentText>
+        
+        <FormControl fullWidth>
+          <Select
+            value={cancelReason}
+            onChange={(e) => setCancelReason(e.target.value)}
+            displayEmpty
+            sx={{
+              color: 'white',
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              '& .MuiOutlinedInput-notchedOutline': { 
+                borderColor: 'rgba(255, 255, 255, 0.3)' 
+              },
+              '&:hover .MuiOutlinedInput-notchedOutline': { 
+                borderColor: 'rgba(255, 255, 255, 0.5)' 
+              },
+              '&.Mui-focused .MuiOutlinedInput-notchedOutline': { 
+                borderColor: '#FFD700' 
+              }
+            }}
+            MenuProps={{
+              PaperProps: {
+                sx: {
+                  backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 215, 0, 0.3)',
+                }
+              }
+            }}
+          >
+            <MenuItem disabled value="">
+              <em>Select a reason</em>
+            </MenuItem>
+            {cancelReasons.map((reason) => (
+              <MenuItem 
+                key={reason} 
+                value={reason}
+                sx={{ 
+                  color: 'white',
+                  '&:hover': { backgroundColor: 'rgba(255, 215, 0, 0.1)' },
+                  '&.Mui-selected': { 
+                    backgroundColor: 'rgba(255, 215, 0, 0.2)',
+                    '&:hover': { backgroundColor: 'rgba(255, 215, 0, 0.3)' }
+                  }
+                }}
+              >
+                {reason}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </DialogContent>
+      <DialogActions sx={{ p: 2 }}>
+        <Button 
+          onClick={onClose} 
+          sx={{ 
+            color: 'white', 
+            borderColor: 'rgba(255, 255, 255, 0.3)',
+            '&:hover': { borderColor: 'white', backgroundColor: 'rgba(255, 255, 255, 0.1)' }
+          }}
+          variant="outlined"
+          disabled={loading}
+        >
+          Back
+        </Button>
+        <Button 
+          onClick={handleConfirm} 
+          sx={{ 
+            backgroundColor: '#F44336', 
+            color: 'white',
+            '&:hover': { backgroundColor: '#d32f2f' },
+            '&.Mui-disabled': { backgroundColor: 'rgba(244, 67, 54, 0.5)' }
+          }}
+          variant="contained"
+          disabled={loading || !cancelReason}
+        >
+          {loading ? (
+            <CircularProgress size={24} sx={{ color: 'white' }} />
+          ) : (
+            "Cancel Order"
+          )}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+
 function OrderRow({ order, refreshOrders, updateOrderLocally }) {
   const [open, setOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [statusToUpdate, setStatusToUpdate] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [localCancellationReason, setLocalCancellationReason] = useState(null);
   
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
+
+  const getCancellationReason = () => {
+
+    if (localCancellationReason) {
+      return localCancellationReason;
+    }
+    
+    // Otherwise check the status history
+    if (order.status === 4 && order.statusHistory && order.statusHistory.length > 0) {
+      // Find the most recent status 4 entry in the history
+      const cancelEntry = order.statusHistory.find(entry => entry.status === 4);
+      return cancelEntry ? cancelEntry.reason : 'No reason provided';
+    }
+    return null;
+  };
+
+  const cancellationReason = getCancellationReason();
 
   const handleStatusUpdate = async () => {
     setLoading(true);
@@ -104,16 +254,21 @@ function OrderRow({ order, refreshOrders, updateOrderLocally }) {
         case 1: statusCommand = "confirm"; break;
         case 2: statusCommand = "process"; break;
         case 3: statusCommand = "complete"; break;
-        case 4: statusCommand = "cancel"; break;
         default: statusCommand = "confirm"; 
       }
       
+      // Create a status history entry
+      const statusHistoryEntry = {
+        status: statusToUpdate,
+        timestamp: new Date().toISOString()
+      };
+      
       // Optimistically update the UI before API call
-      updateOrderLocally(order._id, statusToUpdate);
+      updateOrderLocally(order._id, statusToUpdate, null, statusHistoryEntry);
       
       await updateOrderStatus(order._id, statusCommand);
 
-      toast.success(`Ordered: ${ORDER_STATUS[statusToUpdate].label}`);
+      toast.success(`Order ${ORDER_STATUS[statusToUpdate].label}`);
       
       setDialogOpen(false);
       setLoading(false);
@@ -126,11 +281,38 @@ function OrderRow({ order, refreshOrders, updateOrderLocally }) {
     }
   };
 
-  const handleStatusClick = (status) => {
-    setStatusToUpdate(status);
-    setDialogOpen(true);
+  const handleCancelOrder = async (reason) => {
+    setLoading(true);
+    try {
+      // Save the reason locally first
+      setLocalCancellationReason(reason);
+      
+      updateOrderLocally(order._id, 4, reason);
+      
+      await updateOrderStatus(order._id, "cancel", { reason });
+
+      toast.success("Order cancelled successfully");
+      
+      setCancelDialogOpen(false);
+      setLoading(false);
+
+    } catch (error) {
+      setLocalCancellationReason(null); 
+      refreshOrders(); 
+      toast.error('Failed to cancel order');
+      setLoading(false);
+      setCancelDialogOpen(false);
+    }
   };
 
+  const handleStatusClick = (status) => {
+    if (status === 4) {
+      setCancelDialogOpen(true);
+    } else {
+      setStatusToUpdate(status);
+      setDialogOpen(true);
+    }
+  };
 
   return (
     <React.Fragment>
@@ -154,26 +336,42 @@ function OrderRow({ order, refreshOrders, updateOrderLocally }) {
           {PAYMENT_METHOD[order.paymentMethod]}
         </TableCell>
         <TableCell sx={{ textAlign: 'center' }}>
-          <Chip 
-            label={ORDER_STATUS[order.status].label}
-            sx={{
-              bgcolor: ORDER_STATUS[order.status].bgColor,
-              color: ORDER_STATUS[order.status].color,
-              border: `1px solid ${ORDER_STATUS[order.status].color}`,
-              fontWeight: 'bold',
-            }}
-            icon={
-              <Box sx={{ 
-                '& svg': { 
-                  color: ORDER_STATUS[order.status].color,
-                  fontSize: '1rem',
-                  mr: -0.5
-                } 
-              }}>
-                {ORDER_STATUS[order.status].icon}
-              </Box>
-            }
-          />
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+            <Chip 
+              label={ORDER_STATUS[order.status].label}
+              sx={{
+                bgcolor: ORDER_STATUS[order.status].bgColor,
+                color: ORDER_STATUS[order.status].color,
+                border: `1px solid ${ORDER_STATUS[order.status].color}`,
+                fontWeight: 'bold',
+              }}
+              icon={
+                <Box sx={{ 
+                  '& svg': { 
+                    color: ORDER_STATUS[order.status].color,
+                    fontSize: '1rem',
+                    mr: -0.5
+                  } 
+                }}>
+                  {ORDER_STATUS[order.status].icon}
+                </Box>
+              }
+            />
+            
+            {/* Show cancellation reason if available */}
+            {order.status === 4 && cancellationReason && (
+              <Chip
+                label={cancellationReason}
+                size="small"
+                sx={{
+                  bgcolor: 'rgba(244, 67, 54, 0.1)',
+                  color: 'rgba(255, 255, 255, 0.8)',
+                  border: '1px solid rgba(244, 67, 54, 0.3)',
+                  fontStyle: 'italic'
+                }}
+              />
+            )}
+          </Box>
         </TableCell>
       </TableRow>
       <TableRow>
@@ -187,9 +385,97 @@ function OrderRow({ order, refreshOrders, updateOrderLocally }) {
               {/* Order Status Stepper */}
               <OrderStatusStepper status={order.status} />
 
+              {/* Status History Log Section */}
+              {order.statusHistory && order.statusHistory.length > 0 && (
+                <Box sx={{ 
+                  p: 2, 
+                  backgroundColor: 'rgba(0, 0, 0, 0.3)', 
+                  borderRadius: 1, 
+                  mb: 3,
+                  mt: 2,
+                  border: '1px solid rgba(255, 255, 255, 0.2)'
+                }}>
+                  <Typography sx={{ color: '#FFD700', fontWeight: 'bold', mb: 2, display: 'flex', alignItems: 'center' }}>
+                    <ReceiptIcon sx={{ mr: 1 }} /> Status History Log
+                  </Typography>
+                  
+                  {[...order.statusHistory]
+                    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                    .map((entry, index) => {
+                      const statusInfo = ORDER_STATUS[entry.status];
+                      return (
+                        <Box 
+                          key={index} 
+                          sx={{ 
+                            mb: index < order.statusHistory.length - 1 ? 2 : 0,
+                            pb: index < order.statusHistory.length - 1 ? 2 : 0,
+                            borderBottom: index < order.statusHistory.length - 1 ? '1px solid rgba(255, 255, 255, 0.1)' : 'none',
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                          }}
+                        >
+                          {/* Status icon */}
+                          <Box 
+                            sx={{ 
+                              backgroundColor: statusInfo.bgColor, 
+                              color: statusInfo.color, 
+                              borderRadius: '50%', 
+                              width: 36, 
+                              height: 36, 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              justifyContent: 'center',
+                              mr: 2,
+                              border: `1px solid ${statusInfo.color}`,
+                              flexShrink: 0
+                            }}
+                          >
+                            {statusInfo.icon}
+                          </Box>
+                          <Box sx={{ flex: 1 }}>
+                            {/* Status and timestamp */}
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <Typography sx={{ color: statusInfo.color, fontWeight: 'bold' }}>
+                                {statusInfo.label}
+                              </Typography>
+                              <Typography sx={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.9rem' }}>
+                                {formatDate(entry.timestamp)}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        </Box>
+                      );
+                    })}
+                </Box>
+              )}
+
+              {/* Previous Cancellation Reason Section */}
+              {order.status === 4 && cancellationReason && (
+                <Box sx={{ 
+                  p: 2, 
+                  backgroundColor: 'rgba(244, 67, 54, 0.1)', 
+                  borderRadius: 1, 
+                  mb: 3,
+                  mt: 2,
+                  border: '1px solid rgba(244, 67, 54, 0.3)'
+                }}>
+                  <Typography sx={{ color: '#F44336', fontWeight: 'bold', mb: 1, display: 'flex', alignItems: 'center' }}>
+                    <CancelIcon sx={{ mr: 1 }} /> Cancellation Reason
+                  </Typography>
+                  <Typography sx={{ color: 'white', ml: 2 }}>
+                    {cancellationReason}
+                  </Typography>
+                  {order.statusHistory && order.statusHistory.find(entry => entry.status === 4)?.timestamp && (
+                    <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)', ml: 2, mt: 1, fontSize: '0.9rem', fontStyle: 'italic' }}>
+                      Cancelled on: {formatDate(order.statusHistory.find(entry => entry.status === 4).timestamp)}
+                    </Typography>
+                  )}
+                </Box>
+              )}
+
               {/* Status Update Buttons */}
               {order.status !== 4 && order.status !== 3 && (
-                <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', mb: 4 }}>
+                <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', mb: 4, mt: 2 }}>
                   {order.status === 0 && (
                     <>
                       <ButtonCus
@@ -229,10 +515,19 @@ function OrderRow({ order, refreshOrders, updateOrderLocally }) {
                           Process Order
                         </Typography>
                       </ButtonCus>
-
+                      <ButtonCus
+                        variant="button-pixel-red"
+                        width="180px"
+                        height="40px"
+                        onClick={() => handleStatusClick(4)}
+                        disabled={loading}
+                      >
+                        <Typography variant="body1" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
+                          Cancel Order
+                        </Typography>
+                      </ButtonCus>
                     </>
                   )}
-               
                   {loading && <CircularProgress size={24} sx={{ color: '#FFD700' }} />}
                 </Box>
               )}
@@ -332,13 +627,21 @@ function OrderRow({ order, refreshOrders, updateOrderLocally }) {
         </TableCell>
       </TableRow>
 
-      {/* Confirmation Dialog */}
+      {/* Confirmation Dialog for Status Updates */}
       <ConfirmationDialog
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
         onConfirm={handleStatusUpdate}
         title="Update Order Status"
-        message={"Are you sure you want to update this order's status ?"}
+        message={"Are you sure you want to update this order's status?"}
+      />
+      
+      {/* Cancellation Dialog */}
+      <CancelOrderDialog
+        open={cancelDialogOpen}
+        onClose={() => setCancelDialogOpen(false)}
+        onConfirm={handleCancelOrder}
+        loading={loading}
       />
     </React.Fragment>
   );
@@ -551,17 +854,63 @@ export default function ManageSellerOrders() {
                     key={order._id} 
                     order={order} 
                     refreshOrders={fetchOrders}
-                    updateOrderLocally={(orderId, newStatus) => {
-                      // Update the order status locally in all states
-                      setOrders(prevOrders => 
-                        prevOrders.map(o => o._id === orderId ? {...o, status: newStatus} : o)
-                      );
-                      setFilteredOrders(prevOrders => 
-                        prevOrders.map(o => o._id === orderId ? {...o, status: newStatus} : o)
-                      );
-                      setDisplayedOrders(prevOrders => 
-                        prevOrders.map(o => o._id === orderId ? {...o, status: newStatus} : o)
-                      );
+                    updateOrderLocally={(orderId, newStatus, reason = null, statusHistoryEntry = null) => {
+                      // Update function to create a statusHistory entry for any status change
+                      const updateOrder = (o) => {
+                        if (o._id !== orderId) return o;
+                        
+                        const updatedOrder = {...o, status: newStatus};
+                        
+                        // Create a history entry for any status change
+                        let newHistoryEntry;
+                        
+                        // If a status history entry was provided, use it
+                        if (statusHistoryEntry) {
+                          newHistoryEntry = statusHistoryEntry;
+                        } 
+                        // For cancellations, include the reason
+                        else if (newStatus === 4 && reason) {
+                          newHistoryEntry = {
+                            status: 4,
+                            timestamp: new Date().toISOString(),
+                            reason: reason
+                          };
+                        }
+                        // For other status changes without a provided entry
+                        else {
+                          newHistoryEntry = {
+                            status: newStatus,
+                            timestamp: new Date().toISOString()
+                          };
+                        }
+                        
+                        // Create or update the statusHistory array
+                        if (!updatedOrder.statusHistory) {
+                          updatedOrder.statusHistory = [newHistoryEntry];
+                        } else {
+                          // If we already have an entry for this status, update it instead of adding a new one
+                          const existingEntryIndex = updatedOrder.statusHistory.findIndex(
+                            entry => entry.status === newStatus
+                          );
+                          
+                          if (existingEntryIndex >= 0) {
+                            // Update existing entry
+                            const updatedStatusHistory = [...updatedOrder.statusHistory];
+                            updatedStatusHistory[existingEntryIndex] = newHistoryEntry;
+                            updatedOrder.statusHistory = updatedStatusHistory;
+                          } else {
+                            // Add new entry
+                            updatedOrder.statusHistory = [...updatedOrder.statusHistory, newHistoryEntry];
+                          }
+                        }
+                        
+                        return updatedOrder;
+                      };
+                      
+                      // Update all relevant state arrays
+                      setOrders(prevOrders => prevOrders.map(updateOrder));
+                      setFilteredOrders(prevOrders => prevOrders.map(updateOrder));
+                      setDisplayedOrders(prevOrders => prevOrders.map(updateOrder));
                     }}
                   />
                 ))}

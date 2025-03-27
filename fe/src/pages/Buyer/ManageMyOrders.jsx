@@ -20,6 +20,12 @@ import ButtonCus from "../../components/Button/ButtonCus";
 import OrderStatusStepper from '../../components/Order/OrderStatusStepper';
 import { toast } from 'react-toastify';
 import OrderPdfExport from '../../components/Order/OrderPdfExport';
+import { createFeedback } from '../../services/feedbackApi';
+import StarIcon from '@mui/icons-material/Star';
+import StarBorderIcon from '@mui/icons-material/StarBorder';
+import RateReviewIcon from '@mui/icons-material/RateReview';
+import ProductFeedbackForm from './ProductFeedbackForm';
+import { Link } from 'react-router-dom';
 
 const ORDER_STATUS = {
     0: { label: 'Pending', color: '#FF9800', bgColor: 'rgba(255, 152, 0, 0.2)', icon: <PendingIcon /> },
@@ -36,6 +42,9 @@ function OrderRow({ order, onOrderUpdate }) {
     const [loading, setLoading] = useState(false);
     const [showCancelDialog, setShowCancelDialog] = useState(false);
     const [cancelReason, setCancelReason] = useState('');
+    const [showFeedbackDialog, setShowFeedbackDialog] = useState(false);
+    const [selectedProductForFeedback, setSelectedProductForFeedback] = useState(null);
+    const [hasFeedback, setHasFeedback] = useState(false);
 
     // Pre-defined cancellation reasons
     const cancelReasons = [
@@ -73,10 +82,26 @@ function OrderRow({ order, onOrderUpdate }) {
     const handleCompleteOrder = async (orderId) => {
         try {
             setLoading(true);
+            
+            // Create a status history entry locally before the API call
+            const statusHistoryEntry = {
+                status: 3, // Completed status
+                timestamp: new Date().toISOString()
+            };
+            
+            // Update the order locally first for instant feedback
+            onOrderUpdate(orderId, 3, statusHistoryEntry);
+            
+            // Then make the API call
             await completeOrderStatus(orderId);
+            
+            // Refresh the orders from the server to ensure sync
             onOrderUpdate();
         } catch (error) {
             console.error('Error completing order:', error);
+            toast.error('Failed to complete order');
+            // Refresh to get the correct state if error
+            onOrderUpdate();
         } finally {
             setLoading(false);
         }
@@ -99,15 +124,64 @@ function OrderRow({ order, onOrderUpdate }) {
             }
 
             setLoading(true);
+            
+            // Create a status history entry locally for instant feedback
+            const statusHistoryEntry = {
+                status: 4, // Cancelled status
+                timestamp: new Date().toISOString(),
+                reason: cancelReason
+            };
+            
+            // Update the order locally first for instant feedback
+            onOrderUpdate(orderId, 4, statusHistoryEntry);
+            
+            // Then make the API call
             await cancelOrder(orderId, { reason: cancelReason });
+            
             handleCloseCancelDialog();
+            
+            // Refresh orders from the server
             onOrderUpdate();
         } catch (error) {
             console.error('Error cancelling order:', error);
             toast.error(error.message || "Failed to cancel order");
+            // Refresh to get the correct state if error
+            onOrderUpdate();
         } finally {
             setLoading(false);
         }
+    };
+
+    // Check if the order already has feedback
+    useEffect(() => {
+        // If the order has a feedback property, set hasFeedback to true
+        if (order.feedback) {
+            setHasFeedback(true);
+        }
+    }, [order]);
+
+    // Modify the handleOpenFeedbackDialog to take a product
+    const handleOpenFeedbackDialog = (product) => {
+        setSelectedProductForFeedback(product);
+        setShowFeedbackDialog(true);
+    };
+
+    const handleCloseFeedbackDialog = () => {
+        setShowFeedbackDialog(false);
+        setSelectedProductForFeedback(null);
+    };
+
+    const handleFeedbackSuccess = () => {
+        // Refresh orders to show updated feedback status
+        onOrderUpdate();
+    };
+
+    // Add a function to check if a product already has feedback
+    const hasProductFeedback = (productId) => {
+        if (!order.feedbacks || !Array.isArray(order.feedbacks)) {
+            return false;
+        }
+        return order.feedbacks.some(feedback => feedback.productId === productId);
     };
 
     return (
@@ -171,18 +245,24 @@ function OrderRow({ order, onOrderUpdate }) {
                                             }
                                         }}
                                     >
-                                        <Box 
-                                            component="img" 
-                                            src={item.image} 
-                                            alt={item.productName} 
-                                            sx={{ 
-                                                width: 60, 
-                                                height: 60, 
-                                                objectFit: 'cover', 
-                                                borderRadius: 1, 
-                                                mr: 2
-                                            }} 
-                                        />
+                                        <Link
+                                            to={`/product/${item.slug || item.productSlug}?id=${item.productId}`}
+                                            style={{ textDecoration: "none", display: "flex", alignItems: "center" }}
+                                        >
+                                            <Box 
+                                                component="img" 
+                                                src={item.image} 
+                                                alt={item.productName} 
+                                                sx={{ 
+                                                    width: 60, 
+                                                    height: 60, 
+                                                    objectFit: 'cover', 
+                                                    borderRadius: 1, 
+                                                    mr: 2,
+                                                    cursor: 'pointer'
+                                                }} 
+                                            />
+                                        </Link>
                                         <Box sx={{ 
                                             flex: 1,
                                             display: 'flex',
@@ -191,23 +271,67 @@ function OrderRow({ order, onOrderUpdate }) {
                                             justifyContent: 'space-between'
                                         }}>
                                             <Box>
-                                                <Typography sx={{ 
-                                                    color: 'white', 
-                                                    fontWeight: 'bold',
-                                                    overflow: 'hidden',
-                                                    textOverflow: 'ellipsis',
-                                                    display: '-webkit-box',
-                                                    WebkitLineClamp: 1,
-                                                    WebkitBoxOrient: 'vertical',
-                                                }}>
-                                                    {item.productName}
-                                                </Typography>
+                                                <Link
+                                                    to={`/product/${item.slug || item.productSlug}?id=${item.productId}`}
+                                                    style={{ textDecoration: "none" }}
+                                                >
+                                                    <Typography sx={{ 
+                                                        color: 'white', 
+                                                        fontWeight: 'bold',
+                                                        overflow: 'hidden',
+                                                        textOverflow: 'ellipsis',
+                                                        display: '-webkit-box',
+                                                        WebkitLineClamp: 1,
+                                                        WebkitBoxOrient: 'vertical',
+                                                        cursor: 'pointer',
+                                                        '&:hover': {
+                                                            color: '#FFD700',
+                                                        }
+                                                    }}>
+                                                        {item.productName}
+                                                    </Typography>
+                                                </Link>
                                                 <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.9rem' }}>
                                                     ${parseFloat(item.price).toFixed(2)} 
                                                 </Typography>
                                                   <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.9rem' }}>
                                                      {formatDate(order.createdAt)}
                                                 </Typography>
+
+                                                {/* Add feedback section for completed orders */}
+                                                {order.status === 3 && (
+                                                    <Box sx={{ mt: 1 }}>
+                                                        {hasProductFeedback(item.productId) ? (
+                                                            <Chip
+                                                                icon={<StarIcon sx={{ color: '#FFD700 !important' }} />}
+                                                                label="Reviewed"
+                                                                size="small"
+                                                                sx={{
+                                                                    bgcolor: 'rgba(255, 215, 0, 0.1)',
+                                                                    color: '#FFD700',
+                                                                    border: '1px solid rgba(255, 215, 0, 0.5)',
+                                                                    fontWeight: 'bold',
+                                                                }}
+                                                            />
+                                                        ) : (
+                                                            <ButtonCus
+                                                                variant="button-pixel-blue"
+                                                                width="130px"
+                                                                height="30px"
+                                                                onClick={() => handleOpenFeedbackDialog(item)}
+                                                                disabled={loading}
+                                                                sx={{ fontSize: '0.8rem' }}
+                                                            >
+                                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                                    <RateReviewIcon sx={{ fontSize: '1rem' }} />
+                                                                    <Typography variant="body2" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
+                                                                        Rate Product
+                                                                    </Typography>
+                                                                </Box>
+                                                            </ButtonCus>
+                                                        )}
+                                                    </Box>
+                                                )}
                                             </Box>
                                             <Box sx={{ 
                                                 display: 'flex', 
@@ -273,44 +397,134 @@ function OrderRow({ order, onOrderUpdate }) {
                             <Typography variant="h6" sx={{ fontFamily: "'Jersey 15', sans-serif", color: '#FFD700', mt: 2, mb: 2 }}>Order Details</Typography>
                             <OrderStatusStepper status={order.status} />
 
-                       
-            
-                            <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'end', mb:3}}>
-                    {order.status === 3 && (
-                        <OrderPdfExport
-                            order={order}
-                            paymentMethod={order.paymentMethod === 0 ? 'cod' : 'banking'}
-                        />
-                    )}
-                    
-                    {order.status === 2 && (
-                        <ButtonCus
-                            variant="button-pixel-green"
-                            width="180px"
-                            height="40px"
-                            onClick={() => handleCompleteOrder(order._id)}
-                            disabled={loading}
-                        >
-                            <Typography variant="body1" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
-                                Confirm Completion
-                            </Typography>
-                        </ButtonCus>
-                    )}
+                            {/* Simplified Status History Timeline */}
+                            {order.statusHistory && order.statusHistory.length > 0 && (
+                                <Box sx={{ 
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 1,
+                                    my: 2,
+                                    px: 2,
+                                    py: 1.5,
+                                    backgroundColor: 'rgba(0, 0, 0, 0.2)', 
+                                    borderRadius: 1,
+                                    border: '1px solid rgba(255, 255, 255, 0.1)'
+                                }}>
+                                    <Typography variant="subtitle1" sx={{ color: '#FFD700', fontWeight: 'bold', mb: 0.5 }}>
+                                        Order Timeline
+                                    </Typography>
+                                    
+                                    {/* Sort by timestamp in descending order and map to simple timeline items */}
+                                    {[...order.statusHistory]
+                                        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                                        .map((entry, index) => {
+                                            const statusInfo = ORDER_STATUS[entry.status];
+                                            return (
+                                                <Box 
+                                                    key={index}
+                                                    sx={{ 
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: 1.5,
+                                                        borderBottom: index < order.statusHistory.length - 1 ? '1px solid rgba(255, 255, 255, 0.05)' : 'none',
+                                                        pb: index < order.statusHistory.length - 1 ? 1 : 0
+                                                    }}
+                                                >
+                                                    {/* Colored dot for status */}
+                                                    <Box 
+                                                        sx={{ 
+                                                            width: 10, 
+                                                            height: 10, 
+                                                            borderRadius: '50%', 
+                                                            bgcolor: statusInfo.color,
+                                                            flexShrink: 0
+                                                        }} 
+                                                    />
+                                                    
+                                                    {/* Status text */}
+                                                    <Typography 
+                                                        sx={{ 
+                                                            color: statusInfo.color, 
+                                                            fontWeight: 'medium',
+                                                            fontSize: '0.9rem',
+                                                            flexShrink: 0,
+                                                            minWidth: '100px'
+                                                        }}
+                                                    >
+                                                        {statusInfo.label}
+                                                    </Typography>
+                                                    
+                                                    {/* Timestamp */}
+                                                    <Typography 
+                                                        sx={{ 
+                                                            color: 'rgba(255, 255, 255, 0.7)', 
+                                                            fontSize: '0.9rem',
+                                                            flexGrow: 1
+                                                        }}
+                                                    >
+                                                        {formatDate(entry.timestamp)}
+                                                    </Typography>
+                                                    
+                                                    {/* Reason (if present) - only for cancelled status */}
+                                                    {entry.status === 4 && entry.reason && (
+                                                        <Chip
+                                                            label={entry.reason}
+                                                            size="small"
+                                                            sx={{
+                                                                bgcolor: 'rgba(244, 67, 54, 0.1)',
+                                                                color: 'rgba(255, 255, 255, 0.8)',
+                                                                border: '1px solid rgba(244, 67, 54, 0.3)',
+                                                                fontStyle: 'italic',
+                                                                fontSize: '0.75rem',
+                                                                height: 24
+                                                            }}
+                                                        />
+                                                    )}
+                                                </Box>
+                                            );
+                                        })}
+                                </Box>
+                            )}
 
-                    {order.status !== 4 && order.status !== 3 && (
-                        <ButtonCus
-                            variant="button-pixel-red"
-                            width="180px"
-                            height="40px"
-                            onClick={handleOpenCancelDialog}
-                            disabled={loading}
-                        >
-                            <Typography variant="body1" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
-                                Cancel Order
-                            </Typography>
-                        </ButtonCus>
-                    )}
-                    </Box>
+                            <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'end', mb:3, gap: 2}}>                          
+                                {/* PDF Export for completed orders */}
+                                {order.status === 3 && (
+                                    <OrderPdfExport
+                                        order={order}
+                                        paymentMethod={order.paymentMethod === 0 ? 'cod' : 'banking'}
+                                    />
+                                )}
+                                
+                                {/* Complete button for processing orders */}
+                                {order.status === 2 && (
+                                    <ButtonCus
+                                        variant="button-pixel-green"
+                                        width="180px"
+                                        height="40px"
+                                        onClick={() => handleCompleteOrder(order._id)}
+                                        disabled={loading}
+                                    >
+                                        <Typography variant="body1" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
+                                            Confirm Completion
+                                        </Typography>
+                                    </ButtonCus>
+                                )}
+
+                                {/* Cancel button for non-completed/cancelled orders */}
+                                {order.status !== 4 && order.status !== 3 && (
+                                    <ButtonCus
+                                        variant="button-pixel-red"
+                                        width="180px"
+                                        height="40px"
+                                        onClick={handleOpenCancelDialog}
+                                        disabled={loading}
+                                    >
+                                        <Typography variant="body1" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
+                                            Cancel Order
+                                        </Typography>
+                                    </ButtonCus>
+                                )}
+                            </Box>
           
 
                             {/* Add cancellation reason detail section if applicable */}
@@ -353,10 +567,6 @@ function OrderRow({ order, onOrderUpdate }) {
                     </Collapse>
                 </TableCell>
             </TableRow>
-
-
-
-           
 
             {/* Cancel Order Dialog */}
             <Dialog
@@ -448,7 +658,7 @@ function OrderRow({ order, onOrderUpdate }) {
                         <Typography variant="body1" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
                             Back
                         </Typography>
-                    </ButtonCus>
+                            </ButtonCus>
                     <ButtonCus
                         variant="button-pixel-red"
                         width="160px"
@@ -468,6 +678,15 @@ function OrderRow({ order, onOrderUpdate }) {
                     </ButtonCus>
                 </DialogActions>
             </Dialog>
+
+            {/* Add the feedback form component */}
+            <ProductFeedbackForm 
+                open={showFeedbackDialog}
+                onClose={handleCloseFeedbackDialog}
+                orderId={order._id}
+                product={selectedProductForFeedback}
+                onSuccess={handleFeedbackSuccess}
+            />
 
             {loading && (
                 <TableRow>
@@ -630,7 +849,39 @@ export default function ManageMyOrders() {
                                     <TableBody>
                                         {displayedOrders.map((order) => (
                                             <React.Fragment key={order._id}>
-                                                <OrderRow order={order} onOrderUpdate={fetchOrders} />
+                                                <OrderRow 
+                                                    order={order} 
+                                                    onOrderUpdate={(orderId, newStatus, statusHistoryEntry) => {
+                                                        // If no parameters are provided, just fetch all orders
+                                                        if (!orderId) {
+                                                            fetchOrders();
+                                                            return;
+                                                        }
+                                                        
+                                                        // Otherwise update the order locally first for instant feedback
+                                                        setOrders(prevOrders => 
+                                                            prevOrders.map(o => {
+                                                                if (o._id !== orderId) return o;
+                                                                
+                                                                const updatedOrder = {...o, status: newStatus};
+                                                                
+                                                                // Add the new status history entry if provided
+                                                                if (statusHistoryEntry) {
+                                                                    if (!updatedOrder.statusHistory) {
+                                                                        updatedOrder.statusHistory = [statusHistoryEntry];
+                                                                    } else {
+                                                                        updatedOrder.statusHistory = [
+                                                                            ...updatedOrder.statusHistory,
+                                                                            statusHistoryEntry
+                                                                        ];
+                                                                    }
+                                                                }
+                                                                
+                                                                return updatedOrder;
+                                                            })
+                                                        );
+                                                    }}
+                                                />
                                                 {/* Add gap between orders */}
                                                 <TableRow>
                                                     <TableCell colSpan={6} sx={{ height: '20px', padding: 0, borderBottom: 'none' }} />

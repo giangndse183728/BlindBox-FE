@@ -91,12 +91,24 @@ export const blindboxSchema = Yup.object({
       .typeError('Quantity must be a number')
   });
 
+export const feedbackSchema = Yup.object({
+  rate: Yup.number()
+    .required('Rating is required')
+    .min(1, 'Rating must be at least 1')
+    .max(5, 'Rating cannot exceed 5'),
+  content: Yup.string()
+    .required('Please share your thoughts about this product')
+    .min(10, 'Your review should be at least 10 characters')
+    .max(500, 'Your review cannot exceed 500 characters')
+});
+
 export const validationSchemas = {
     login: loginSchema,
     sign: signupSchema,
     tradingPost: tradingPostSchema,
     profile: profileSchema,
     blindbox: blindboxSchema,
+    feedback: feedbackSchema,
 };
 
 export default validationSchemas;

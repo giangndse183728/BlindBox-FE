@@ -421,7 +421,7 @@ const CartPage = () => {
                 areAllItemsSelected={areAllItemsSelected}
                       />
                     </Grid>
-                    
+
             {/* Order Summary Component */}
             <Grid item xs={12} lg={3}>
               <OrderSummary 
