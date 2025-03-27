@@ -19,7 +19,6 @@ export const login = async (email, password) => {
 
 export const logout = async () => {
     try {
-        // Simply clear all auth data without making an API call
         await AsyncStorage.multiRemove(['accessToken', 'refreshToken', 'userData']);
         return true;
     } catch (error) {

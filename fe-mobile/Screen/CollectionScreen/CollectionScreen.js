@@ -1,11 +1,22 @@
 import React, { useState, useEffect } from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, ImageBackground, ActivityIndicator, Image } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Modal,
+  ImageBackground,
+  ActivityIndicator,
+  Image,
+} from "react-native";
 import { Card, Title, Provider as PaperProvider, Menu } from "react-native-paper";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from "@react-navigation/native";
 import Filter from "./Filter";
 import { fetchBlindboxData } from "../../service/productApi";
+import { fetchFeedbacks } from "../../service/feedbackApi";
 
 const CollectionScreen = () => {
   const navigation = useNavigation();
@@ -16,6 +27,8 @@ const CollectionScreen = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [brands, setBrands] = useState([]);
   const [sortMenuVisible, setSortMenuVisible] = useState(false);
+  const [productRatings, setProductRatings] = useState({}); // Store average ratings for each product
+  const [productFeedbackCounts, setProductFeedbackCounts] = useState({}); // Store feedback counts
 
   useEffect(() => {
     const getProducts = async () => {
@@ -23,12 +36,35 @@ const CollectionScreen = () => {
         const data = await fetchBlindboxData();
         setProducts(data);
         setFilteredProducts(data);
-        
+
         // Extract unique brands from products
         const uniqueBrands = [...new Set(data.map(product => product.brand))];
         setBrands(uniqueBrands);
+
+        // Fetch feedbacks and calculate average ratings for each product
+        const ratings = {};
+        const feedbackCounts = {};
+        await Promise.all(
+          data.map(async (product) => {
+            try {
+              const feedbacks = await fetchFeedbacks(product._id);
+              const averageRating =
+                feedbacks.length > 0
+                  ? feedbacks.reduce((sum, fb) => sum + fb.rating, 0) / feedbacks.length
+                  : 0;
+              ratings[product._id] = averageRating;
+              feedbackCounts[product._id] = feedbacks.length;
+            } catch (error) {
+              console.error(`Error fetching feedbacks for product ${product._id}:`, error);
+              ratings[product._id] = 0;
+              feedbackCounts[product._id] = 0;
+            }
+          })
+        );
+        setProductRatings(ratings);
+        setProductFeedbackCounts(feedbackCounts);
       } catch (error) {
-        console.error(error.message);
+        console.error('Error fetching products:', error.message);
       } finally {
         setLoading(false);
       }
@@ -54,7 +90,7 @@ const CollectionScreen = () => {
 
   const applyFilters = (filters) => {
     const { priceRange, selectedBrand, selectedRating } = filters;
-    let filtered = [...products]; 
+    let filtered = [...products];
 
     // Apply price filter
     filtered = filtered.filter(
@@ -68,7 +104,7 @@ const CollectionScreen = () => {
 
     // Apply rating filter
     if (selectedRating > 0) {
-      filtered = filtered.filter((product) => product.rating >= selectedRating);
+      filtered = filtered.filter((product) => (productRatings[product._id] || 0) >= selectedRating);
     }
 
     setFilteredProducts(filtered);
@@ -91,10 +127,13 @@ const CollectionScreen = () => {
   };
 
   const renderProduct = ({ item }) => (
-    <TouchableOpacity onPress={() => navigation.navigate("Detail", { productId: item._id, slug: item.slug })}>
+    <TouchableOpacity
+      onPress={() => navigation.navigate("Detail", { productId: item._id, slug: item.slug })}
+      accessibilityLabel={`View details for ${item.name}`}
+    >
       <Card style={styles.productCard}>
         <Card.Cover source={{ uri: item.image }} style={styles.productImage} />
-        <Card.Content>
+        <Card.Content style={styles.cardContent}>
           <Title style={styles.productName}>{truncateName(item.name, 1)}</Title>
           <Text style={styles.productBrand}>{item.brand}</Text>
           <Text style={styles.productPrice}>
@@ -105,12 +144,15 @@ const CollectionScreen = () => {
             {Array.from({ length: 5 }, (_, index) => (
               <Icon
                 key={index}
-                name="heart"
-                size={20}
-                color={index < Math.round(item.rating) ? "red" : "white"}
-                style={styles.heartIcon}
+                name={index < Math.round(productRatings[item._id] || 0) ? "heart" : "heart"}
+                size={12}
+                color={index < Math.round(productRatings[item._id] || 0) ? "red" : "white"}
+                style={styles.starIcon}
               />
             ))}
+            <Text style={styles.ratingText}>
+              ({(productRatings[item._id] || 0).toFixed(1)}) [{productFeedbackCounts[item._id]} reviews]
+            </Text>
           </View>
         </Card.Content>
       </Card>
@@ -127,19 +169,19 @@ const CollectionScreen = () => {
           </View>
           <View style={styles.buttonContainer}>
             {isLoggedIn ? (
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={() => navigation.navigate("Profile")}
                 style={styles.profileButton}
                 activeOpacity={0.7}
               >
-                <Image 
-                  source={require('../../assets/pfp.jpeg')} 
+                <Image
+                  source={require('../../assets/pfp.jpeg')}
                   style={styles.profileImage}
                 />
               </TouchableOpacity>
             ) : (
-              <TouchableOpacity 
-                onPress={() => navigation.navigate("Login", { setIsLoggedIn })} 
+              <TouchableOpacity
+                onPress={() => navigation.navigate("Login", { setIsLoggedIn })}
                 style={styles.loginButton}
                 activeOpacity={0.7}
               >
@@ -151,7 +193,7 @@ const CollectionScreen = () => {
 
         {/* Filter and Sort Row */}
         <View style={styles.filterSortRow}>
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={() => setShowFilters(true)}
             style={styles.filterButton}
           >
@@ -162,7 +204,7 @@ const CollectionScreen = () => {
             visible={sortMenuVisible}
             onDismiss={() => setSortMenuVisible(false)}
             anchor={
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={() => setSortMenuVisible(true)}
                 style={styles.sortButton}
               >
@@ -194,8 +236,8 @@ const CollectionScreen = () => {
         {/* Modal Filter */}
         <Modal visible={showFilters} animationType="slide" transparent={true}>
           <View style={styles.modalContainer}>
-            <Filter 
-              onApplyFilters={applyFilters} 
+            <Filter
+              onApplyFilters={applyFilters}
               onClose={() => setShowFilters(false)}
               brands={brands}
               products={products}
@@ -274,46 +316,68 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   productCard: {
-    margin: 5,
+    margin: 6, // Reduced margin for smaller cards
     flex: 1,
+    maxWidth: '100%', // Ensure the card takes up less space in a 2-column layout
     borderColor: "white",
     borderWidth: 1,
-    borderRadius: 8,
-    padding: 10,
+    borderRadius: 10, // Slightly smaller border radius
     backgroundColor: "rgba(255, 255, 255, 0.1)",
     backdropFilter: "blur(10px)",
+    elevation: 2, // Reduced elevation for a subtler shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
   },
   productImage: {
-    height: 150,
+    height: 120, // Reduced image height for smaller cards
     backgroundColor: "transparent",
-    borderRadius: 8,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+  },
+  cardContent: {
+    padding: 8, // Reduced padding inside the card
+    alignItems: 'center',
   },
   productName: {
+    fontSize: 14, // Reduced font size
     fontWeight: "bold",
-    fontSize: 16,
-    marginBottom: 5,
     color: "white",
     fontFamily: 'Jersey 15',
+    textAlign: 'center',
+    marginBottom: 2, // Reduced margin
   },
   productBrand: {
     color: "white",
-    fontSize: 14,
+    fontSize: 12, // Reduced font size
     fontFamily: 'Jersey 15',
+    textAlign: 'center',
+    marginBottom: 2,
   },
   productPrice: {
     color: "yellow",
-    fontSize: 16,
+    fontSize: 14, // Reduced font size
     fontWeight: "bold",
     fontFamily: 'Jersey 15',
+    textAlign: 'center',
+    marginBottom: 4,
   },
   ratingContainer: {
     flexDirection: 'row',
     backgroundColor: "transparent",
-    marginTop: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 2,
   },
-  heartIcon: {
-    backgroundColor: "transparent",
-    marginRight: 5,
+  starIcon: {
+    marginHorizontal: 1, // Reduced spacing between stars
+  },
+  ratingText: {
+    color: 'white',
+    fontSize: 10, // Reduced font size
+    marginLeft: 4, // Reduced margin
+    fontFamily: 'Jersey 15',
   },
   productList: {
     paddingBottom: 50,
