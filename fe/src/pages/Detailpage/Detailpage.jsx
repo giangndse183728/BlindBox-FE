@@ -64,7 +64,7 @@ const Detailpage = () => {
 
     const handleAddToCart = () => {
         if (!isOutOfStock) {
-            addToCart(product, quantity);
+            addToCart(product.product, quantity);
         }
     };
 

@@ -5,6 +5,7 @@ import {
 } from "@mui/material";
 import ButtonCus from "../../components/Button/ButtonCus";
 import DeleteIconOutlined from '@mui/icons-material/DeleteOutlined';
+import { yellowGlowAnimation } from "../../components/Text/YellowEffect";
 import { Link } from "react-router-dom";
 
 const CartItemsList = ({ 
@@ -33,7 +34,7 @@ const CartItemsList = ({
       p: 3
     }}>
       {/* Add delete selected button and select all checkbox */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 5 }}>
         <FormControlLabel
           control={
             <Checkbox 
@@ -57,8 +58,23 @@ const CartItemsList = ({
             >
               Select all
             </Typography>
+            
+            
           }
+          
         />
+           <Typography
+              variant="h5"
+              fontFamily="'Jersey 15', sans-serif"
+              sx={{
+                color: "white",
+                fontSize: '2.0rem',
+                ...yellowGlowAnimation,
+                textAlign: 'left'
+              }}
+            >
+              -   Shopping Cart    -
+            </Typography>
         
         <ButtonCus
           variant="button-pixel-red"

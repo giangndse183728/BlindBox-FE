@@ -51,6 +51,8 @@ const CartPage = () => {
   const [selectedItems, setSelectedItems] = useState({});
   const [selectAll, setSelectAll] = useState(false);
 
+  const [selectedPromotion, setSelectedPromotion] = useState(null);
+
   useEffect(() => {
     const getUserProfile = async () => {
       try {
@@ -208,6 +210,21 @@ const CartPage = () => {
         quantity: item.cartQuantity
       }));
       
+      // Extract promotion information
+      let promotionId = "";
+      let isRefundPromotion = false;
+      
+      if (selectedPromotion) {
+        if (typeof selectedPromotion === 'object' && selectedPromotion.id) {
+          // New structure with type information
+          promotionId = selectedPromotion.id;
+          isRefundPromotion = selectedPromotion.type === 'refund';
+        } else {
+          // Old structure (just the ID string)
+          promotionId = selectedPromotion;
+        }
+      }
+      
       // Build the order data
       const orderData = {
         receiverInfo: {
@@ -216,17 +233,19 @@ const CartPage = () => {
           address: orderInfo.isGift ? orderInfo.giftRecipient.address : orderInfo.address
         },
         orderType: 1, 
-        promotionId: "", 
+        promotionId: promotionId,
+        isRefundPromotion: isRefundPromotion, // Add this flag for backend to distinguish promotion types
         notes: orderInfo.notes || (orderInfo.isGift ? "This is a gift" : ""),
         paymentMethod: orderInfo.paymentMethod === 'cod' ? 0 : 1,
         items: items
       };
+      
       const response = await createOrder(orderData);
       clearCart();
       toast.success('Order placed successfully!');
       navigate('/order-success', {
         state: {
-          orderData: response.result,
+          orderData: response,
           paymentMethod: orderInfo.paymentMethod
         }
       });
@@ -338,22 +357,7 @@ const CartPage = () => {
         alignItems: 'center',
         paddingTop: 3,
       }}>
-        {cartItems.length > 0 && (
-          <Box sx={{ width: '93%', mb: 2, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <Typography
-              variant="h5"
-              fontFamily="'Jersey 15', sans-serif"
-              sx={{
-                color: "white",
-                fontSize: '2.2rem',
-                ...yellowGlowAnimation,
-                textAlign: 'left'
-              }}
-            >
-              -   Shopping Cart    -
-            </Typography>
-          </Box>
-        )}
+       
 
         {isLoading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
@@ -433,6 +437,8 @@ const CartPage = () => {
                 checkoutError={checkoutError}
                 handleOpenOrderDialog={handleOpenOrderDialog}
                 handleCheckout={handleCheckout}
+                selectedPromotion={selectedPromotion}
+                setSelectedPromotion={setSelectedPromotion}
               />
             </Grid>
           </Grid>
