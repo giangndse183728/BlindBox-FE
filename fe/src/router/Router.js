@@ -19,6 +19,7 @@ import ManageUsers from '../pages/Admin/dashboard/pages/ManageUsers';
 import ManagePosts from '../pages/Admin/dashboard/pages/ManagePosts';
 import SettingBeads from '../pages/Admin/dashboard/pages/SettingBeads';
 import ManageOrders from '../pages/Admin/dashboard/pages/ManageOrders';
+import ManagePromotions from '../pages/Admin/dashboard/pages/ManagePromotions';
 //User
 import CustomPage from '../pages/Custom/CustomPage';
 import ProfilePage from '../pages/ProfilePage/ProfilePage';
@@ -67,7 +68,7 @@ export const routes = createBrowserRouter([
       </Layout>
     ),
   },
-  
+
 
   {
     path: '/login/oauth',
@@ -106,6 +107,10 @@ export const routes = createBrowserRouter([
       {
         path: 'orders',
         element: <ManageOrders />
+      },
+      {
+        path: 'promotions',
+        element: <ManagePromotions />
       },
     ],
   },
