@@ -22,24 +22,24 @@ const mainListItems = [
 ];
 
 const secondaryListItems = [
-  { text: 'Promotions', icon: <InfoRoundedIcon />, path: '/dashboard/about' },
+  { text: 'Discounts', icon: <InfoRoundedIcon />, path: '/dashboard/discounts' },
   { text: 'Setting Accessory', icon: <SettingsRoundedIcon />, path: '/dashboard/setting-beads' },
 ];
 
 export default function MenuContent() {
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const handleNavigation = (path) => {
     navigate(path);
   };
-  
+
   return (
     <Stack sx={{ flexGrow: 1, p: 1, justifyContent: 'space-between' }}>
       <List dense>
         {mainListItems.map((item, index) => (
           <ListItem key={index} disablePadding sx={{ display: 'block' }}>
-            <ListItemButton 
+            <ListItemButton
               selected={location.pathname === item.path}
               onClick={() => handleNavigation(item.path)}
             >
