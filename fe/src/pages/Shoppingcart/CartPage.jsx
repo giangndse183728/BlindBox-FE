@@ -2,23 +2,21 @@ import React, { useEffect, useState } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import useCartStore from './CartStore';
+import CartItemsList from './CartItemsList';
+import OrderSummary from './OrderSummary';
 import { Link, useNavigate } from "react-router-dom";
-import {
-  Box, Typography, Button, Grid, TextField, InputAdornment, CircularProgress, Chip
+import { 
+  Box, Typography, Button, Grid, CircularProgress,
 } from "@mui/material";
 import { yellowGlowAnimation } from '../../components/Text/YellowEffect';
-import ButtonCus from "../../components/Button/ButtonCus";
-import DeleteIconOutlined from '@mui/icons-material/DeleteOutlined';
-import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import { fetchProfile } from '../../services/userApi';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
-import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
 import OrderInfoDialog from './OrderInfoDialog';
-import EditIcon from '@mui/icons-material/Edit';
 import { createOrder } from '../../services/ordersApi';
 import { toast } from 'react-toastify';
 import OrderSuccessScreen from './OrderSuccessScreen';
+
 
 const CartPage = () => {
   const { cart, removeFromCart, clearCart, updateQuantity, fetchCartItems, isLoading, error } = useCartStore();
@@ -37,9 +35,6 @@ const CartPage = () => {
     }
   });
 
-  // Local state to manage input values for each item's quantity
-  const [quantityInputs, setQuantityInputs] = useState({});
-
   const [profileLoading, setProfileLoading] = useState(false);
   const [profileError, setProfileError] = useState(null);
   const [openOrderDialog, setOpenOrderDialog] = useState(false);
@@ -48,6 +43,13 @@ const CartPage = () => {
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [orderData, setOrderData] = useState(null);
   const navigate = useNavigate();
+
+  // State for quantity inputs
+  const [quantityInputs, setQuantityInputs] = useState({});
+
+  // State for checkboxes
+  const [selectedItems, setSelectedItems] = useState({});
+  const [selectAll, setSelectAll] = useState(false);
 
   useEffect(() => {
     const getUserProfile = async () => {
@@ -124,18 +126,69 @@ const CartPage = () => {
     fetchCartItems();
   }, [fetchCartItems]);
 
-  const handleQuantityChange = (item, newQuantity) => {
-    if (newQuantity > 0) {
-      updateQuantity(item.product._id, newQuantity);
+  // Initialize quantity inputs when cart items load
+  useEffect(() => {
+    if (cartItems && cartItems.length > 0) {
+      const initialInputs = {};
+      cartItems.forEach(item => {
+        initialInputs[item.product._id] = item.cartQuantity.toString();
+      });
+      setQuantityInputs(initialInputs);
+      
+      // Reset selection when cart changes
+      setSelectedItems({});
+      setSelectAll(false);
     }
+  }, [cartItems]);
+
+  const handleQuantityChange = (item, newQuantity) => {
+    if (newQuantity > 0 && newQuantity <= item.product.quantity) {
+      updateQuantity(item.product._id, newQuantity);
+      setQuantityInputs(prev => ({
+        ...prev,
+        [item.product._id]: newQuantity.toString()
+      }));
+    }
+  };
+
+  const handleQuantityInputChange = (item, value) => {
+    // Allow empty string or numbers only
+    if (value === '' || /^\d+$/.test(value)) {
+      setQuantityInputs(prev => ({
+        ...prev,
+        [item.product._id]: value
+      }));
+    }
+  };
+
+  const handleQuantityInputBlur = (item) => {
+    const inputValue = quantityInputs[item.product._id];
+    let newQuantity;
+    
+    // Handle empty or invalid input
+    if (inputValue === '' || isNaN(parseInt(inputValue))) {
+      newQuantity = 1;
+    } else {
+      newQuantity = parseInt(inputValue);
+      
+      // Enforce min/max constraints
+      if (newQuantity < 1) {
+        newQuantity = 1;
+      } else if (newQuantity > item.product.quantity) {
+        newQuantity = item.product.quantity;
+      }
+    }
+    
+    // Update the cart and the input value
+    updateQuantity(item.product._id, newQuantity);
+    setQuantityInputs(prev => ({
+      ...prev,
+      [item.product._id]: newQuantity.toString()
+    }));
   };
 
   const handleDelete = (item) => {
     removeFromCart(item.product._id);
-  };
-
-  const handleClearCart = () => {
-    clearCart();
   };
 
   const handleOpenOrderDialog = () => {
@@ -154,14 +207,16 @@ const CartPage = () => {
         itemId: item._id,
         quantity: item.cartQuantity
       }));
+      
+      // Build the order data
       const orderData = {
         receiverInfo: {
           fullName: orderInfo.isGift ? orderInfo.giftRecipient.fullName : orderInfo.fullName,
           phoneNumber: orderInfo.isGift ? orderInfo.giftRecipient.phoneNumber : orderInfo.phoneNumber,
           address: orderInfo.isGift ? orderInfo.giftRecipient.address : orderInfo.address
         },
-        orderType: 1,
-        promotionId: "",
+        orderType: 1, 
+        promotionId: "", 
         notes: orderInfo.notes || (orderInfo.isGift ? "This is a gift" : ""),
         paymentMethod: orderInfo.paymentMethod === 'cod' ? 0 : 1,
         items: items
@@ -192,15 +247,70 @@ const CartPage = () => {
     }
   };
 
+  // Handle checkbox selection
+  const handleItemSelect = (productId) => {
+    const newSelectedItems = {
+      ...selectedItems,
+      [productId]: !selectedItems[productId]
+    };
+    setSelectedItems(newSelectedItems);
+    
+    // Update selectAll based on whether all items are now selected
+    const allSelected = cartItems.every(item => 
+      productId === item.product._id ? newSelectedItems[productId] : newSelectedItems[item.product._id]
+    );
+    setSelectAll(allSelected);
+  };
+
+  // Handle select all checkbox
+  const handleSelectAll = () => {
+    const newSelectAll = !selectAll;
+    setSelectAll(newSelectAll);
+    
+    const newSelectedItems = {};
+    if (newSelectAll) {
+      cartItems.forEach(item => {
+        newSelectedItems[item.product._id] = true;
+      });
+    }
+    setSelectedItems(newSelectedItems);
+  };
+
+  // Delete selected items or clear cart
+  const handleDeleteSelected = async () => {
+    if (areAllItemsSelected()) {
+      // If all items are selected, use clearCart
+      clearCart();
+    } else {
+      // Otherwise, delete only selected items
+      const selectedProductIds = Object.keys(selectedItems).filter(id => selectedItems[id]);
+      
+      if (selectedProductIds.length === 0) {
+        toast.info('No items selected to remove');
+        return;
+      }
+
+      try {
+        for (const productId of selectedProductIds) {
+          await removeFromCart(productId);
+        }
+        setSelectedItems({});
+      } catch (error) {
+        toast.error('Cannot remove selected items from cart');
+      }
+    }
+  };
+
+  // Function to check if all items are actually selected
+  const areAllItemsSelected = () => {
+    return cartItems.length > 0 && cartItems.every(item => selectedItems[item.product._id]);
+  };
+
   useEffect(() => {
     window.scrollTo(0, 0);
     AOS.init({ duration: 1000 });
     AOS.refresh();
   }, []);
-
-  const isAccessory = (item) => {
-    return item.product?.accessories && item.product.accessories.length > 0;
-  };
 
   return (
     <>
@@ -291,492 +401,39 @@ const CartPage = () => {
           </Box>
         ) : (
           <Grid container spacing={3} sx={{ px: 5 }}>
-            {/* Cart Items List */}
+            {/* Cart Items List Component */}
             <Grid item xs={12} lg={9}>
-              <Box sx={{
-                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                borderRadius: 2,
-                p: 3
-              }}>
-                {/* Header Row */}
-                <Grid container spacing={2} sx={{ borderBottom: '1px solid #ccc', pb: 2, mb: 2 }}>
-                  <Grid item xs={5}>
-                    <Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white", fontSize: '1.5rem' }}>
-                      Product Name
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={2} sx={{ textAlign: 'center' }}>
-                    <Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white", fontSize: '1.5rem' }}>
-                      Brand
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={2} sx={{ textAlign: 'center' }}>
-                    <Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white", fontSize: '1.5rem' }}>
-                      Price
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={2} sx={{ textAlign: 'center' }}>
-                    <Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white", fontSize: '1.5rem' }}>
-                      Qty
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={1} sx={{ textAlign: 'center' }}>
-                    <Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white", fontSize: '1.5rem' }}>
-                    </Typography>
-                  </Grid>
-                </Grid>
-
-                {cartItems.map((item) => (
-                  <Grid container spacing={2} key={item._id} sx={{
-                    alignItems: 'center',
-                    borderBottom: '1px solid rgba(255,255,255,0.1)',
-                    py: 2
-                  }}>
-                    <Grid item xs={5} sx={{ display: 'flex', alignItems: 'center' }}>
-                      {isAccessory(item) ? (
-                        <Link
-                          to={`/product/accessory/${item.product?.slug}?id=${item.product?._id}`}
-                          style={{ textDecoration: "none", display: "flex", alignItems: "center" }}
-                        >
-                          <img
-                            src={item.product?.image}
-                            alt={item.product?.name}
-                            style={{ width: 80, height: 80, borderRadius: '10px', marginRight: '16px' }}
-                          />
-                          <Box>
-                            <Typography sx={{ color: "white" }}>{item.product?.name}</Typography>
-                            <Chip
-                              label="Custom Accessory"
-                              size="small"
-                              sx={{
-                                mt: 0.5,
-                                bgcolor: 'rgba(255,215,0,0.1)',
-                                color: '#FFD700',
-                                border: '1px solid rgba(255,215,0,0.3)',
-                                fontSize: '0.7rem'
-                              }}
-                            />
-                          </Box>
-                        </Link>
-                      ) : (
-                        <Link
-                          to={`/product/${item.product?.slug}?id=${item.product?._id}`}
-                          style={{ textDecoration: "none", display: "flex", alignItems: "center" }}
-                        >
-                          <img
-                            src={item.product?.image}
-                            alt={item.product?.name}
-                            style={{ width: 80, height: 80, borderRadius: '10px', marginRight: '16px' }}
-                          />
-                          <Typography sx={{ color: "white" }}>{item.product?.name}</Typography>
-                        </Link>
-                      )}
-                    </Grid>
-                    <Grid item xs={2} sx={{ textAlign: 'center' }}>
-                      <Typography sx={{ color: "white" }}>{item.product?.brand}</Typography>
-                    </Grid>
-                    <Grid item xs={2} sx={{ textAlign: 'center' }}>
-                      <Typography sx={{ color: "white" }}>${parseFloat(item.product?.price).toFixed(2) || "N/A"}</Typography>
-                    </Grid>
-                    <Grid item xs={2} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                      <ButtonCus
-                        variant="button-pixel"
-                        onClick={() => {
-                          const newQty = Math.max(1, item.cartQuantity - 1);
-                          setQuantityInputs(prev => ({ ...prev, [item._id]: newQty.toString() }));
-                          handleQuantityChange(item, newQty);
-                        }}
-                        width="30px"
-                        height="30px"
-                        disabled={isLoading || item.cartQuantity <= 1}
-                      >
-                        -
-                      </ButtonCus>
-
-                      <Box
-                        component="input"
-                        type="number"
-                        value={quantityInputs[item._id] || item.cartQuantity}
-                        onChange={(e) => {
-                          const inputValue = e.target.value;
-                          setQuantityInputs(prev => ({ ...prev, [item._id]: inputValue }));
-                        }}
-                        onBlur={(e) => {
-                          const inputValue = e.target.value;
-                          let newValue = parseInt(inputValue);
-                          if (isNaN(newValue) || newValue < 1) newValue = 1;
-                          if (newValue > item.product.quantity) newValue = item.product.quantity;
-                          setQuantityInputs(prev => ({ ...prev, [item._id]: newValue.toString() }));
-                          handleQuantityChange(item, newValue);
-                        }}
-                        onKeyPress={(e) => {
-                          if (e.key === 'Enter') {
-                            const inputValue = e.target.value;
-                            let newValue = parseInt(inputValue);
-                            if (isNaN(newValue) || newValue < 1) newValue = 1;
-                            if (newValue > item.product.quantity) newValue = item.product.quantity;
-                            setQuantityInputs(prev => ({ ...prev, [item._id]: newValue.toString() }));
-                            handleQuantityChange(item, newValue);
-                            e.target.blur();
-                          }
-                        }}
-                        sx={{
-                          width: '60px',
-                          mx: 1,
-                          padding: '5px',
-                          textAlign: 'center',
-                          color: 'white',
-                          backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                          border: '1px solid rgba(255, 255, 255, 0.3)',
-                          borderRadius: '4px',
-                          fontFamily: "'Jersey 15', sans-serif",
-                          fontSize: '1rem',
-                          outline: 'none',
-                          '&:hover': {
-                            borderColor: 'rgba(255, 255, 255, 0.5)',
-                          },
-                          '&:focus': {
-                            borderColor: '#FFD700',
-                            boxShadow: '0 0 5px rgba(255, 215, 0, 0.5)',
-                          },
-                          '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
-                            '-webkit-appearance': 'none',
-                            margin: 0,
-                          },
-                          '&[type=number]': {
-                            '-moz-appearance': 'textfield',
-                          },
-                        }}
-                        min={1}
-                        max={item.product.quantity}
-                        step={1}
+              <CartItemsList 
+                cartItems={cartItems}
+                selectedItems={selectedItems}
+                selectAll={selectAll}
+                quantityInputs={quantityInputs}
+                isLoading={isLoading}
+                handleItemSelect={handleItemSelect}
+                handleSelectAll={handleSelectAll}
+                handleDeleteSelected={handleDeleteSelected}
+                handleQuantityChange={handleQuantityChange}
+                handleQuantityInputChange={handleQuantityInputChange}
+                handleQuantityInputBlur={handleQuantityInputBlur}
+                handleDelete={handleDelete}
+                areAllItemsSelected={areAllItemsSelected}
                       />
-
-                      {item.cartQuantity < item.product.quantity && (
-                        <ButtonCus
-                          variant="button-pixel"
-                          onClick={() => {
-                            const newQty = Math.min(item.product.quantity, item.cartQuantity + 1);
-                            setQuantityInputs(prev => ({ ...prev, [item._id]: newQty.toString() }));
-                            handleQuantityChange(item, newQty);
-                          }}
-                          width="30px"
-                          height="30px"
-                          disabled={isLoading}
-                        >
-                          +
-                        </ButtonCus>
-                      )}
                     </Grid>
-                    <Grid item xs={1} sx={{ textAlign: 'center' }}>
-                      <ButtonCus
-                        variant="button-pixel-red"
-                        onClick={() => handleDelete(item)}
-                        width="40px"
-                        height="40px"
-                        disabled={isLoading}
-                      >
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <DeleteIconOutlined sx={{ fontSize: 20 }} />
-                        </Box>
-                      </ButtonCus>
-                    </Grid>
-                  </Grid>
-                ))}
 
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 3, mb: 5 }}>
-                  <Typography
-                    color="white"
-                    sx={{
-                      ...yellowGlowAnimation,
-                      textAlign: 'right',
-                      position: 'relative',
-                      fontSize: '2rem',
-                      fontFamily: '"Jersey 15", sans-serif !important',
-                    }}
-                  >
-                    *****************
-                  </Typography>
-
-                  <ButtonCus
-                    variant="button-pixel-red"
-                    onClick={handleClearCart}
-                    width="120px"
-                    height="30px"
-                  >
-                    <Typography variant="body1" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
-                      Clear Cart
-                    </Typography>
-                  </ButtonCus>
-                  <Typography
-                    color="white"
-                    sx={{
-                      ...yellowGlowAnimation,
-                      textAlign: 'right',
-                      position: 'relative',
-                      fontSize: '2rem',
-                      fontFamily: '"Jersey 15", sans-serif !important',
-                    }}
-                  >
-                    *****************
-                  </Typography>
-                </Box>
-              </Box>
-            </Grid>
-
-            {/* Checkout Box */}
+            {/* Order Summary Component */}
             <Grid item xs={12} lg={3}>
-              <Box sx={{
-                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                border: '2px solid rgba(255, 255, 255, 0.3)',
-                p: 3,
-                borderRadius: 2,
-                position: 'sticky',
-                top: 90
-              }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                  <Typography variant="h5" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
-                    Order Summary
-                  </Typography>
-                  <ButtonCus
-                    variant="button-pixel"
-                    width="50px"
-                    height="30px"
-                    onClick={handleOpenOrderDialog}
-                  >
-                    <Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
-                      <EditIcon />
-                    </Typography>
-                  </ButtonCus>
-                </Box>
-
-                {(orderInfo.isGift ? orderInfo.giftRecipient.fullName : orderInfo.fullName) && (
-                  <Box sx={{
-                    mb: 3,
-                    p: 1.5,
-                    borderRadius: 1,
-                    bgcolor: 'rgba(0, 0, 0, 0.3)',
-                    border: '1px dashed rgba(255, 255, 255, 0.2)',
-                  }}>
-                    <Typography sx={{
-                      color: "white",
-                      fontFamily: "'Jersey 15', sans-serif",
-                      fontSize: '0.9rem',
-                      mb: 0.5
-                    }}>
-                      {orderInfo.isGift ? 'Gift to: ' + orderInfo.giftRecipient.fullName : orderInfo.fullName}
-                    </Typography>
-                    <Typography sx={{
-                      color: "rgba(255, 255, 255, 0.7)",
-                      fontFamily: "'Jersey 15', sans-serif",
-                      fontSize: '0.8rem',
-                      mb: 0.5
-                    }}>
-                      {orderInfo.isGift ? orderInfo.giftRecipient.phoneNumber : orderInfo.phoneNumber}
-                    </Typography>
-                    <Typography sx={{
-                      color: "rgba(255, 255, 255, 0.7)",
-                      fontFamily: "'Jersey 15', sans-serif",
-                      fontSize: '0.8rem'
-                    }}>
-                      {orderInfo.isGift ? orderInfo.giftRecipient.address : orderInfo.address}
-                    </Typography>
-                  </Box>
-                )}
-
-                <Box sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  mb: 2,
-                  p: 1,
-                  borderRadius: 1,
-                  bgcolor: 'rgba(255, 215, 0, 0.1)',
-                  border: '1px solid rgba(255, 215, 0, 0.3)',
-                }}>
-                  <Typography sx={{
-                    color: "white",
-                    fontFamily: "'Jersey 15', sans-serif",
-                  }}>
-                    Payment Method:
-                  </Typography>
-                  <Box sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    color: "white",
-                    gap: 1
-                  }}>
-                    {paymentMethods[orderInfo.paymentMethod]?.icon}
-                    <Typography>
-                      {paymentMethods[orderInfo.paymentMethod]?.name || 'Not selected'}
-                    </Typography>
-                  </Box>
-                </Box>
-
-                <Box sx={{ mb: 3 }}>
-                  <TextField
-                    fullWidth
-                    placeholder="Enter coupon code"
-                    variant="outlined"
-                    size="small"
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <LocalOfferIcon sx={{ color: 'white' }} />
-                        </InputAdornment>
-                      ),
-                      sx: {
-                        color: 'white',
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'rgba(255, 255, 255, 0.3)',
-                        },
-                        '&:hover .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'rgba(255, 255, 255, 0.5)',
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'white',
-                        },
-                        '&::placeholder': {
-                          color: 'rgba(255, 255, 255, 0.7)',
-                        },
-                      },
-                    }}
-                    sx={{
-                      '& .MuiInputLabel-root': {
-                        color: 'white',
-                      },
-                      '& .MuiInput-underline:before': {
-                        borderBottomColor: 'white',
-                      },
-                    }}
-                  />
-                </Box>
-
-                {orderInfo.isGift && (
-                  <Box sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    mb: 2,
-                    alignItems: 'center'
-                  }}>
-                    <Typography sx={{ color: "white", fontFamily: "'Jersey 15', sans-serif" }}>
-                      Gift:
-                    </Typography>
-                    <Box sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      color: '#FFD700',
-                      gap: 1
-                    }}>
-                      <CardGiftcardIcon />
-                      <Typography>Yes</Typography>
-                    </Box>
-                  </Box>
-                )}
-
-                <Box sx={{ mb: 3 }}>
-                  <Box sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    mb: 2
-                  }}>
-                    <Typography sx={{ color: "white", fontFamily: "'Jersey 15', sans-serif" }}>
-                      Subtotal:
-                    </Typography>
-                    <Typography sx={{ color: "white" }}>
-                      ${subtotal.toFixed(2)}
-                    </Typography>
-                  </Box>
-
-                  <Box sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    mb: 2,
-                  }}>
-                    <Typography sx={{ color: "white", fontFamily: "'Jersey 15', sans-serif" }}>
-                      Discount:
-                    </Typography>
-                    <Typography sx={{ color: "#ff4444" }}>
-                      -$0.00
-                    </Typography>
-                  </Box>
-
-                  <Box sx={{
-                    width: '100%',
-                    height: '1px',
-                    bgcolor: 'rgba(255,255,255,0.1)',
-                    my: 2
-                  }} />
-
-                  <Box sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    mb: 3,
-                  }}>
-                    <Typography
-                      variant="h4"
-                      sx={{
-                        color: "white",
-                        fontFamily: "'Jersey 15', sans-serif",
-                        ...yellowGlowAnimation
-                      }}
-                    >
-                      Total:
-                    </Typography>
-                    <Typography
-                      variant="h4"
-                      sx={{
-                        color: "white",
-                        fontFamily: "'Jersey 15', sans-serif",
-                      }}
-                    >
-                      ${totalWithShipping.toFixed(2)}
-                    </Typography>
-                  </Box>
-                </Box>
-
-                <ButtonCus
-                  variant="button-pixel-green"
-                  width="100%"
-                  height="40px"
-                  onClick={handleCheckout}
-                  disabled={
-                    isLoading ||
-                    checkoutLoading ||
-                    cartItems.length === 0 ||
-                    (orderInfo.isGift ?
-                      (!orderInfo.giftRecipient.fullName || !orderInfo.giftRecipient.phoneNumber || !orderInfo.giftRecipient.address) :
-                      (!orderInfo.fullName || !orderInfo.phoneNumber || !orderInfo.address)
-                    )
-                  }
-                >
-                  {checkoutLoading ? (
-                    <CircularProgress size={24} sx={{ color: 'white' }} />
-                  ) : (
-                    <Typography variant="h5" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
-                      Place Order
-                    </Typography>
-                  )}
-                </ButtonCus>
-
-                {checkoutError && (
-                  <Typography sx={{ color: 'red', mt: 2, textAlign: 'center', fontSize: '0.9rem' }}>
-                    {checkoutError}
-                  </Typography>
-                )}
-
-                <Link to="/Collection-page" style={{ textDecoration: "none" }}>
-                  <ButtonCus
-                    variant="button-pixel"
-                    width="100%"
-                    height="30px"
-                    sx={{ mt: 2 }}
-                  >
-                    <Typography variant="body1" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
-                      Continue Shopping
-                    </Typography>
-                  </ButtonCus>
-                </Link>
-              </Box>
+              <OrderSummary 
+                orderInfo={orderInfo}
+                paymentMethods={paymentMethods}
+                subtotal={subtotal}
+                totalWithShipping={totalWithShipping}
+                cartItems={cartItems}
+                isLoading={isLoading}
+                checkoutLoading={checkoutLoading}
+                checkoutError={checkoutError}
+                handleOpenOrderDialog={handleOpenOrderDialog}
+                handleCheckout={handleCheckout}
+              />
             </Grid>
           </Grid>
         )}
