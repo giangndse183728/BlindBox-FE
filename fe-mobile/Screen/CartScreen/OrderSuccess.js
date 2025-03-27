@@ -69,15 +69,15 @@ const OrderSuccess = () => {
   };
 
   const getPaymentMethodIcon = () => {
-    return paymentMethod === 1 ? 'account-balance' : 'account-balance';
+    return paymentMethod === 0 ? 'local-shipping' : 'account-balance';
   };
 
   const getPaymentMethodName = () => {
-    return paymentMethod === 1 ? 'Bank Transfer' : 'Bank Transfer';
+    return paymentMethod === 0 ? 'Cash on Delivery' : 'QR (Bank Transfer)';
   };
 
   // QR Code URL for bank transfer
-  console.log('Order Data:', process.env.EXPO_PUBLIC_ACCOUNT , process.env.EXPO_PUBLIC_BANK_NAME);
+  console.log('Order Data:', process.env.EXPO_PUBLIC_ACCOUNT, process.env.EXPO_PUBLIC_BANK_NAME);
   const qrUrl = paymentMethod === 1 
     ? `https://qr.sepay.vn/img?acc=${process.env.EXPO_PUBLIC_ACCOUNT}&bank=${process.env.EXPO_PUBLIC_BANK_NAME}&amount=${Math.round(orderData.totalPrice * 1000)}&des=${encodeURIComponent(`orderId ${orderData._id}`)}&lock=true`
     : null;
@@ -98,8 +98,8 @@ const OrderSuccess = () => {
             </Text>
           </View>
 
-          {/* Payment QR Code for Bank Transfer */}
-          {paymentMethod === 1 && (
+          {/* Payment Information */}
+          {paymentMethod === 1 ? (
             <View style={styles.qrSection}>
               <Text style={styles.sectionTitle}>Scan QR Code to Pay</Text>
               <Image
@@ -107,6 +107,16 @@ const OrderSuccess = () => {
                 style={styles.qrCode}
                 resizeMode="contain"
               />
+              <Text style={styles.paymentInstruction}>
+                Please scan the QR code above to complete your payment via Bank Transfer.
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.qrSection}>
+              <Text style={styles.sectionTitle}>Payment Information</Text>
+              <Text style={styles.paymentInstruction}>
+                You have chosen Cash on Delivery. Please prepare ${orderData.totalPrice.toFixed(2)} to pay upon delivery.
+              </Text>
             </View>
           )}
 
@@ -260,6 +270,12 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: 'rgba(255, 215, 0, 0.3)',
   },
+  paymentInstruction: {
+    color: 'white',
+    fontSize: 14,
+    textAlign: 'center',
+    marginTop: 10,
+  },
   section: {
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     borderRadius: 10,
@@ -403,4 +419,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default OrderSuccess; 
+export default OrderSuccess;

@@ -16,10 +16,11 @@ const OrderInfoDialog = ({
   visible,
   onClose,
   orderInfo,
+  setOrderInfo,
   onSubmit,
   isLoading,
   error,
-  setOrderInfo
+  cart
 }) => {
   const handleGiftToggle = (value) => {
     setOrderInfo(prev => ({
@@ -66,6 +67,15 @@ const OrderInfoDialog = ({
       orderInfo.phoneNumber &&
       orderInfo.address
     );
+  };
+
+  const calculateTotal = () => {
+    if (!cart || !cart.items || !Array.isArray(cart.items)) {
+      return 0;
+    }
+    return cart.items.reduce((total, item) => {
+      return total + (item.product.price * item.cartQuantity);
+    }, 0);
   };
 
   return (
@@ -161,10 +171,10 @@ const OrderInfoDialog = ({
                   styles.paymentOption,
                   orderInfo.paymentMethod === 0 && styles.selectedPayment
                 ]}
-                onPress={() => handlePaymentMethodChange(1)}
+                onPress={() => handlePaymentMethodChange(0)}
               >
                 <Icon name="local-shipping" size={24} color={orderInfo.paymentMethod === 0 ? '#FFD700' : 'white'} />
-                <Text style={[styles.paymentText, orderInfo.paymentMethod === 1 && styles.selectedPaymentText]}>
+                <Text style={[styles.paymentText, orderInfo.paymentMethod === 0 && styles.selectedPaymentText]}>
                   Cash on Delivery
                 </Text>
               </TouchableOpacity>
@@ -178,7 +188,7 @@ const OrderInfoDialog = ({
               >
                 <Icon name="account-balance" size={24} color={orderInfo.paymentMethod === 1 ? '#FFD700' : 'white'} />
                 <Text style={[styles.paymentText, orderInfo.paymentMethod === 1 && styles.selectedPaymentText]}>
-                  Bank Transfer
+                  QR (Bank Transfer)
                 </Text>
               </TouchableOpacity>
             </View>
@@ -201,6 +211,9 @@ const OrderInfoDialog = ({
           </ScrollView>
 
           <View style={styles.footer}>
+            <Text style={styles.totalText}>
+              Total: ${calculateTotal().toFixed(2)}
+            </Text>
             <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
               <Text style={styles.cancelButtonText}>Cancel</Text>
             </TouchableOpacity>
@@ -319,9 +332,15 @@ const styles = StyleSheet.create({
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     padding: 15,
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,215,0,0.3)',
+  },
+  totalText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   cancelButton: {
     padding: 12,
@@ -356,4 +375,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default OrderInfoDialog; 
+export default OrderInfoDialog;
