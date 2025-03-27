@@ -221,7 +221,41 @@ const ProfilePage = () => {
                                     }}
                                 />
                             </p>
-                            <p style={{ margin: 0, color: "rgba(255, 255, 255, 0.5)", }}>{user?.email}</p>
+                            <p style={{ margin: 0, color: "rgba(255, 255, 255, 0.5)", }}>
+                                {user?.email}
+                                {user?.verify === 1 ? (
+                                    <Chip
+                                        label="Verified"
+                                        color="success"
+                                        variant="outlined"
+                                        size="small"
+                                        sx={{
+                                            ml: 1,
+                                            height: '20px',
+                                            '& .MuiChip-label': {
+                                                fontSize: '0.7rem',
+                                                fontFamily: 'Yusei Magic'
+                                            }
+                                        }}
+                                    />
+                                ) : (
+                                    <Chip
+                                        label="Unverified"
+                                        variant="outlined"
+                                        size="small"
+                                        sx={{
+                                            ml: 1,
+                                            height: '20px',
+                                            color: 'grey.500',
+                                            borderColor: 'grey.500',
+                                            '& .MuiChip-label': {
+                                                fontSize: '0.7rem',
+                                                fontFamily: 'Yusei Magic'
+                                            }
+                                        }}
+                                    />
+                                )}
+                            </p>
                         </div>
                     </div>
                     <Box
