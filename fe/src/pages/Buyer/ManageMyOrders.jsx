@@ -26,6 +26,8 @@ import StarBorderIcon from '@mui/icons-material/StarBorder';
 import RateReviewIcon from '@mui/icons-material/RateReview';
 import ProductFeedbackForm from './ProductFeedbackForm';
 import { Link } from 'react-router-dom';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import QrCodeIcon from '@mui/icons-material/QrCode';
 
 const ORDER_STATUS = {
     0: { label: 'Pending', color: '#FF9800', bgColor: 'rgba(255, 152, 0, 0.2)', icon: <PendingIcon /> },
@@ -37,6 +39,9 @@ const ORDER_STATUS = {
 
 const ITEMS_PER_PAGE = 5;
 
+const accNumber = process.env.REACT_APP_ACC;
+const bankName = process.env.REACT_APP_BANK_NAME;
+
 function OrderRow({ order, onOrderUpdate }) {
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -44,6 +49,7 @@ function OrderRow({ order, onOrderUpdate }) {
     const [cancelReason, setCancelReason] = useState('');
     const [showFeedbackDialog, setShowFeedbackDialog] = useState(false);
     const [selectedProductForFeedback, setSelectedProductForFeedback] = useState(null);
+    const [showQRCode, setShowQRCode] = useState(false);
     const [hasFeedback, setHasFeedback] = useState(false);
 
     // Pre-defined cancellation reasons
@@ -56,6 +62,13 @@ function OrderRow({ order, onOrderUpdate }) {
         "Issues with payment method",
         "Other"
     ];
+
+    // Generate QR code URL for banking payment
+    const generateQRCodeUrl = () => {
+        const amount = Math.round(order.totalPrice * 1000);
+        const description = `orderId ${order._id}`; 
+        return `https://qr.sepay.vn/img?acc=${accNumber}&bank=${bankName}&amount=${amount}&des=${encodeURIComponent(description)}`;
+    };
 
     // Get the cancellation reason from status history if available
     const getCancellationReason = () => {
@@ -184,6 +197,15 @@ function OrderRow({ order, onOrderUpdate }) {
         return order.feedbacks.some(feedback => feedback.productId === productId);
     };
 
+    // QR code dialog handlers
+    const handleOpenQRCode = () => {
+        setShowQRCode(true);
+    };
+
+    const handleCloseQRCode = () => {
+        setShowQRCode(false);
+    };
+
     return (
         <React.Fragment>
             <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
@@ -194,16 +216,47 @@ function OrderRow({ order, onOrderUpdate }) {
                                 Order ID: {order._id}
                             </Typography>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Chip
-                                label={ORDER_STATUS[order.status].label}
-                                sx={{
-                                    bgcolor: ORDER_STATUS[order.status].bgColor,
-                                    color: ORDER_STATUS[order.status].color,
-                                    border: `1px solid ${ORDER_STATUS[order.status].color}`,
-                                    fontWeight: 'bold',
-                                }}
-                                icon={<Box sx={{ '& svg': { color: ORDER_STATUS[order.status].color, fontSize: '1rem', mr: -0.5 } }}>{ORDER_STATUS[order.status].icon}</Box>}
-                            />
+                                <Chip
+                                    label={ORDER_STATUS[order.status].label}
+                                    sx={{
+                                        bgcolor: ORDER_STATUS[order.status].bgColor,
+                                        color: ORDER_STATUS[order.status].color,
+                                        border: `1px solid ${ORDER_STATUS[order.status].color}`,
+                                        fontWeight: 'bold',
+                                    }}
+                                    icon={<Box sx={{ '& svg': { color: ORDER_STATUS[order.status].color, fontSize: '1rem', mr: -0.5 } }}>{ORDER_STATUS[order.status].icon}</Box>}
+                                />
+
+                                {/* Show payment method chip */}
+                                <Chip
+                                    label={order.paymentMethod === 0 ? "COD" : "Banking"}
+                                    size="small"
+                                    icon={order.paymentMethod === 0 ? <LocalShippingIcon sx={{ fontSize: '1rem' }} /> : <AccountBalanceIcon sx={{ fontSize: '1rem' }} />}
+                                    sx={{
+                                        bgcolor: 'rgba(0, 0, 0, 0.5)',
+                                        color: 'white',
+                                        border: '1px solid rgba(255, 255, 255, 0.3)',
+                                    }}
+                                />
+
+                                {/* Show QR code button for pending banking payments */}
+                                {order.status === 0 && order.paymentMethod === 1 && (
+                                    <IconButton 
+                                        size="small" 
+                                        onClick={handleOpenQRCode}
+                                        sx={{ 
+                                            color: '#FFD700',
+                                            bgcolor: 'rgba(0, 0, 0, 0.5)',
+                                            border: '1px solid rgba(255, 215, 0, 0.3)',
+                                            p: 0.5,
+                                            '&:hover': {
+                                                bgcolor: 'rgba(255, 215, 0, 0.1)',
+                                            }
+                                        }}
+                                    >
+                                        <QrCodeIcon sx={{ fontSize: '1.2rem' }} />
+                                    </IconButton>
+                                )}
 
                                 {/* Show cancellation reason in a secondary chip if applicable */}
                                 {order.status === 4 && cancellationReason && (
@@ -510,8 +563,8 @@ function OrderRow({ order, onOrderUpdate }) {
                                     </ButtonCus>
                                 )}
 
-                                {/* Cancel button for non-completed/cancelled orders */}
-                                {order.status !== 4 && order.status !== 3 && (
+                                {/* Cancel button ONLY for pending orders */}
+                                {order.status === 0 && (
                                     <ButtonCus
                                         variant="button-pixel-red"
                                         width="180px"
@@ -687,6 +740,73 @@ function OrderRow({ order, onOrderUpdate }) {
                 product={selectedProductForFeedback}
                 onSuccess={handleFeedbackSuccess}
             />
+
+            {/* QR Code Dialog for Banking Payments */}
+            <Dialog
+                open={showQRCode}
+                onClose={handleCloseQRCode}
+                PaperProps={{
+                    sx: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid rgba(255, 215, 0, 0.3)',
+                        borderRadius: 2,
+                        maxWidth: '400px',
+                        width: '100%'
+                    }
+                }}
+            >
+                <DialogTitle sx={{
+                    color: '#FFD700',
+                    fontFamily: "'Jersey 15', sans-serif",
+                    borderBottom: '1px solid rgba(255, 215, 0, 0.3)',
+                    pb: 2,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1
+                }}>
+                    <QrCodeIcon /> Payment QR Code
+                </DialogTitle>
+                <DialogContent sx={{ py: 3, textAlign: 'center' }}>
+                    <Typography sx={{ color: 'white', mb: 1, fontWeight: 'bold' }}>
+                        Order ID: {order._id}
+                    </Typography>
+                    <Typography sx={{ color: '#FFD700', fontSize: '1.2rem', mb: 2 }}>
+                        Amount: ${order.totalPrice.toFixed(2)}
+                    </Typography>
+                    
+                    <Box sx={{ my: 2 }}>
+                        <img
+                            src={generateQRCodeUrl()}
+                            alt="Payment QR Code"
+                            style={{
+                                maxWidth: '100%',
+                                height: 'auto',
+                                border: '2px solid rgba(255, 215, 0, 0.3)',
+                                borderRadius: '8px',
+                                backgroundColor: 'white',
+                                padding: '8px'
+                            }}
+                        />
+                    </Box>
+                    
+                    <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.9rem', mt: 2 }}>
+                        Scan this QR code to complete your payment
+                    </Typography>
+                </DialogContent>
+                <DialogActions sx={{ p: 2, borderTop: '1px solid rgba(255, 215, 0, 0.3)' }}>
+                    <ButtonCus
+                        variant="button-pixel"
+                        width="120px"
+                        height="40px"
+                        onClick={handleCloseQRCode}
+                    >
+                        <Typography variant="body1" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
+                            Close
+                        </Typography>
+                    </ButtonCus>
+                </DialogActions>
+            </Dialog>
 
             {loading && (
                 <TableRow>

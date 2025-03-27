@@ -9,6 +9,25 @@ export const getPromotions = async () => {
     }
 };
 
+export const getRefundPromotions = async () => {
+    try {
+        const response = await api.get('/orders/promotions');
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const getBuyerPromotions = async () => {
+    try {
+        const response = await api.get('/products/promotions');
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+
 export const createPromotions = async (promotionData) => {
     try {
         const response = await api.post('/admins/promotions', promotionData);
