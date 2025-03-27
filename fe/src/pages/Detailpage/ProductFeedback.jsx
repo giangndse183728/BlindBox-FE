@@ -11,7 +11,7 @@ import SendIcon from "@mui/icons-material/Send";
 import GlassCard from "../../components/Decor/GlassCard";
 import { fetchFeedbacks, createFeedback, updateFeedback, deleteFeedback } from '../../services/feedbackApi';
 
-const ProductFeedback = ({ productId, productName, onFeedbackAction }) => {
+const ProductFeedback = ({ productId, productName, onFeedbackAction, onAverageRatingChange }) => {
     const [feedbacks, setFeedbacks] = useState([]);
     const [newFeedback, setNewFeedback] = useState("");
     const [newRating, setNewRating] = useState(5);
@@ -210,6 +210,11 @@ const ProductFeedback = ({ productId, productName, onFeedbackAction }) => {
     const averageRating = feedbacks.length > 0 
         ? feedbacks.reduce((acc, curr) => acc + curr.rating, 0) / feedbacks.length 
         : 0;
+
+    // Notify parent component of the average rating change
+    useEffect(() => {
+        onAverageRatingChange(averageRating); // Notify parent of the average rating
+    }, [averageRating, onAverageRatingChange]);
 
     return (
         <>

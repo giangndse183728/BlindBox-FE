@@ -27,7 +27,7 @@ const CartPage = () => {
     address: '',
     paymentMethod: 'cod',
     isGift: false,
-    notes: '', 
+    notes: '',
     giftRecipient: {
       fullName: '',
       phoneNumber: '',
@@ -56,14 +56,12 @@ const CartPage = () => {
       try {
         setProfileLoading(true);
         const userData = await fetchProfile();
-
         setOrderInfo(prev => ({
           ...prev,
           fullName: userData.fullName || '',
           phoneNumber: userData.phoneNumber || '',
           address: userData.address || ''
         }));
-
         setProfileError(null);
       } catch (error) {
         console.error('Error fetching profile:', error);
@@ -72,9 +70,17 @@ const CartPage = () => {
         setProfileLoading(false);
       }
     };
-
     getUserProfile();
   }, []);
+
+  // Sync local quantity inputs with cart items when cart changes
+  useEffect(() => {
+    const initialQuantities = {};
+    cart?.forEach(item => {
+      initialQuantities[item._id] = item.cartQuantity.toString();
+    });
+    setQuantityInputs(initialQuantities);
+  }, [cart]);
 
   const paymentMethods = {
     cod: { name: 'COD', icon: <LocalShippingIcon /> },
@@ -83,8 +89,6 @@ const CartPage = () => {
 
   const handleOrderInfoChange = (e) => {
     const { name, value } = e.target;
-
-    // Check if this is for the gift recipient
     if (name.startsWith('gift.')) {
       const giftField = name.split('.')[1];
       setOrderInfo(prev => ({
@@ -116,7 +120,7 @@ const CartPage = () => {
   }, 0);
 
   const subtotal = totalPrice;
-  const totalWithShipping = subtotal; // No shipping cost added
+  const totalWithShipping = subtotal;
 
   useEffect(() => {
     fetchCartItems();
@@ -199,9 +203,8 @@ const CartPage = () => {
     try {
       setCheckoutLoading(true);
       setCheckoutError(null);
-
       const items = cartItems.map(item => ({
-        itemId: item._id, 
+        itemId: item._id,
         quantity: item.cartQuantity
       }));
       
@@ -215,23 +218,18 @@ const CartPage = () => {
         orderType: 1, 
         promotionId: "", 
         notes: orderInfo.notes || (orderInfo.isGift ? "This is a gift" : ""),
-        paymentMethod: orderInfo.paymentMethod === 'cod' ? 0 : 1, 
-        items: items 
+        paymentMethod: orderInfo.paymentMethod === 'cod' ? 0 : 1,
+        items: items
       };
-      
       const response = await createOrder(orderData);
-      
       clearCart();
-      
       toast.success('Order placed successfully!');
-
-      navigate('/order-success', { 
-        state: { 
+      navigate('/order-success', {
+        state: {
           orderData: response.result,
           paymentMethod: orderInfo.paymentMethod
         }
       });
-      
     } catch (error) {
       console.error('Checkout error:', error);
       if (error.errors) {
@@ -352,7 +350,7 @@ const CartPage = () => {
                 textAlign: 'left'
               }}
             >
-              -  &nbsp;Shopping Cart &nbsp;  -
+              -   Shopping Cart    -
             </Typography>
           </Box>
         )}
@@ -441,7 +439,6 @@ const CartPage = () => {
         )}
       </Grid>
 
-      {/* Dialog for order info */}
       <OrderInfoDialog
         open={openOrderDialog}
         onClose={handleCloseOrderDialog}
