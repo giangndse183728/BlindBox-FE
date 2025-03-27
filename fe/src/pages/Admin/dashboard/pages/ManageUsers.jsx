@@ -85,17 +85,15 @@ function UserRow({ user, refreshUsers }) {
   const handleConfirmAction = async () => {
     try {
       setIsLoading(true);
-      const updateData = { verify: newVerifyStatus }; // Sending "verify" as per GET
-      const response = await updateAccountStatus(user._id, updateData);
+      const response = await updateAccountStatus(user._id, { verify: newVerifyStatus });
 
-      // Validate flat PUT response structure with "verifyStatus"
-      if (response?.verifyStatus !== undefined && typeof response.verifyStatus === 'number') {
+      if (response) {
         setUpdateDialogOpen(false);
         setConfirmDialogOpen(false);
-        refreshUsers(); // Refresh to get "verify" from GET
+        refreshUsers();
         toast.success(`Account status updated to ${VERIFY_STATUS[newVerifyStatus].label}`);
       } else {
-        throw new Error('Invalid response structure from server');
+        throw new Error('Failed to update account status');
       }
     } catch (error) {
       console.error('Failed to update account:', error);
@@ -225,9 +223,20 @@ function UserRow({ user, refreshUsers }) {
       <Dialog
         open={updateDialogOpen}
         onClose={() => setUpdateDialogOpen(false)}
-        PaperProps={{ sx: { backgroundColor: 'rgba(0, 0, 0, 0.9)', color: 'white', border: '1px solid rgba(255, 215, 0, 0.3)', borderRadius: 2 } }}
+        PaperProps={{
+          sx: {
+            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            color: 'white',
+            border: '1px solid rgba(255, 215, 0, 0.3)',
+            borderRadius: 2
+          }
+        }}
+        aria-labelledby="update-dialog-title"
+        keepMounted
       >
-        <DialogTitle sx={{ fontFamily: "'Jersey 15', sans-serif", color: '#FFD700' }}>Update Account Status</DialogTitle>
+        <DialogTitle id="update-dialog-title" sx={{ fontFamily: "'Jersey 15', sans-serif", color: '#FFD700' }}>
+          Update Account Status
+        </DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ color: 'rgba(255, 255, 255, 0.8)', mb: 2 }}>
             Update status for <span style={{ color: '#FFD700', fontWeight: 'bold' }}>{user.userName || 'Unknown User'}</span>
@@ -271,9 +280,18 @@ function UserRow({ user, refreshUsers }) {
       <Dialog
         open={confirmDialogOpen}
         onClose={() => setConfirmDialogOpen(false)}
-        PaperProps={{ sx: { backgroundColor: 'rgba(0, 0, 0, 0.9)', color: 'white', border: '1px solid rgba(255, 215, 0, 0.3)', borderRadius: 2 } }}
+        PaperProps={{
+          sx: {
+            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            color: 'white',
+            border: '1px solid rgba(255, 215, 0, 0.3)',
+            borderRadius: 2
+          }
+        }}
+        aria-labelledby="confirm-dialog-title"
+        keepMounted
       >
-        <DialogTitle sx={{ fontFamily: "'Jersey 15', sans-serif", color: '#FFD700' }}>
+        <DialogTitle id="confirm-dialog-title" sx={{ fontFamily: "'Jersey 15', sans-serif", color: '#FFD700' }}>
           Confirm Status Change
         </DialogTitle>
         <DialogContent>
@@ -333,7 +351,7 @@ export default function ManageUsers() {
       if (response?.result && Array.isArray(response.result)) {
         const validatedUsers = response.result.map(user => ({
           ...user,
-          verify: typeof user.verify === 'number' ? user.verify : 0
+          verify: user.verify?.verify !== undefined ? user.verify.verify : (typeof user.verify === 'number' ? user.verify : 0)
         }));
         setUsers(validatedUsers);
       } else {
