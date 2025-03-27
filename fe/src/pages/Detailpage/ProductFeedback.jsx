@@ -11,7 +11,7 @@ import SendIcon from "@mui/icons-material/Send";
 import GlassCard from "../../components/Decor/GlassCard";
 import { fetchFeedbacks, createFeedback, updateFeedback, deleteFeedback } from '../../services/feedbackApi';
 
-const ProductFeedback = ({ productId, productName, onFeedbackAction }) => {
+const ProductFeedback = ({ productId, productName, onFeedbackAction, onAverageRatingChange }) => {
     const [feedbacks, setFeedbacks] = useState([]);
     const [newFeedback, setNewFeedback] = useState("");
     const [newRating, setNewRating] = useState(5);
@@ -29,14 +29,14 @@ const ProductFeedback = ({ productId, productName, onFeedbackAction }) => {
             if (productId) {
                 try {
                     const response = await fetchFeedbacks(productId);
-                    if (response.formattedResult && Array.isArray(response.formattedResult)) {
-                        const formattedFeedbacks = response.formattedResult.map(item => ({
+                    if (response.result && Array.isArray(response.result)) {
+                        const formattedFeedbacks = response.result.map(item => ({
                             _id: item._id,
                             rating: item.rate,
                             comment: item.content,
                             userId: item.accountId,
                             time: new Date(item.createdAt).toLocaleString(),
-                            user: "User"
+                            user: item.account.userName
                         }));
                         setFeedbacks(formattedFeedbacks);
                     } else {
@@ -211,6 +211,11 @@ const ProductFeedback = ({ productId, productName, onFeedbackAction }) => {
         ? feedbacks.reduce((acc, curr) => acc + curr.rating, 0) / feedbacks.length 
         : 0;
 
+    // Notify parent component of the average rating change
+    useEffect(() => {
+        onAverageRatingChange(averageRating); // Notify parent of the average rating
+    }, [averageRating, onAverageRatingChange]);
+
     return (
         <>
             <Box sx={{ width: "100%" }}>
@@ -248,7 +253,7 @@ const ProductFeedback = ({ productId, productName, onFeedbackAction }) => {
                         </Typography>
                     </Typography>
                     
-                    <Button 
+                    {/* <Button 
                         variant="contained" 
                         color="primary" 
                         onClick={() => setDialogOpen(true)}
@@ -264,7 +269,7 @@ const ProductFeedback = ({ productId, productName, onFeedbackAction }) => {
                         <Typography fontFamily="'Jersey 15', sans-serif">
                             Write a Review
                         </Typography>
-                    </Button>
+                    </Button> */}
                 </Box>
                 
                 <Divider sx={{ 

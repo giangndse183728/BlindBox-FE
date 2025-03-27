@@ -93,9 +93,7 @@ function ColorlibStepIcon(props) {
 const OrderStatusStepper = ({ status }) => {
  
   const getActiveStep = () => {
-
     if (status === 4) return -1;
-    
     return status;
   };
 
@@ -113,7 +111,7 @@ const OrderStatusStepper = ({ status }) => {
             }
             sx={{
               '& .MuiStepLabel-label': {
-                color: 'white',
+                color: 'white !important',
                 marginTop: 1,
                 ...(status >= 0 && status !== 4 && {
                   fontWeight: 'bold',
@@ -131,7 +129,7 @@ const OrderStatusStepper = ({ status }) => {
             }
             sx={{
               '& .MuiStepLabel-label': {
-                color: 'white',
+                color: 'white !important',
                 marginTop: 1,
                 ...(status >= 1 && status !== 4 && {
                   fontWeight: 'bold',
@@ -149,7 +147,7 @@ const OrderStatusStepper = ({ status }) => {
             }
             sx={{
               '& .MuiStepLabel-label': {
-                color: 'white',
+                color: 'white !important',
                 marginTop: 1,
                 ...(status >= 2 && status !== 4 && {
                   fontWeight: 'bold',
@@ -167,7 +165,7 @@ const OrderStatusStepper = ({ status }) => {
             }
             sx={{
               '& .MuiStepLabel-label': {
-                color: 'white',
+                color: 'white !important',
                 marginTop: 1,
                 ...(status >= 3 && status !== 4 && {
                   fontWeight: 'bold',
