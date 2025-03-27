@@ -32,8 +32,6 @@ const DetailScreen = () => {
   // Feedback-related state
   const [feedbacks, setFeedbacks] = useState([]);
   const [feedbackLoading, setFeedbackLoading] = useState(true);
-  const [rating, setRating] = useState(0);
-  const [feedbackText, setFeedbackText] = useState('');
   const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
   const [currentUserId, setCurrentUserId] = useState(null);
   const [editingFeedbackId, setEditingFeedbackId] = useState(null);
@@ -101,8 +99,8 @@ const DetailScreen = () => {
       Alert.alert("Invalid Quantity", "Quantity must be at least 1.");
       return;
     }
-    if (product && newQuantity > product.quantity) {
-      Alert.alert("Maximum Quantity", `You can't add more than ${product.quantity} items (Available stock).`);
+    if (product && newQuantity > product.product.quantity) {
+      Alert.alert("Maximum Quantity", `You can't add more than ${product.product.quantity} items (Available stock).`);
       return;
     }
     setQuantity(newQuantity);
@@ -117,41 +115,8 @@ const DetailScreen = () => {
     }
   };
 
-  const handleRatingPress = (star) => {
-    setRating(star);
-  };
-
   const handleEditRatingPress = (star) => {
     setEditRating(star);
-  };
-
-  const handleSubmitFeedback = async () => {
-    if (rating === 0) {
-      Alert.alert('Error', 'Please provide a rating.');
-      return;
-    }
-
-    setIsSubmittingFeedback(true);
-    try {
-      const feedbackData = {
-        productId,
-        rating,
-        feedback: feedbackText,
-      };
-      const newFeedback = await createFeedback(feedbackData);
-      setFeedbacks([...feedbacks, newFeedback]);
-      setRating(0);
-      setFeedbackText('');
-      Alert.alert('Success', 'Feedback submitted successfully!');
-      // Fetch feedbacks again to ensure the list is up-to-date
-      const updatedFeedbacks = await fetchFeedbacks(productId);
-      setFeedbacks(Array.isArray(updatedFeedbacks) ? updatedFeedbacks : []);
-    } catch (error) {
-      console.error('Error submitting feedback:', error);
-      Alert.alert('Error', error.message || 'Failed to submit feedback.');
-    } finally {
-      setIsSubmittingFeedback(false);
-    }
   };
 
   const handleEditFeedback = (feedback) => {
@@ -259,11 +224,11 @@ const DetailScreen = () => {
     <ImageBackground source={require("../../assets/background.jpeg")} style={styles.container}>
       <ScrollView style={styles.scrollView}>
         <Card style={styles.card}>
-          <Card.Cover source={{ uri: product.image }} style={styles.productImage} />
+          <Card.Cover source={{ uri: product.product.image }} style={styles.productImage} />
           <Card.Content>
-            <Text style={styles.productName}>{product.name}</Text>
-            <Text style={styles.productBrand}>Brand: {product.brand}</Text>
-            <Text style={styles.productPrice}>${Number(product.price).toFixed(2)}</Text>
+            <Text style={styles.productName}>{product.product.name}</Text>
+            <Text style={styles.productBrand}>Brand: {product.product.brand}</Text>
+            <Text style={styles.productPrice}>${Number(product.product.price).toFixed(2)}</Text>
             <View style={styles.ratingContainer}>
               {averageRating > 0 ? (
                 <>
@@ -275,7 +240,7 @@ const DetailScreen = () => {
                 <Text style={styles.noReviews}>No reviews yet</Text>
               )}
             </View>
-            <Text style={styles.stockInfo}>Available Stock: {product.quantity}</Text>
+            <Text style={styles.stockInfo}>Available Stock: {product.product.quantity}</Text>
 
             {/* Quantity selection */}
             <View style={styles.quantityContainer}>
@@ -292,21 +257,21 @@ const DetailScreen = () => {
                   onPress={() => handleQuantityChange(1)}
                   style={[
                     styles.quantityButtonContainer,
-                    quantity >= product.quantity && styles.disabledButton,
+                    quantity >= product.product.quantity && styles.disabledButton,
                   ]}
-                  disabled={quantity >= product.quantity}
+                  disabled={quantity >= product.product.quantity}
                 >
                   <Text
                     style={[
                       styles.quantityButton,
-                      quantity >= product.quantity && styles.disabledButtonText,
+                      quantity >= product.product.quantity && styles.disabledButtonText,
                     ]}
                   >
                     +
                   </Text>
                 </TouchableOpacity>
               </View>
-              {quantity >= product.quantity && (
+              {quantity >= product.product.quantity && (
                 <Text style={styles.maxQuantityText}>(Maximum stock reached)</Text>
               )}
             </View>
@@ -314,63 +279,22 @@ const DetailScreen = () => {
             <TouchableOpacity
               style={[
                 styles.addToCartButton,
-                quantity > product.quantity && styles.disabledButton,
+                quantity > product.product.quantity && styles.disabledButton,
               ]}
               onPress={handleAddToCart}
-              disabled={quantity > product.quantity}
+              disabled={quantity > product.product.quantity}
             >
               <Text style={styles.addToCartButtonText}>Add to Cart</Text>
             </TouchableOpacity>
 
             <View style={styles.descriptionContainer}>
               <Text style={styles.descriptionTitle}>Description</Text>
-              <Text style={styles.productDescription}>{product.description}</Text>
+              <Text style={styles.productDescription}>{product.product.description}</Text>
             </View>
 
             {/* Feedback Section */}
             <View style={styles.feedbackContainer}>
-              <Text style={styles.feedbackTitle}>Feedback & Ratings</Text>
-
-              {/* Submit Feedback Form */}
-              <View style={styles.submitFeedbackSection}>
-                <Text style={styles.sectionSubtitle}>Rate this product:</Text>
-                <View style={styles.ratingContainer}>
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <TouchableOpacity
-                      key={star}
-                      onPress={() => handleRatingPress(star)}
-                      style={styles.starButton}
-                    >
-                      <Icon
-                        name={star <= rating ? 'star' : 'star-border'}
-                        size={30}
-                        color={star <= rating ? '#FFD700' : 'white'}
-                      />
-                    </TouchableOpacity>
-                  ))}
-                </View>
-                <TextInput
-                  style={styles.feedbackInput}
-                  placeholder="Write your feedback (optional)"
-                  placeholderTextColor="rgba(255,255,255,0.5)"
-                  value={feedbackText}
-                  onChangeText={setFeedbackText}
-                  multiline
-                  numberOfLines={4}
-                />
-                <TouchableOpacity
-                  style={[styles.submitFeedbackButton, isSubmittingFeedback && styles.disabledButton]}
-                  onPress={handleSubmitFeedback}
-                  disabled={isSubmittingFeedback}
-                >
-                  {isSubmittingFeedback ? (
-                    <ActivityIndicator color="white" />
-                  ) : (
-                    <Text style={styles.submitFeedbackButtonText}>Submit Feedback</Text>
-                  )}
-                </TouchableOpacity>
-              </View>
-
+              <Text style={styles.feedbackTitle}>Feedback & Ratings</Text> 
               {/* Display Feedbacks */}
               <View style={styles.feedbackList}>
                 <Text style={styles.sectionSubtitle}>User Feedback:</Text>

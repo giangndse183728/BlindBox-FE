@@ -29,14 +29,14 @@ const ProductFeedback = ({ productId, productName, onFeedbackAction, onAverageRa
             if (productId) {
                 try {
                     const response = await fetchFeedbacks(productId);
-                    if (response.formattedResult && Array.isArray(response.formattedResult)) {
-                        const formattedFeedbacks = response.formattedResult.map(item => ({
+                    if (response.result && Array.isArray(response.result)) {
+                        const formattedFeedbacks = response.result.map(item => ({
                             _id: item._id,
                             rating: item.rate,
                             comment: item.content,
                             userId: item.accountId,
                             time: new Date(item.createdAt).toLocaleString(),
-                            user: "User"
+                            user: item.account.userName
                         }));
                         setFeedbacks(formattedFeedbacks);
                     } else {
@@ -253,7 +253,7 @@ const ProductFeedback = ({ productId, productName, onFeedbackAction, onAverageRa
                         </Typography>
                     </Typography>
                     
-                    <Button 
+                    {/* <Button 
                         variant="contained" 
                         color="primary" 
                         onClick={() => setDialogOpen(true)}
@@ -269,7 +269,7 @@ const ProductFeedback = ({ productId, productName, onFeedbackAction, onAverageRa
                         <Typography fontFamily="'Jersey 15', sans-serif">
                             Write a Review
                         </Typography>
-                    </Button>
+                    </Button> */}
                 </Box>
                 
                 <Divider sx={{ 

@@ -4,12 +4,12 @@ import api from './baseURL';
 export const fetchFeedbacks = async (productId) => {
   try {
     const response = await api.get(`/feedbacks/${productId}`);
-    const feedbacks = Array.isArray(response.data.formattedResult) ? response.data.formattedResult : [];
+    const feedbacks = Array.isArray(response.data.result) ? response.data.result : [];
     return feedbacks.map(feedback => ({
       _id: feedback._id,
-      productId: feedback.productId, // Backend uses productId
-      userId: feedback.accountId,   // Backend uses accountId
-      userName: feedback.userName || 'Anonymous',
+      productId: feedback.productId, 
+      userId: feedback.accountId,   
+      userName: feedback.account.userName || 'Anonymous',
       rating: feedback.rate,
       feedback: feedback.content,
       createdAt: feedback.createdAt,
