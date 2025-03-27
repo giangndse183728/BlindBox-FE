@@ -3,7 +3,7 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import useCartStore from './CartStore';
 import { Link, useNavigate } from "react-router-dom";
-import { 
+import {
   Box, Typography, Button, Grid, TextField, InputAdornment, CircularProgress, Chip
 } from "@mui/material";
 import { yellowGlowAnimation } from '../../components/Text/YellowEffect';
@@ -29,13 +29,16 @@ const CartPage = () => {
     address: '',
     paymentMethod: 'cod',
     isGift: false,
-    notes: '', 
+    notes: '',
     giftRecipient: {
       fullName: '',
       phoneNumber: '',
       address: ''
     }
   });
+
+  // Local state to manage input values for each item's quantity
+  const [quantityInputs, setQuantityInputs] = useState({});
 
   const [profileLoading, setProfileLoading] = useState(false);
   const [profileError, setProfileError] = useState(null);
@@ -51,14 +54,12 @@ const CartPage = () => {
       try {
         setProfileLoading(true);
         const userData = await fetchProfile();
-
         setOrderInfo(prev => ({
           ...prev,
           fullName: userData.fullName || '',
           phoneNumber: userData.phoneNumber || '',
           address: userData.address || ''
         }));
-
         setProfileError(null);
       } catch (error) {
         console.error('Error fetching profile:', error);
@@ -67,9 +68,17 @@ const CartPage = () => {
         setProfileLoading(false);
       }
     };
-
     getUserProfile();
   }, []);
+
+  // Sync local quantity inputs with cart items when cart changes
+  useEffect(() => {
+    const initialQuantities = {};
+    cart?.forEach(item => {
+      initialQuantities[item._id] = item.cartQuantity.toString();
+    });
+    setQuantityInputs(initialQuantities);
+  }, [cart]);
 
   const paymentMethods = {
     cod: { name: 'COD', icon: <LocalShippingIcon /> },
@@ -78,8 +87,6 @@ const CartPage = () => {
 
   const handleOrderInfoChange = (e) => {
     const { name, value } = e.target;
-
-    // Check if this is for the gift recipient
     if (name.startsWith('gift.')) {
       const giftField = name.split('.')[1];
       setOrderInfo(prev => ({
@@ -111,7 +118,7 @@ const CartPage = () => {
   }, 0);
 
   const subtotal = totalPrice;
-  const totalWithShipping = subtotal; // No shipping cost added
+  const totalWithShipping = subtotal;
 
   useEffect(() => {
     fetchCartItems();
@@ -143,40 +150,31 @@ const CartPage = () => {
     try {
       setCheckoutLoading(true);
       setCheckoutError(null);
-
       const items = cartItems.map(item => ({
-        itemId: item._id, 
+        itemId: item._id,
         quantity: item.cartQuantity
       }));
-      
-      // Build the order data with notes from orderInfo
       const orderData = {
         receiverInfo: {
           fullName: orderInfo.isGift ? orderInfo.giftRecipient.fullName : orderInfo.fullName,
           phoneNumber: orderInfo.isGift ? orderInfo.giftRecipient.phoneNumber : orderInfo.phoneNumber,
           address: orderInfo.isGift ? orderInfo.giftRecipient.address : orderInfo.address
         },
-        orderType: 1, 
-        promotionId: "", 
-        // Include notes field from orderInfo, with a fallback if gift
+        orderType: 1,
+        promotionId: "",
         notes: orderInfo.notes || (orderInfo.isGift ? "This is a gift" : ""),
-        paymentMethod: orderInfo.paymentMethod === 'cod' ? 0 : 1, 
-        items: items 
+        paymentMethod: orderInfo.paymentMethod === 'cod' ? 0 : 1,
+        items: items
       };
-      
       const response = await createOrder(orderData);
-      
       clearCart();
-      
       toast.success('Order placed successfully!');
-
-      navigate('/order-success', { 
-        state: { 
+      navigate('/order-success', {
+        state: {
           orderData: response.result,
           paymentMethod: orderInfo.paymentMethod
         }
       });
-      
     } catch (error) {
       console.error('Checkout error:', error);
       if (error.errors) {
@@ -201,7 +199,6 @@ const CartPage = () => {
   }, []);
 
   const isAccessory = (item) => {
-    // Check if the product has accessories array and it's not empty
     return item.product?.accessories && item.product.accessories.length > 0;
   };
 
@@ -243,7 +240,7 @@ const CartPage = () => {
                 textAlign: 'left'
               }}
             >
-              -  &nbsp;Shopping Cart &nbsp;  -
+              -   Shopping Cart    -
             </Typography>
           </Box>
         )}
@@ -294,7 +291,7 @@ const CartPage = () => {
           </Box>
         ) : (
           <Grid container spacing={3} sx={{ px: 5 }}>
-            {/* Cart Items List  */}
+            {/* Cart Items List */}
             <Grid item xs={12} lg={9}>
               <Box sx={{
                 backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -325,7 +322,6 @@ const CartPage = () => {
                   </Grid>
                   <Grid item xs={1} sx={{ textAlign: 'center' }}>
                     <Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white", fontSize: '1.5rem' }}>
-
                     </Typography>
                   </Grid>
                 </Grid>
@@ -338,9 +334,8 @@ const CartPage = () => {
                   }}>
                     <Grid item xs={5} sx={{ display: 'flex', alignItems: 'center' }}>
                       {isAccessory(item) ? (
-                        
-                        <Link 
-                          to={`/product/accessory/${item.product?.slug}?id=${item.product?._id}`} 
+                        <Link
+                          to={`/product/accessory/${item.product?.slug}?id=${item.product?._id}`}
                           style={{ textDecoration: "none", display: "flex", alignItems: "center" }}
                         >
                           <img
@@ -350,23 +345,22 @@ const CartPage = () => {
                           />
                           <Box>
                             <Typography sx={{ color: "white" }}>{item.product?.name}</Typography>
-                            <Chip 
-                              label="Custom Accessory" 
+                            <Chip
+                              label="Custom Accessory"
                               size="small"
-                              sx={{ 
+                              sx={{
                                 mt: 0.5,
                                 bgcolor: 'rgba(255,215,0,0.1)',
                                 color: '#FFD700',
                                 border: '1px solid rgba(255,215,0,0.3)',
                                 fontSize: '0.7rem'
-                              }} 
+                              }}
                             />
                           </Box>
                         </Link>
                       ) : (
-                        // Regular product link
-                        <Link 
-                          to={`/product/${item.product?.slug}?id=${item.product?._id}`} 
+                        <Link
+                          to={`/product/${item.product?.slug}?id=${item.product?._id}`}
                           style={{ textDecoration: "none", display: "flex", alignItems: "center" }}
                         >
                           <img
@@ -387,22 +381,85 @@ const CartPage = () => {
                     <Grid item xs={2} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                       <ButtonCus
                         variant="button-pixel"
-                        onClick={() => handleQuantityChange(item, item.cartQuantity - 1)}
+                        onClick={() => {
+                          const newQty = Math.max(1, item.cartQuantity - 1);
+                          setQuantityInputs(prev => ({ ...prev, [item._id]: newQty.toString() }));
+                          handleQuantityChange(item, newQty);
+                        }}
                         width="30px"
                         height="30px"
-                        disabled={isLoading || item.cartQuantity <= 1} // Disable if quantity is 1
+                        disabled={isLoading || item.cartQuantity <= 1}
                       >
                         -
                       </ButtonCus>
 
-                      <Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ mx: 2, color: "white" }}>
-                        {item.cartQuantity}
-                      </Typography>
+                      <Box
+                        component="input"
+                        type="number"
+                        value={quantityInputs[item._id] || item.cartQuantity}
+                        onChange={(e) => {
+                          const inputValue = e.target.value;
+                          setQuantityInputs(prev => ({ ...prev, [item._id]: inputValue }));
+                        }}
+                        onBlur={(e) => {
+                          const inputValue = e.target.value;
+                          let newValue = parseInt(inputValue);
+                          if (isNaN(newValue) || newValue < 1) newValue = 1;
+                          if (newValue > item.product.quantity) newValue = item.product.quantity;
+                          setQuantityInputs(prev => ({ ...prev, [item._id]: newValue.toString() }));
+                          handleQuantityChange(item, newValue);
+                        }}
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter') {
+                            const inputValue = e.target.value;
+                            let newValue = parseInt(inputValue);
+                            if (isNaN(newValue) || newValue < 1) newValue = 1;
+                            if (newValue > item.product.quantity) newValue = item.product.quantity;
+                            setQuantityInputs(prev => ({ ...prev, [item._id]: newValue.toString() }));
+                            handleQuantityChange(item, newValue);
+                            e.target.blur();
+                          }
+                        }}
+                        sx={{
+                          width: '60px',
+                          mx: 1,
+                          padding: '5px',
+                          textAlign: 'center',
+                          color: 'white',
+                          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                          border: '1px solid rgba(255, 255, 255, 0.3)',
+                          borderRadius: '4px',
+                          fontFamily: "'Jersey 15', sans-serif",
+                          fontSize: '1rem',
+                          outline: 'none',
+                          '&:hover': {
+                            borderColor: 'rgba(255, 255, 255, 0.5)',
+                          },
+                          '&:focus': {
+                            borderColor: '#FFD700',
+                            boxShadow: '0 0 5px rgba(255, 215, 0, 0.5)',
+                          },
+                          '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
+                            '-webkit-appearance': 'none',
+                            margin: 0,
+                          },
+                          '&[type=number]': {
+                            '-moz-appearance': 'textfield',
+                          },
+                        }}
+                        min={1}
+                        max={item.product.quantity}
+                        step={1}
+                      />
 
-                      {item.cartQuantity < item.product.quantity && ( // Hide + button when reaching stock limit
+                      {item.cartQuantity < item.product.quantity && (
                         <ButtonCus
                           variant="button-pixel"
-                          onClick={() => handleQuantityChange(item, item.cartQuantity + 1)}
+                          onClick={() => {
+                            const newQty = Math.min(item.product.quantity, item.cartQuantity + 1);
+                            setQuantityInputs(prev => ({ ...prev, [item._id]: newQty.toString() }));
+                            handleQuantityChange(item, newQty);
+                          }}
                           width="30px"
                           height="30px"
                           disabled={isLoading}
@@ -411,7 +468,6 @@ const CartPage = () => {
                         </ButtonCus>
                       )}
                     </Grid>
-
                     <Grid item xs={1} sx={{ textAlign: 'center' }}>
                       <ButtonCus
                         variant="button-pixel-red"
@@ -427,7 +483,7 @@ const CartPage = () => {
                     </Grid>
                   </Grid>
                 ))}
-                
+
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 3, mb: 5 }}>
                   <Typography
                     color="white"
@@ -482,13 +538,10 @@ const CartPage = () => {
                   <Typography variant="h5" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
                     Order Summary
                   </Typography>
-
-
                   <ButtonCus
                     variant="button-pixel"
                     width="50px"
                     height="30px"
-
                     onClick={handleOpenOrderDialog}
                   >
                     <Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
@@ -497,7 +550,6 @@ const CartPage = () => {
                   </ButtonCus>
                 </Box>
 
-                {/* Display shipping info summary if available */}
                 {(orderInfo.isGift ? orderInfo.giftRecipient.fullName : orderInfo.fullName) && (
                   <Box sx={{
                     mb: 3,
@@ -532,7 +584,6 @@ const CartPage = () => {
                   </Box>
                 )}
 
-                {/* Payment Method */}
                 <Box sx={{
                   display: 'flex',
                   justifyContent: 'space-between',
@@ -561,7 +612,6 @@ const CartPage = () => {
                   </Box>
                 </Box>
 
-                {/* Coupon Input Field */}
                 <Box sx={{ mb: 3 }}>
                   <TextField
                     fullWidth
@@ -601,7 +651,6 @@ const CartPage = () => {
                   />
                 </Box>
 
-                {/* Gift Status */}
                 {orderInfo.isGift && (
                   <Box sx={{
                     display: 'flex',
@@ -624,9 +673,7 @@ const CartPage = () => {
                   </Box>
                 )}
 
-                {/* Price Breakdown */}
                 <Box sx={{ mb: 3 }}>
-                  {/* Subtotal */}
                   <Box sx={{
                     display: 'flex',
                     justifyContent: 'space-between',
@@ -640,7 +687,6 @@ const CartPage = () => {
                     </Typography>
                   </Box>
 
-                  {/* Discount */}
                   <Box sx={{
                     display: 'flex',
                     justifyContent: 'space-between',
@@ -654,7 +700,6 @@ const CartPage = () => {
                     </Typography>
                   </Box>
 
-                  {/* Divider */}
                   <Box sx={{
                     width: '100%',
                     height: '1px',
@@ -662,7 +707,6 @@ const CartPage = () => {
                     my: 2
                   }} />
 
-                  {/* Total */}
                   <Box sx={{
                     display: 'flex',
                     justifyContent: 'space-between',
@@ -690,7 +734,6 @@ const CartPage = () => {
                   </Box>
                 </Box>
 
-                {/* Checkout Buttons */}
                 <ButtonCus
                   variant="button-pixel-green"
                   width="100%"
@@ -715,7 +758,6 @@ const CartPage = () => {
                   )}
                 </ButtonCus>
 
-                {/* Display checkout error if any */}
                 {checkoutError && (
                   <Typography sx={{ color: 'red', mt: 2, textAlign: 'center', fontSize: '0.9rem' }}>
                     {checkoutError}
@@ -740,7 +782,6 @@ const CartPage = () => {
         )}
       </Grid>
 
-      {/* Dialog for order info */}
       <OrderInfoDialog
         open={openOrderDialog}
         onClose={handleCloseOrderDialog}

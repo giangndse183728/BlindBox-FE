@@ -35,6 +35,7 @@ const Collectionpage = () => {
   const [selectedType, setSelectedType] = useState([]);
   const [selectedRating, setSelectedRating] = useState(0);
   const [brands, setBrands] = useState([]);
+  const [averageRatings, setAverageRatings] = useState({});
   const location = useLocation();
   const navigate = useNavigate();
   const query = new URLSearchParams(location.search);
@@ -53,15 +54,16 @@ const Collectionpage = () => {
           setProducts(data);
           setFilteredProducts(data);
           
-          // Extract unique brands from products
           const uniqueBrands = [...new Set(data.map(product => product.brand))];
           setBrands(uniqueBrands);
 
-          // Set max price from the highest product price
           const highestPrice = Math.max(...data.map(product => product.price));
           setMaxPrice(highestPrice);
           setPriceRange([0, highestPrice]);
           setAppliedPriceRange([0, highestPrice]);
+
+          const storedRatings = JSON.parse(localStorage.getItem('productRatings') || '{}');
+          setAverageRatings(storedRatings);
         } else {
           console.error("Unexpected API response format:", data);
         }
@@ -84,11 +86,11 @@ const Collectionpage = () => {
       const filtered = products
         .filter(product => product.price >= appliedPriceRange[0] && product.price <= appliedPriceRange[1])
         .filter(product => selectedBrand.length === 0 || selectedBrand.includes(product.brand))
-        .filter(product => selectedRating === 0 || product.rating >= selectedRating);
+        .filter(product => selectedRating === 0 || (averageRatings[product._id] || 0) >= selectedRating);
       setFilteredProducts(filtered);
     };
     applyFilters();
-  }, [products, appliedPriceRange, selectedBrand, selectedType, selectedRating]);
+  }, [products, appliedPriceRange, selectedBrand, selectedType, selectedRating, averageRatings]);
 
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
   const displayedProducts = Array.isArray(filteredProducts)
@@ -116,6 +118,14 @@ const Collectionpage = () => {
 
   const handleRatingChange = (event, newValue) => {
     setSelectedRating(newValue);
+  };
+
+  const handleAverageRatingChange = (productId, newAverageRating) => {
+    setAverageRatings(prev => {
+      const updatedRatings = { ...prev, [productId]: newAverageRating };
+      localStorage.setItem('productRatings', JSON.stringify(updatedRatings));
+      return updatedRatings;
+    });
   };
 
   const handleClearFilters = () => {
@@ -162,9 +172,7 @@ const Collectionpage = () => {
           margin: "0 auto",
         }}
       />
-      {/* Main Content */}
       <Box sx={{ flexGrow: 1, display: "flex", p: 2, paddingTop: 2 }}>
-        {/* Sidebar Filter */}
         <Box sx={{
           width: { xs: "100%", sm: 200 },
           border: "1px solid white",
@@ -179,7 +187,6 @@ const Collectionpage = () => {
           <Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ textAlign: "center", fontWeight: "bold", fontSize: "1.8rem" }}>
             Product Filter
           </Typography>
-          {/* Price Range Filter */}
           <Typography fontFamily="'Jersey 15', sans-serif" sx={{fontSize:22}}>Price Range</Typography>
           <Slider
             value={priceRange}
@@ -193,7 +200,6 @@ const Collectionpage = () => {
             <Typography variant="body1">${priceRange[0]}</Typography>
             <Typography variant="body1">${priceRange[1]}</Typography>
           </Grid>
-
           <ButtonCus variant="button-pixel-yellow" width="100%" height="40px" onClick={handleApplyPriceFilter}>
             <Typography variant="h5" fontFamily="'Jersey 15', sans-serif" sx={{ color: "Seashell" }}>
               Apply
@@ -230,16 +236,14 @@ const Collectionpage = () => {
           <Divider sx={{ bgcolor: "white", my: 2 }} />
           <ButtonCus variant="button-pixel-yellow" width="100%" height="40px" onClick={handleClearFilters}>
             <Typography variant="h5" fontFamily="'Jersey 15', sans-serif" sx={{ color: "Seashell" }}>
-            Clear All
+              Clear All
             </Typography>
           </ButtonCus>
         </Box>
 
-        {/* Product Section */}
         <Box sx={{ flexGrow: 1, ml: { xs: 0, sm: 2 }, mt: { xs: 2, sm: 0 } }}>
-          {/* Sorting Bar */}
           <Box sx={{ p: 2, color: "white", borderRadius: 1, position: "sticky", width: "90%", mb: 2, top: 5, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <Typography fontFamily="'Jersey 15', sans-serif" sx={{ fontSize: '4rem', fontWeight: "bold",...yellowGlowAnimation }}>
+            <Typography fontFamily="'Jersey 15', sans-serif" sx={{ fontSize: '4rem', fontWeight: "bold", ...yellowGlowAnimation }}>
               BLINDBOXES
             </Typography>
             <Autocomplete
@@ -289,7 +293,6 @@ const Collectionpage = () => {
             </Box>
           </Box>
 
-          {/* Loading Screen */}
           {loading ? (
             <LoadingScreen />
           ) : (
@@ -302,7 +305,11 @@ const Collectionpage = () => {
                 displayedProducts.map((product) => (
                   <Grid item xs={12} sm={6} md={4} key={product.slug} sx={{ p: 1 }}>
                     <Link
-                      to={`/product/${product.slug}?id=${product._id}`}
+                      to={{
+                        pathname: `/product/${product.slug}`,
+                        search: `?id=${product._id}`,
+                        state: { onAverageRatingChange: handleAverageRatingChange }
+                      }}
                       style={{ textDecoration: "none", width: "100%" }}
                     >
                       <GlassCard sx={{ width: "340px", display: "flex", justifyContent: "center", alignItems: "center", p: 2 }}>
@@ -334,15 +341,18 @@ const Collectionpage = () => {
                               ${isNaN(parseFloat(product.price)) ? "N/A" : parseFloat(product.price).toFixed(2)}
                             </Typography>
                           </Box>
-                          <Box sx={{ position: "absolute", bottom: 10, right: 10, color: "white", px: 1, py: 0.5, borderRadius: 1, display: "flex", alignItems: "center" }}>
+                          <Box sx={{ position: "absolute", bottom: 10, right: 10, color: "white", px: 1, py: 0.5, borderRadius: 1, display: "flex", alignItems: "center", gap: 1 }}>
                             <Rating
                               name={`product-rating-${product.slug}`}
-                              value={product.rating}
+                              value={averageRatings[product._id] || 0}
                               readOnly
                               precision={0.5}
                               icon={<FavoriteIcon fontSize="inherit" sx={{ color: "red" }} />}
                               emptyIcon={<FavoriteBorderIcon fontSize="inherit" sx={{ color: "white" }} />}
                             />
+                            <Typography fontFamily="'Jersey 15', sans-serif" sx={{ fontSize: 22, color: "white" }}>
+                              {(averageRatings[product._id] || 0).toFixed(1)}
+                            </Typography>
                           </Box>
                         </Box>
                       </GlassCard>

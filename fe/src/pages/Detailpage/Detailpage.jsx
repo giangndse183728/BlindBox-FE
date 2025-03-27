@@ -25,12 +25,14 @@ const Detailpage = () => {
     const { addToCart } = useCartStore();
     const [quantity, setQuantity] = useState(1);
     const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
-    
-    // Keep the userInfo state for other parts of the component
-    const [userInfo, setUserInfo] = useState(() => {
+    const [averageRating, setAverageRating] = useState(0);
+
+    const [userInfo] = useState(() => {
         const storedUser = localStorage.getItem('user');
         return storedUser ? JSON.parse(storedUser) : { id: 'guest-user', username: 'Guest' };
     });
+
+    const { onAverageRatingChange } = location.state || {};
 
     useEffect(() => {
         const getProductDetails = async () => {
@@ -43,6 +45,8 @@ const Detailpage = () => {
 
                 if (data.result) {
                     setProduct(data.result);
+                    const storedRatings = JSON.parse(localStorage.getItem('productRatings') || '{}');
+                    setAverageRating(storedRatings[id] || 0);
                 } else {
                     throw new Error("Product details not found");
                 }
@@ -60,13 +64,14 @@ const Detailpage = () => {
     if (error) return <ProductNotFound />;
     if (!product) return <ProductNotFound />;
 
-    // Check if product has accessories
     const hasAccessories = product.accessories && product.accessories.length > 0;
-    
     const price = typeof product.price === 'number' ? product.price : parseFloat(product.price) || 0;
+    const isOutOfStock = product.quantity === 0;
 
     const handleAddToCart = () => {
-        addToCart(product, quantity);
+        if (!isOutOfStock) {
+            addToCart(product, quantity);
+        }
     };
 
     const increaseQuantity = () => {
@@ -81,7 +86,6 @@ const Detailpage = () => {
         }
     };
 
-    // Add a handler for feedback actions from the ProductFeedback component
     const handleFeedbackAction = (result) => {
         setSnackbar({
             open: true,
@@ -92,6 +96,16 @@ const Detailpage = () => {
 
     const handleCloseSnackbar = () => {
         setSnackbar({ ...snackbar, open: false });
+    };
+
+    const handleAverageRatingChange = (newAverageRating) => {
+        setAverageRating(newAverageRating);
+        const storedRatings = JSON.parse(localStorage.getItem('productRatings') || '{}');
+        storedRatings[id] = newAverageRating;
+        localStorage.setItem('productRatings', JSON.stringify(storedRatings));
+        if (onAverageRatingChange) {
+            onAverageRatingChange(id, newAverageRating);
+        }
     };
 
     return (
@@ -157,23 +171,21 @@ const Detailpage = () => {
                             Price: ${price.toFixed(2)}
                         </Typography>
                         
-                        {/* Show rating only if product doesn't have accessories */}
                         {!hasAccessories && (
                             <Box sx={{ mt: 2, display: "flex", alignItems: "center" }}>
                                 <Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ fontSize: 30, mr: 2 }}>Rating:</Typography>
                                 <Rating
                                     name="product-rating"
-                                    value={product.rating || 0}
+                                    value={averageRating}
                                     readOnly
                                     precision={0.1}
                                     icon={<FavoriteIcon sx={{ color: "red" }} />}
                                     emptyIcon={<FavoriteBorderIcon sx={{ color: "red" }} />}
                                 />
-                                <Typography fontFamily="'Jersey 15', sans-serif" sx={{ fontSize: 25, ml: 1, color: "white" }}>{(product.rating || 0).toFixed(1)}</Typography>
+                                <Typography fontFamily="'Jersey 15', sans-serif" sx={{ fontSize: 25, ml: 1, color: "white" }}>{averageRating.toFixed(1)}</Typography>
                             </Box>
                         )}
 
-                        {/* Show quantity controls only if product doesn't have accessories */}
                         {!hasAccessories && (
                             <Box sx={{ mt: 1, display: "flex", alignItems: "center" }}>
                                 <Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ fontSize: 25, mr: 2 }}>
@@ -183,7 +195,7 @@ const Detailpage = () => {
                                     variant="outlined"
                                     sx={{ color: "white", border: "1px solid yellow" }}
                                     onClick={decreaseQuantity}
-                                    disabled={quantity <= 1}
+                                    disabled={quantity <= 1 || isOutOfStock}
                                 >
                                     -
                                 </Button>
@@ -194,7 +206,7 @@ const Detailpage = () => {
                                     variant="outlined"
                                     sx={{ color: "white", border: "1px solid yellow" }}
                                     onClick={increaseQuantity}
-                                    disabled={quantity >= product.quantity}
+                                    disabled={quantity >= product.quantity || isOutOfStock}
                                 >
                                     +
                                 </Button>
@@ -206,40 +218,55 @@ const Detailpage = () => {
                             </Box>
                         )}
 
-                        {/* Show buttons only if product doesn't have accessories */}
                         {!hasAccessories && (
                             <Box sx={{ mt: 5, display: "flex", gap: 2 }}>
-                                <Button
-                                    variant="outlined"
-                                    sx={{
-                                        border: "2px solid #f8b400",
-                                        backgroundColor: "transparent",
-                                        color: "#f8b400",
-                                        width: "30%",
-                                        height: "50px",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        gap: 1,
-                                        "&:hover": {
-                                            backgroundColor: "#f8b400",
-                                            color: "black",
-                                            "& .cart-icon": { color: "black" }
-                                        }
-                                    }}
-                                    onClick={handleAddToCart}
-                                >
-                                    <ShoppingCartOutlinedIcon className="cart-icon" sx={{ fontSize: 22, color: "inherit" }} />
-                                    <Typography variant="h5" fontFamily="'Jersey 15', sans-serif">
-                                        Add to Cart
+                                {isOutOfStock ? (
+                                    <Typography
+                                        variant="h5"
+                                        fontFamily="'Jersey 15', sans-serif"
+                                        sx={{ fontSize: 30, color: "gray" }}
+                                    >
+                                        Unable to purchase
                                     </Typography>
-                                </Button>
+                                ) : (
+                                    <>
+                                        <Button
+                                            variant="outlined"
+                                            sx={{
+                                                border: "2px solid #f8b400",
+                                                backgroundColor: "transparent",
+                                                color: "#f8b400",
+                                                width: "30%",
+                                                height: "50px",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                gap: 1,
+                                                "&:hover": {
+                                                    backgroundColor: "#f8b400",
+                                                    color: "black",
+                                                    "& .cart-icon": { color: "black" }
+                                                }
+                                            }}
+                                            onClick={handleAddToCart}
+                                        >
+                                            <ShoppingCartOutlinedIcon className="cart-icon" sx={{ fontSize: 22, color: "inherit" }} />
+                                            <Typography variant="h5" fontFamily="'Jersey 15', sans-serif">
+                                                Add to Cart
+                                            </Typography>
+                                        </Button>
 
-                                <ButtonCus variant="button-pixel-green" width="200px" height="50px">
-                                    <Typography variant="h5" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
-                                        Buy now
-                                    </Typography>
-                                </ButtonCus>
+                                        <ButtonCus
+                                            variant="button-pixel-green"
+                                            width="200px"
+                                            height="50px"
+                                        >
+                                            <Typography variant="h5" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
+                                                Buy now
+                                            </Typography>
+                                        </ButtonCus>
+                                    </>
+                                )}
                             </Box>
                         )}
                     </Grid>
@@ -260,9 +287,7 @@ const Detailpage = () => {
                 </Box>
             </GlassCard>
             
-            {/* Description and Feedback Sections */}
             <Box sx={{ mt: 5, top: 130, position: "relative", margin: "auto", width: "100%", maxWidth: "1400px", px: 2 }}>
-                {/* Description Section */}
                 <Box sx={{ mb: 5 }}>
                     <Typography 
                         variant="h4" 
@@ -301,19 +326,18 @@ const Detailpage = () => {
                     </Box>
                 </Box>
 
-                {/* Feedback Section - only if product doesn't have accessories */}
                 {!hasAccessories && (
                     <Box sx={{ mt: 6, width: "100%" }}>
                         <ProductFeedback 
                             productId={id} 
                             productName={product.name}
                             onFeedbackAction={handleFeedbackAction}
+                            onAverageRatingChange={handleAverageRatingChange}
                         />
                     </Box>
                 )}
             </Box>
             
-            {/* Snackbar for notifications */}
             <Snackbar 
                 open={snackbar.open} 
                 autoHideDuration={6000} 
