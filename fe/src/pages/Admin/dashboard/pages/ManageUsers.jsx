@@ -6,6 +6,7 @@ import {
   Chip, Grid, Pagination, Stack, Button, Dialog, DialogActions,
   DialogContent, DialogContentText, DialogTitle, Menu
 } from '@mui/material';
+import { ToastContainer, toast } from 'react-toastify';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -15,7 +16,7 @@ import PendingIcon from '@mui/icons-material/Pending';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { getAdminAccounts, updateAdminAccount, deleteAdminAccount } from '../../../../services/adminApi';
+import { getAdminAccounts, updateAccountStatus } from '../../../../services/adminApi';
 
 // Configuration for user roles and verification status
 const USER_ROLES = {
@@ -25,7 +26,7 @@ const USER_ROLES = {
 };
 
 const VERIFY_STATUS = {
-  0: { label: 'Not Verified', color: '#FF9800', bgColor: 'rgba(255, 152, 0, 0.2)', icon: <PendingIcon /> },
+  0: { label: 'Unverified', color: '#FF8900', bgColor: 'rgba(255, 152, 0, 0.2)', icon: <PendingIcon /> },
   1: { label: 'Verified', color: '#4CAF50', bgColor: 'rgba(76, 175, 80, 0.2)', icon: <VerifiedIcon /> },
   2: { label: 'Banned', color: '#F44336', bgColor: 'rgba(244, 67, 54, 0.2)', icon: <DeleteIcon /> },
   default: { label: 'Unknown', color: '#757575', bgColor: 'rgba(117, 117, 117, 0.2)', icon: <PendingIcon /> }
@@ -34,72 +35,68 @@ const VERIFY_STATUS = {
 // Utility function to format dates
 const formatDate = (dateString) => {
   const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-  return new Date(dateString).toLocaleDateString(undefined, options);
+  return dateString ? new Date(dateString).toLocaleDateString(undefined, options) : 'N/A';
 };
+
+// Helper functions to safely get role and verification configs
+const getRoleConfig = (role) => USER_ROLES[role] !== undefined ? USER_ROLES[role] : USER_ROLES.default;
+const getVerifyConfig = (verifyStatus) =>
+  VERIFY_STATUS[verifyStatus] !== undefined ? VERIFY_STATUS[verifyStatus] : VERIFY_STATUS.default;
 
 // UserRow Component
 function UserRow({ user, refreshUsers }) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
-  const [banConfirmDialogOpen, setBanConfirmDialogOpen] = useState(false);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
-  const [newVerifyStatus, setNewVerifyStatus] = useState(user?.verify);
-  const [newRole, setNewRole] = useState(user?.role);
+  const [newVerifyStatus, setNewVerifyStatus] = useState(user?.verify ?? 0);
   const [isLoading, setIsLoading] = useState(false);
 
-  const openActions = Boolean(anchorEl);
+  if (!user || !user._id) {
+    return (
+      <TableRow>
+        <TableCell colSpan={8} sx={{ color: 'white', textAlign: 'center' }}>
+          Invalid user data
+        </TableCell>
+      </TableRow>
+    );
+  }
 
-  const getRoleConfig = (role) => USER_ROLES[role] || USER_ROLES.default;
-  const getVerifyConfig = (verifyStatus) => VERIFY_STATUS[verifyStatus] || VERIFY_STATUS.default;
+  const openActions = Boolean(anchorEl);
+  const roleConfig = getRoleConfig(user.role);
+  const verifyConfig = getVerifyConfig(user.verify);
 
   const handleActionsClick = (event) => setAnchorEl(event.currentTarget);
   const handleActionsClose = () => setAnchorEl(null);
-  const handleDeleteClick = () => {
-    setDeleteDialogOpen(true);
-    handleActionsClose();
-  };
   const handleUpdateClick = () => {
     setUpdateDialogOpen(true);
     handleActionsClose();
   };
 
-  const handleDeleteConfirm = async () => {
-    try {
-      setIsLoading(true);
-      await deleteAdminAccount(user._id);
-      setDeleteDialogOpen(false);
-      refreshUsers();
-    } catch (error) {
-      console.error('Failed to delete account:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleVerifyStatusChange = (e) => {
-    const value = e.target.value;
-    if (value === 2) { // Banned
-      setBanConfirmDialogOpen(true);
-    } else {
-      setNewVerifyStatus(value);
-    }
+    setNewVerifyStatus(Number(e.target.value));
   };
 
-  const handleBanConfirm = async () => {
-    setNewVerifyStatus(2);
-    setBanConfirmDialogOpen(false);
-    await handleUpdateConfirm();
+  const handleUpdateConfirm = () => {
+    setConfirmDialogOpen(true);
   };
 
-  const handleUpdateConfirm = async () => {
+  const handleConfirmAction = async () => {
     try {
       setIsLoading(true);
-      await updateAdminAccount(user._id, { verifyStatus: newVerifyStatus, role: newRole });
-      setUpdateDialogOpen(false);
-      refreshUsers();
+      const response = await updateAccountStatus(user._id, { verify: newVerifyStatus });
+
+      if (response) {
+        setUpdateDialogOpen(false);
+        setConfirmDialogOpen(false);
+        refreshUsers();
+        toast.success(`Account status updated to ${VERIFY_STATUS[newVerifyStatus].label}`);
+      } else {
+        throw new Error('Failed to update account status');
+      }
     } catch (error) {
       console.error('Failed to update account:', error);
+      toast.error(error.message || 'Failed to update account status');
     } finally {
       setIsLoading(false);
     }
@@ -113,16 +110,16 @@ function UserRow({ user, refreshUsers }) {
             {isExpanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
-        <TableCell width="15%" sx={{ color: 'white' }}>{user?.userName || 'N/A'}</TableCell>
-        <TableCell width="25%" sx={{ color: 'white' }}>{user?.email || 'N/A'}</TableCell>
-        <TableCell width="13%" sx={{ color: 'white' }}>{user?.phoneNumber || 'N/A'}</TableCell>
+        <TableCell width="15%" sx={{ color: 'white' }}>{user.userName || 'N/A'}</TableCell>
+        <TableCell width="25%" sx={{ color: 'white' }}>{user.email || 'N/A'}</TableCell>
+        <TableCell width="13%" sx={{ color: 'white' }}>{user.phoneNumber || 'N/A'}</TableCell>
         <TableCell width="13%" sx={{ textAlign: 'center' }}>
           <Chip
-            label={getRoleConfig(user.role).label}
+            label={roleConfig.label}
             sx={{
-              bgcolor: getRoleConfig(user.role).bgColor,
-              color: getRoleConfig(user.role).color,
-              border: `1px solid ${getRoleConfig(user.role).color}`,
+              bgcolor: roleConfig.bgColor,
+              color: roleConfig.color,
+              border: `1px solid ${roleConfig.color}`,
               fontWeight: 'bold',
               maxWidth: '100%',
             }}
@@ -130,12 +127,14 @@ function UserRow({ user, refreshUsers }) {
         </TableCell>
         <TableCell width="15%" sx={{ textAlign: 'center' }}>
           <Chip
-            label={getVerifyConfig(user.verify).label}
-            icon={<Box sx={{ '& svg': { color: getVerifyConfig(user.verify).color, fontSize: '1rem', mr: -0.5 } }}>{getVerifyConfig(user.verify).icon}</Box>}
+            label={verifyConfig.label}
+            icon={<Box sx={{ '& svg': { color: verifyConfig.color, fontSize: '1rem', mr: -0.5 } }}>
+              {verifyConfig.icon}
+            </Box>}
             sx={{
-              bgcolor: getVerifyConfig(user.verify).bgColor,
-              color: getVerifyConfig(user.verify).color,
-              border: `1px solid ${getVerifyConfig(user.verify).color}`,
+              bgcolor: verifyConfig.bgColor,
+              color: verifyConfig.color,
+              border: `1px solid ${verifyConfig.color}`,
               fontWeight: 'bold',
               width: '120px',
               justifyContent: 'center',
@@ -144,11 +143,11 @@ function UserRow({ user, refreshUsers }) {
         </TableCell>
         <TableCell width="12%" sx={{ textAlign: 'center' }}>
           <Chip
-            label={user?.isRegisterSelling ? 'Yes' : 'No'}
+            label={user.isRegisterSelling ? 'Yes' : 'No'}
             sx={{
-              bgcolor: user?.isRegisterSelling ? 'rgba(76, 175, 80, 0.2)' : 'rgba(117, 117, 117, 0.2)',
-              color: user?.isRegisterSelling ? '#4CAF50' : '#757575',
-              border: `1px solid ${user?.isRegisterSelling ? '#4CAF50' : '#757575'}`,
+              bgcolor: user.isRegisterSelling ? 'rgba(76, 175, 80, 0.2)' : 'rgba(117, 117, 117, 0.2)',
+              color: user.isRegisterSelling ? '#4CAF50' : '#757575',
+              border: `1px solid ${user.isRegisterSelling ? '#4CAF50' : '#757575'}`,
               fontWeight: 'bold',
               maxWidth: '100%',
             }}
@@ -170,10 +169,6 @@ function UserRow({ user, refreshUsers }) {
               <EditIcon sx={{ mr: 1, fontSize: '1.2rem', color: '#2196F3' }} />
               Update Status
             </MenuItem>
-            <MenuItem onClick={handleDeleteClick} sx={{ color: 'white', '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' } }}>
-              <DeleteIcon sx={{ mr: 1, fontSize: '1.2rem', color: '#F44336' }} />
-              Delete Account
-            </MenuItem>
           </Menu>
         </TableCell>
       </TableRow>
@@ -189,12 +184,12 @@ function UserRow({ user, refreshUsers }) {
                   <Box sx={{ p: 2, backgroundColor: 'rgba(0, 0, 0, 0.3)', borderRadius: 1, height: '100%' }}>
                     <Typography sx={{ color: '#FFD700', fontWeight: 'bold', mb: 1 }}>Account Information</Typography>
                     <Box sx={{ ml: 2 }}>
-                      <Typography sx={{ color: 'white' }}>User ID: {user?._id || 'N/A'}</Typography>
-                      <Typography sx={{ color: 'white' }}>User Name: {user?.userName || 'N/A'}</Typography>
-                      <Typography sx={{ color: 'white' }}>Full Name: {user?.fullName || 'Not provided'}</Typography>
-                      <Typography sx={{ color: 'white' }}>Email: {user?.email || 'N/A'}</Typography>
-                      <Typography sx={{ color: 'white' }}>Phone: {user?.phoneNumber || 'Not provided'}</Typography>
-                      <Typography sx={{ color: 'white' }}>Address: {user?.address || 'Not provided'}</Typography>
+                      <Typography sx={{ color: 'white' }}>User ID: {user._id || 'N/A'}</Typography>
+                      <Typography sx={{ color: 'white' }}>User Name: {user.userName || 'N/A'}</Typography>
+                      <Typography sx={{ color: 'white' }}>Full Name: {user.fullName || 'Not provided'}</Typography>
+                      <Typography sx={{ color: 'white' }}>Email: {user.email || 'N/A'}</Typography>
+                      <Typography sx={{ color: 'white' }}>Phone: {user.phoneNumber || 'Not provided'}</Typography>
+                      <Typography sx={{ color: 'white' }}>Address: {user.address || 'Not provided'}</Typography>
                     </Box>
                   </Box>
                 </Grid>
@@ -202,17 +197,17 @@ function UserRow({ user, refreshUsers }) {
                   <Box sx={{ p: 2, backgroundColor: 'rgba(0, 0, 0, 0.3)', borderRadius: 1, height: '100%' }}>
                     <Typography sx={{ color: '#FFD700', fontWeight: 'bold', mb: 1 }}>Account Details</Typography>
                     <Box sx={{ ml: 2 }}>
-                      <Typography sx={{ color: 'white' }}>Role: {getRoleConfig(user?.role).label}</Typography>
-                      <Typography sx={{ color: 'white' }}>Verification Status: {getVerifyConfig(user?.verify).label}</Typography>
+                      <Typography sx={{ color: 'white' }}>Role: {roleConfig.label}</Typography>
+                      <Typography sx={{ color: 'white' }}>Verification Status: {verifyConfig.label}</Typography>
                       <Typography sx={{ color: 'white' }}>
-                        Seller Status: {user?.isRegisterSelling ? 'Registered as Seller' : 'Not a Seller'}
+                        Seller Status: {user.isRegisterSelling ? 'Registered as Seller' : 'Not a Seller'}
                       </Typography>
-                      <Typography sx={{ color: 'white' }}>Remaining Credits: {user?.remainingCredits || 0}</Typography>
+                      <Typography sx={{ color: 'white' }}>Remaining Credits: {user.remainingCredits || 0}</Typography>
                       <Typography sx={{ color: 'white' }}>
-                        Created: {user?.createdAt ? formatDate(user.createdAt) : 'N/A'}
+                        Created: {formatDate(user.createdAt)}
                       </Typography>
                       <Typography sx={{ color: 'white' }}>
-                        Last Updated: {user?.updatedAt ? formatDate(user.updatedAt) : 'N/A'}
+                        Last Updated: {formatDate(user.updatedAt)}
                       </Typography>
                     </Box>
                   </Box>
@@ -223,52 +218,29 @@ function UserRow({ user, refreshUsers }) {
         </TableCell>
       </TableRow>
 
-      {/* Delete Confirmation Dialog */}
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-        PaperProps={{ sx: { backgroundColor: 'rgba(0, 0, 0, 0.9)', color: 'white', border: '1px solid rgba(255, 215, 0, 0.3)', borderRadius: 2 } }}
-      >
-        <DialogTitle sx={{ fontFamily: "'Jersey 15', sans-serif", color: '#FFD700' }}>Confirm Delete</DialogTitle>
-        <DialogContent>
-          <DialogContentText sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
-            Are you sure you want to delete the account for <span style={{ color: '#FFD700', fontWeight: 'bold' }}>{user.userName}</span>?
-            This action cannot be undone.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button
-            onClick={() => setDeleteDialogOpen(false)}
-            sx={{ color: 'white', borderColor: 'rgba(255, 255, 255, 0.3)', '&:hover': { borderColor: 'white', backgroundColor: 'rgba(255, 255, 255, 0.1)' } }}
-            variant="outlined"
-            disabled={isLoading}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleDeleteConfirm}
-            sx={{ backgroundColor: '#F44336', color: 'white', '&:hover': { backgroundColor: '#d32f2f' } }}
-            variant="contained"
-            disabled={isLoading}
-            startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <DeleteIcon />}
-          >
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
-
       {/* Update Status Dialog */}
       <Dialog
         open={updateDialogOpen}
         onClose={() => setUpdateDialogOpen(false)}
-        PaperProps={{ sx: { backgroundColor: 'rgba(0, 0, 0, 0.9)', color: 'white', border: '1px solid rgba(255, 215, 0, 0.3)', borderRadius: 2 } }}
+        PaperProps={{
+          sx: {
+            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            color: 'white',
+            border: '1px solid rgba(255, 215, 0, 0.3)',
+            borderRadius: 2
+          }
+        }}
+        aria-labelledby="update-dialog-title"
+        keepMounted
       >
-        <DialogTitle sx={{ fontFamily: "'Jersey 15', sans-serif", color: '#FFD700' }}>Update Account Status</DialogTitle>
+        <DialogTitle id="update-dialog-title" sx={{ fontFamily: "'Jersey 15', sans-serif", color: '#FFD700' }}>
+          Update Account Status
+        </DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ color: 'rgba(255, 255, 255, 0.8)', mb: 2 }}>
-            Update status for <span style={{ color: '#FFD700', fontWeight: 'bold' }}>{user.userName}</span>
+            Update status for <span style={{ color: '#FFD700', fontWeight: 'bold' }}>{user.userName || 'Unknown User'}</span>
           </DialogContentText>
-          <FormControl fullWidth variant="outlined" sx={{ mb: 2, '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.3)' } }}>
+          <FormControl fullWidth variant="outlined" sx={{ '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.3)' } }}>
             <InputLabel sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Verification Status</InputLabel>
             <Select
               value={newVerifyStatus}
@@ -276,16 +248,8 @@ function UserRow({ user, refreshUsers }) {
               label="Verification Status"
               sx={{ color: 'white' }}
             >
-              <MenuItem value={0}>Not Verified</MenuItem>
-              {/* Verified (1) is not an option here */}
-              <MenuItem value={2}>Ban</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl fullWidth variant="outlined" sx={{ '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255, 255, 255, 0.3)' } }}>
-            <InputLabel sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>User Role</InputLabel>
-            <Select value={newRole} onChange={(e) => setNewRole(e.target.value)} label="User Role" sx={{ color: 'white' }}>
-              <MenuItem value={0}>Admin</MenuItem>
-              <MenuItem value={1}>User</MenuItem>
+              <MenuItem value={0}>Unverified</MenuItem>
+              <MenuItem value={2}>Banned</MenuItem>
             </Select>
           </FormControl>
         </DialogContent>
@@ -302,7 +266,7 @@ function UserRow({ user, refreshUsers }) {
             onClick={handleUpdateConfirm}
             sx={{ backgroundColor: '#2196F3', color: 'white', '&:hover': { backgroundColor: '#1976d2' } }}
             variant="contained"
-            disabled={isLoading}
+            disabled={isLoading || newVerifyStatus === user.verify}
             startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <EditIcon />}
           >
             Update
@@ -310,21 +274,36 @@ function UserRow({ user, refreshUsers }) {
         </DialogActions>
       </Dialog>
 
-      {/* Ban Confirmation Dialog */}
+      {/* Confirmation Dialog */}
       <Dialog
-        open={banConfirmDialogOpen}
-        onClose={() => setBanConfirmDialogOpen(false)}
-        PaperProps={{ sx: { backgroundColor: 'rgba(0, 0, 0, 0.9)', color: 'white', border: '1px solid rgba(255, 215, 0, 0.3)', borderRadius: 2 } }}
+        open={confirmDialogOpen}
+        onClose={() => setConfirmDialogOpen(false)}
+        PaperProps={{
+          sx: {
+            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            color: 'white',
+            border: '1px solid rgba(255, 215, 0, 0.3)',
+            borderRadius: 2
+          }
+        }}
+        aria-labelledby="confirm-dialog-title"
+        keepMounted
       >
-        <DialogTitle sx={{ fontFamily: "'Jersey 15', sans-serif", color: '#FFD700' }}>Confirm Ban</DialogTitle>
+        <DialogTitle id="confirm-dialog-title" sx={{ fontFamily: "'Jersey 15', sans-serif", color: '#FFD700' }}>
+          Confirm Status Change
+        </DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
-            Are you sure you want to ban the account for <span style={{ color: '#FFD700', fontWeight: 'bold' }}>{user.userName}</span>?
+            Are you sure you want to change the status to{' '}
+            <span style={{ color: getVerifyConfig(newVerifyStatus).color, fontWeight: 'bold' }}>
+              {getVerifyConfig(newVerifyStatus).label}
+            </span>
+            {' '}for <span style={{ color: '#FFD700', fontWeight: 'bold' }}>{user.userName || 'Unknown User'}</span>?
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button
-            onClick={() => setBanConfirmDialogOpen(false)}
+            onClick={() => setConfirmDialogOpen(false)}
             sx={{ color: 'white', borderColor: 'rgba(255, 255, 255, 0.3)', '&:hover': { borderColor: 'white', backgroundColor: 'rgba(255, 255, 255, 0.1)' } }}
             variant="outlined"
             disabled={isLoading}
@@ -332,13 +311,17 @@ function UserRow({ user, refreshUsers }) {
             Cancel
           </Button>
           <Button
-            onClick={handleBanConfirm}
-            sx={{ backgroundColor: '#F44336', color: 'white', '&:hover': { backgroundColor: '#d32f2f' } }}
+            onClick={handleConfirmAction}
+            sx={{
+              backgroundColor: getVerifyConfig(newVerifyStatus).color,
+              color: 'white',
+              '&:hover': { backgroundColor: `${getVerifyConfig(newVerifyStatus).color}CC` }
+            }}
             variant="contained"
             disabled={isLoading}
-            startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <DeleteIcon />}
+            startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <EditIcon />}
           >
-            Ban
+            Confirm
           </Button>
         </DialogActions>
       </Dialog>
@@ -363,9 +346,21 @@ export default function ManageUsers() {
     try {
       setIsLoading(true);
       const response = await getAdminAccounts();
-      if (response.result) setUsers(response.result);
+      if (response?.result && Array.isArray(response.result)) {
+        const validatedUsers = response.result.map(user => ({
+          ...user,
+          verify: user.verify?.verify !== undefined ? user.verify.verify : (typeof user.verify === 'number' ? user.verify : 0)
+        }));
+        setUsers(validatedUsers);
+      } else {
+        setUsers([]);
+        toast.warn('Unexpected response format from server');
+        console.warn('Unexpected API response format:', response);
+      }
     } catch (error) {
       console.error('Error fetching users:', error);
+      setUsers([]);
+      toast.error('Failed to load users');
     } finally {
       setIsLoading(false);
     }
@@ -377,10 +372,10 @@ export default function ManageUsers() {
 
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
-      user.userName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.phoneNumber?.includes(searchQuery);
-    const matchesRole = roleFilter === 'all' || user.role === parseInt(roleFilter);
+      (user.userName?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+      (user.email?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+      (user.phoneNumber || '').includes(searchQuery);
+    const matchesRole = roleFilter === 'all' || user.role === Number(roleFilter);
     return matchesSearch && matchesRole;
   });
 
@@ -393,6 +388,18 @@ export default function ManageUsers() {
 
   return (
     <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', p: 3 }}>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
       <Typography variant="h4" sx={{ mb: 3, fontFamily: "'Jersey 15', sans-serif", color: 'whitesmoke', textAlign: 'center' }}>
         Manage Users 👥
       </Typography>
@@ -427,8 +434,8 @@ export default function ManageUsers() {
             sx={{ color: 'white' }}
           >
             <MenuItem value="all">All Roles</MenuItem>
-            <MenuItem value="0">Admin</MenuItem>
-            <MenuItem value="1">User</MenuItem>
+            <MenuItem value={0}>Admin</MenuItem>
+            <MenuItem value={1}>User</MenuItem>
           </Select>
         </FormControl>
       </Box>
@@ -499,4 +506,3 @@ export default function ManageUsers() {
     </Box>
   );
 }
-
