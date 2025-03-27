@@ -7,7 +7,6 @@ import {
   DialogContent, DialogContentText, DialogTitle, Menu
 } from '@mui/material';
 import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -250,7 +249,6 @@ function UserRow({ user, refreshUsers }) {
               sx={{ color: 'white' }}
             >
               <MenuItem value={0}>Unverified</MenuItem>
-              <MenuItem value={1}>Verified</MenuItem>
               <MenuItem value={2}>Banned</MenuItem>
             </Select>
           </FormControl>
