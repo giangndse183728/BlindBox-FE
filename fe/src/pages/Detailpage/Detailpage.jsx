@@ -161,10 +161,22 @@ const Detailpage = () => {
 
                         <Divider sx={{ bgcolor: "white", my: 2, opacity: 0.7 }} />
                         <Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ fontSize: 30, mt: 1 }}>Brand: {product.product.brand || "Unknown"}</Typography>
+                        <Box sx={{ mt: 2, display: "flex", alignItems: "center" }}>
+                            <Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ fontSize: 30, mr: 2 }}>Rating:</Typography>
+                            <Rating
+                                name="product-rating"
+                                value={averageRating}
+                                readOnly
+                                precision={0.1}
+                                icon={<FavoriteIcon sx={{ color: "red" }} />}
+                                emptyIcon={<FavoriteBorderIcon sx={{ color: "red" }} />}
+                            />
+                            <Typography fontFamily="'Jersey 15', sans-serif" sx={{ fontSize: 25, ml: 1, color: "white" }}>{averageRating.toFixed(1)}</Typography>
+                        </Box>
                         <Typography variant="h5" fontFamily="'Jersey 15', sans-serif" sx={{ fontSize: 40, mt: 1, ...yellowGlowAnimation }}>
                             Price: ${price.toFixed(2)}
                         </Typography>
-                        
+
                         <Box sx={{ mt: 2, display: "flex", alignItems: "center" }}>
                             <Typography variant="h6" fontFamily="'Jersey 15', sans-serif" sx={{ fontSize: 25, mr: 2 }}>
                                 Quantity
@@ -261,38 +273,38 @@ const Detailpage = () => {
                     <img src="/assets/gif/giphy.gif" alt="Kirby" style={{ width: '70px', height: 'auto' }} />
                 </Box>
             </GlassCard>
-            
+
             <Box sx={{ mt: 5, top: 130, position: "relative", margin: "auto", width: "100%", maxWidth: "1400px", px: 2 }}>
                 <Box sx={{ mb: 5 }}>
-                    <Typography 
-                        variant="h4" 
-                        fontFamily="'Jersey 15', sans-serif" 
-                        sx={{ 
-                            fontSize: 40, 
-                            color: "#f8b400", 
-                            mb: 2, 
+                    <Typography
+                        variant="h4"
+                        fontFamily="'Jersey 15', sans-serif"
+                        sx={{
+                            fontSize: 40,
+                            color: "#f8b400",
+                            mb: 2,
                             display: 'flex',
                             alignItems: 'center'
                         }}
                     >
                         Description
-                        <Divider sx={{ 
-                            ml: 2, 
-                            flex: 1, 
+                        <Divider sx={{
+                            ml: 2,
+                            flex: 1,
                             borderColor: 'rgba(248, 180, 0, 0.3)',
                             borderWidth: 1
                         }} />
                     </Typography>
-                    <Box sx={{ 
-                        backgroundColor: 'rgba(0, 0, 0, 0.3)', 
-                        p: 3, 
+                    <Box sx={{
+                        backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                        p: 3,
                         borderRadius: 2,
                         borderLeft: '4px solid #f8b400'
                     }}>
-                        <Typography 
-                            sx={{ 
-                                fontSize: 19, 
-                                color: "white", 
+                        <Typography
+                            sx={{
+                                fontSize: 19,
+                                color: "white",
                                 lineHeight: 1.8
                             }}
                         >
@@ -302,26 +314,26 @@ const Detailpage = () => {
                 </Box>
 
                 <Box sx={{ mt: 6, width: "100%" }}>
-                    <ProductFeedback 
-                        productId={id} 
+                    <ProductFeedback
+                        productId={id}
                         productName={product.product.name}
                         onFeedbackAction={handleFeedbackAction}
                         onAverageRatingChange={handleAverageRatingChange}
                     />
                 </Box>
             </Box>
-            
-            <Snackbar 
-                open={snackbar.open} 
-                autoHideDuration={6000} 
+
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={6000}
                 onClose={handleCloseSnackbar}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
             >
-                <Alert 
-                    onClose={handleCloseSnackbar} 
-                    severity={snackbar.severity} 
+                <Alert
+                    onClose={handleCloseSnackbar}
+                    severity={snackbar.severity}
                     variant="filled"
-                    sx={{ 
+                    sx={{
                         width: '100%',
                         fontFamily: "'Jersey 15', sans-serif",
                         fontSize: '1rem',
