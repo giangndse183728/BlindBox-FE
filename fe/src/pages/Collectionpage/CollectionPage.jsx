@@ -303,7 +303,7 @@ const Collectionpage = () => {
                 </Typography>
               ) : (
                 displayedProducts.map((product) => (
-                  <Grid item xs={12} sm={6} md={4} key={product.slug} sx={{ p: 1 }}>
+                  <Grid item xs={12} sm={6} md={4} key={product.slug} sx={{ p: 2 }}>
                     <Link
                       to={{
                         pathname: `/product/${product.slug}`,
@@ -312,7 +312,7 @@ const Collectionpage = () => {
                       }}
                       style={{ textDecoration: "none", width: "100%" }}
                     >
-                      <GlassCard sx={{ width: "340px", display: "flex", justifyContent: "center", alignItems: "center", p: 2 }}>
+                      <GlassCard sx={{ width: "94%", display: "flex", justifyContent: "center", alignItems: "center", p: 2 }}>
                         <Box
                           sx={{
                             borderRadius: 1,
@@ -334,7 +334,7 @@ const Collectionpage = () => {
                           />
                           <Box sx={{ position: "absolute", bottom: 10, left: 10, color: "white", px: 1, py: 0.5, borderRadius: 1, textAlign: "left" }}>
                             <Typography variant="h6" sx={{ fontWeight: "bold", mt: "-15px" }}>
-                              {product.name.length > 27 ? `${product.name.substring(0, 24)}...` : product.name}
+                              {product.name.length > 27 ? `${product.name.substring(0, 29)}...` : product.name}
                             </Typography>
                             <Typography variant="body2" sx={{ fontSize: "0.9rem" }}>{product.brand}</Typography>
                             <Typography variant="body1">
