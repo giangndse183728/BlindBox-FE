@@ -223,33 +223,95 @@ const ManagePromotions = () => {
                 </Box>
             ) : (
                 <Paper sx={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-                    <TableContainer>
-                        <Table>
+                    <TableContainer component={Paper} sx={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+                        <Table sx={{ tableLayout: 'fixed', width: '100%' }}>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Name</TableCell>
-                                    <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Discount Rate</TableCell>
-                                    <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Discount Amount</TableCell>
-                                    <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Max Discount</TableCell>
-                                    <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Start Date</TableCell>
-                                    <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>End Date</TableCell>
-                                    <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Status</TableCell>
-                                    <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif", textAlign: 'center' }}>Actions</TableCell>
+                                    <TableCell
+                                        sx={{
+                                            width: '25%',
+                                            color: 'white',
+                                            fontFamily: "'Jersey 15', sans-serif"
+                                        }}
+                                    >
+                                        Name
+                                    </TableCell>
+                                    <TableCell
+                                        sx={{
+                                            width: '10%',
+                                            color: 'white',
+                                            fontFamily: "'Jersey 15', sans-serif"
+                                        }}
+                                    >
+                                        Discount
+                                    </TableCell>
+                                    <TableCell
+                                        sx={{
+                                            width: '15%',
+                                            color: 'white',
+                                            fontFamily: "'Jersey 15', sans-serif",
+                                            display: { xs: 'none', md: 'table-cell' } // Hide on mobile
+                                        }}
+                                    >
+                                        Start Date
+                                    </TableCell>
+                                    <TableCell
+                                        sx={{
+                                            width: '15%',
+                                            color: 'white',
+                                            fontFamily: "'Jersey 15', sans-serif",
+                                            display: { xs: 'none', md: 'table-cell' } // Hide on mobile
+                                        }}
+                                    >
+                                        End Date
+                                    </TableCell>
+                                    <TableCell
+                                        sx={{
+                                            width: '15%',
+                                            color: 'white',
+                                            fontFamily: "'Jersey 15', sans-serif"
+                                        }}
+                                    >
+                                        Status
+                                    </TableCell>
+                                    <TableCell
+                                        sx={{
+                                            width: '15%',
+                                            color: 'white',
+                                            fontFamily: "'Jersey 15', sans-serif",
+                                            textAlign: 'center'
+                                        }}
+                                    >
+                                        Actions
+                                    </TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
                                 {paginatedPromotions.map((promotion) => (
                                     <TableRow key={promotion._id}>
-                                        <TableCell sx={{ color: 'white' }}>{promotion.name}</TableCell>
-                                        <TableCell sx={{ color: 'white' }}>{`${promotion.discountRate}%`}</TableCell>
-                                        <TableCell sx={{ color: 'white' }}>
-                                            {promotion.discountAmount ? `$${promotion.discountAmount}` : '-'}
+                                        <TableCell sx={{
+                                            color: 'white',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap'
+                                        }}>
+                                            {promotion.name}
                                         </TableCell>
                                         <TableCell sx={{ color: 'white' }}>
-                                            {promotion.maxDiscountAmount ? `$${promotion.maxDiscountAmount}` : '-'}
+                                            {`${promotion.discountRate}%`}
                                         </TableCell>
-                                        <TableCell sx={{ color: 'white' }}>{new Date(promotion.startDate).toLocaleDateString()}</TableCell>
-                                        <TableCell sx={{ color: 'white' }}>{new Date(promotion.endDate).toLocaleDateString()}</TableCell>
+                                        <TableCell sx={{
+                                            color: 'white',
+                                            display: { xs: 'none', md: 'table-cell' } // Hide on mobile
+                                        }}>
+                                            {new Date(promotion.startDate).toLocaleDateString()}
+                                        </TableCell>
+                                        <TableCell sx={{
+                                            color: 'white',
+                                            display: { xs: 'none', md: 'table-cell' } // Hide on mobile
+                                        }}>
+                                            {new Date(promotion.endDate).toLocaleDateString()}
+                                        </TableCell>
                                         <TableCell>
                                             <Chip
                                                 label={promotion.isActive ? 'Active' : 'Inactive'}
@@ -258,15 +320,24 @@ const ManagePromotions = () => {
                                                     color: promotion.isActive ? '#4CAF50' : '#F44336',
                                                     border: `1px solid ${promotion.isActive ? '#4CAF50' : '#F44336'}`,
                                                     fontWeight: 'bold',
+                                                    fontSize: '0.75rem',
+                                                    height: '24px'
                                                 }}
                                             />
                                         </TableCell>
                                         <TableCell>
-                                            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, alignItems: 'center' }}>
+                                            <Box sx={{
+                                                display: 'flex',
+                                                justifyContent: 'center',
+                                                gap: 0.5,
+                                                alignItems: 'center'
+                                            }}>
                                                 <Switch
                                                     checked={promotion.isActive}
                                                     onChange={(e) => handleStatusUpdate(promotion._id, e.target.checked)}
+                                                    size="small"
                                                     sx={{
+                                                        transform: 'scale(0.8)',
                                                         '& .MuiSwitch-switchBase.Mui-checked': {
                                                             color: '#FFD700',
                                                             '&:hover': {
@@ -280,14 +351,16 @@ const ManagePromotions = () => {
                                                 />
                                                 <IconButton
                                                     onClick={() => handleDelete(promotion._id)}
+                                                    size="small"
                                                     sx={{
+                                                        padding: '4px',
                                                         color: '#F44336',
                                                         '&:hover': {
                                                             backgroundColor: 'rgba(244, 67, 54, 0.08)',
                                                         }
                                                     }}
                                                 >
-                                                    <DeleteIcon />
+                                                    <DeleteIcon fontSize="small" />
                                                 </IconButton>
                                             </Box>
                                         </TableCell>
@@ -295,7 +368,11 @@ const ManagePromotions = () => {
                                 ))}
                                 {paginatedPromotions.length === 0 && (
                                     <TableRow>
-                                        <TableCell colSpan={6} align="center" sx={{ color: 'white' }}>
+                                        <TableCell
+                                            colSpan={6}
+                                            align="center"
+                                            sx={{ color: 'white' }}
+                                        >
                                             No promotions found
                                         </TableCell>
                                     </TableRow>
