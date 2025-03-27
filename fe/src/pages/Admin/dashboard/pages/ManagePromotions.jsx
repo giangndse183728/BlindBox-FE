@@ -3,7 +3,8 @@ import {
     Box, Typography, Paper, Table, TableBody, TableCell, TableContainer,
     TableHead, TableRow, CircularProgress, IconButton, TextField,
     InputAdornment, Button, Dialog, DialogActions, DialogContent,
-    DialogTitle, Grid, Chip, FormControlLabel, Switch, TablePagination
+    DialogTitle, Grid, Chip, FormControlLabel, Switch, TablePagination,
+    DialogContentText
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import EditIcon from '@mui/icons-material/Edit';
@@ -76,6 +77,9 @@ const ManagePromotions = () => {
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
     const [page, setPage] = useState(0);
     const [rowsPerPage] = useState(5);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [deletingId, setDeletingId] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     const fetchPromotions = async () => {
         try {
@@ -130,32 +134,32 @@ const ManagePromotions = () => {
         }
     };
 
-    const handleDelete = async (id) => {
+    const handleDelete = (id) => {
+        setDeletingId(id);
+        setDeleteDialogOpen(true);
+    };
+
+    const handleDeleteConfirm = async () => {
         try {
-            await deletePromotions(id);
-            setPromotions(prevPromotions => prevPromotions.filter(promo => promo._id !== id));
+            setIsLoading(true);
+            await deletePromotions(deletingId);
+            setDeleteDialogOpen(false);
             toast.success('Promotion deleted successfully', {
                 position: "top-right",
                 autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
                 theme: "dark",
             });
+            fetchPromotions();
         } catch (error) {
             console.error('Error deleting promotion:', error);
             toast.error('Failed to delete promotion', {
                 position: "top-right",
                 autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
                 theme: "dark",
             });
+        } finally {
+            setIsLoading(false);
+            setDeletingId(null);
         }
     };
 
@@ -599,13 +603,59 @@ const ManagePromotions = () => {
                 </DialogActions>
             </Dialog>
 
-            <ConfirmationDialog
-                open={confirmDialog.open}
-                onClose={() => setConfirmDialog({ open: false, id: null })}
-                onConfirm={() => handleDelete(confirmDialog.id)}
-                title="Delete Promotion"
-                message="Are you sure you want to delete this promotion?"
-            />
+            <Dialog
+                open={deleteDialogOpen}
+                onClose={() => setDeleteDialogOpen(false)}
+                PaperProps={{
+                    sx: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        color: 'white',
+                        border: '1px solid rgba(255, 215, 0, 0.3)',
+                        borderRadius: 2
+                    }
+                }}
+            >
+                <DialogTitle sx={{ fontFamily: "'Jersey 15', sans-serif", color: '#FFD700' }}>
+                    Confirm Delete
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+                        Are you sure you want to delete this promotion?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions sx={{ p: 2 }}>
+                    <Button
+                        onClick={() => setDeleteDialogOpen(false)}
+                        sx={{
+                            color: 'white',
+                            borderColor: 'rgba(255, 255, 255, 0.3)',
+                            '&:hover': {
+                                borderColor: 'white',
+                                backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }}
+                        variant="outlined"
+                        disabled={isLoading}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleDeleteConfirm}
+                        sx={{
+                            backgroundColor: '#F44336',
+                            color: 'white',
+                            '&:hover': {
+                                backgroundColor: '#d32f2f'
+                            }
+                        }}
+                        variant="contained"
+                        disabled={isLoading}
+                        startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <DeleteIcon />}
+                    >
+                        Delete
+                    </Button>
+                </DialogActions>
+            </Dialog>
 
             <ToastContainer
                 position="top-right"
