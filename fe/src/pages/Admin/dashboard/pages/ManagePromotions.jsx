@@ -109,7 +109,7 @@ const ManagePromotions = () => {
             setOpenModal(false);
             resetForm();
             fetchPromotions();
-            toast.success('Promotion created successfully', {
+            toast.success('Discount created successfully', {
                 position: "top-right",
                 autoClose: 3000,
                 hideProgressBar: false,
@@ -120,8 +120,8 @@ const ManagePromotions = () => {
                 theme: "dark",
             });
         } catch (error) {
-            console.error('Error creating promotion:', error);
-            toast.error('Failed to create promotion', {
+            console.error('Error creating discount:', error);
+            toast.error('Failed to create discount', {
                 position: "top-right",
                 autoClose: 3000,
                 hideProgressBar: false,
@@ -144,15 +144,15 @@ const ManagePromotions = () => {
             setIsLoading(true);
             await deletePromotions(deletingId);
             setDeleteDialogOpen(false);
-            toast.success('Promotion deleted successfully', {
+            toast.success('Discount deleted successfully', {
                 position: "top-right",
                 autoClose: 3000,
                 theme: "dark",
             });
             fetchPromotions();
         } catch (error) {
-            console.error('Error deleting promotion:', error);
-            toast.error('Failed to delete promotion', {
+            console.error('Error deleting discount:', error);
+            toast.error('Failed to delete discount', {
                 position: "top-right",
                 autoClose: 3000,
                 theme: "dark",
@@ -184,7 +184,7 @@ const ManagePromotions = () => {
                     promo._id === promotionId ? { ...promo, isActive: newStatus } : promo
                 )
             );
-            toast.success(`Promotion ${newStatus ? 'activated' : 'deactivated'} successfully`, {
+            toast.success(`Discount ${newStatus ? 'activated' : 'deactivated'} successfully`, {
                 position: "top-right",
                 autoClose: 3000,
                 hideProgressBar: false,
@@ -195,8 +195,8 @@ const ManagePromotions = () => {
                 theme: "dark",
             });
         } catch (error) {
-            console.error('Error updating promotion status:', error);
-            toast.error('Failed to update promotion status', {
+            console.error('Error updating discount status:', error);
+            toast.error('Failed to update discount status', {
                 position: "top-right",
                 autoClose: 3000,
                 hideProgressBar: false,
@@ -222,7 +222,7 @@ const ManagePromotions = () => {
     return (
         <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', p: 3 }}>
             <Typography variant="h4" sx={{ mb: 3, fontFamily: "'Jersey 15', sans-serif", color: 'whitesmoke', textAlign: 'center' }}>
-                Manage Promotions 🎉
+                Manage Discounts 🎉
             </Typography>
 
             <Box sx={{
@@ -233,7 +233,7 @@ const ManagePromotions = () => {
                 alignItems: { xs: 'stretch', md: 'center' },
             }}>
                 <TextField
-                    placeholder="Search promotions..."
+                    placeholder="Search discounts..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     variant="outlined"
@@ -271,7 +271,7 @@ const ManagePromotions = () => {
                         minWidth: '200px'
                     }}
                 >
-                    Create Promotion
+                    Create Discount
                 </Button>
             </Box>
 
@@ -431,7 +431,7 @@ const ManagePromotions = () => {
                                             align="center"
                                             sx={{ color: 'white' }}
                                         >
-                                            No promotions found
+                                            No discounts found
                                         </TableCell>
                                     </TableRow>
                                 )}
@@ -486,12 +486,12 @@ const ManagePromotions = () => {
                 }}
             >
                 <DialogTitle sx={{ fontFamily: "'Jersey 15', sans-serif", color: '#FFD700' }}>
-                    Create New Promotion
+                    {editingId ? 'Edit Discount' : 'Create New Discount'}
                 </DialogTitle>
                 <DialogContent>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 2, minWidth: '400px' }}>
                         <TextField
-                            label="Promotion Name"
+                            label="Discount Name"
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                             fullWidth
@@ -620,7 +620,7 @@ const ManagePromotions = () => {
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
-                        Are you sure you want to delete this promotion?
+                        Are you sure you want to delete this discount?
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions sx={{ p: 2 }}>
