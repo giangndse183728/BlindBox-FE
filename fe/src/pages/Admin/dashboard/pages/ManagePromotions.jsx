@@ -104,6 +104,38 @@ const ManagePromotions = () => {
     };
 
     const handleCreate = async () => {
+        // Add date validation
+        const currentDate = new Date().setHours(0, 0, 0, 0);
+        const startDateObj = new Date(formData.startDate).setHours(0, 0, 0, 0);
+        const endDateObj = new Date(formData.endDate).setHours(0, 0, 0, 0);
+
+        if (startDateObj < currentDate) {
+            toast.error('Start date cannot be before today', {
+                position: "top-right",
+                autoClose: 3000,
+                theme: "dark",
+            });
+            return;
+        }
+
+        if (endDateObj < currentDate) {
+            toast.error('End date cannot be before today', {
+                position: "top-right",
+                autoClose: 3000,
+                theme: "dark",
+            });
+            return;
+        }
+
+        if (endDateObj < startDateObj) {
+            toast.error('End date must be after start date', {
+                position: "top-right",
+                autoClose: 3000,
+                theme: "dark",
+            });
+            return;
+        }
+
         try {
             await createPromotions(formData);
             setOpenModal(false);
@@ -112,11 +144,6 @@ const ManagePromotions = () => {
             toast.success('Discount created successfully', {
                 position: "top-right",
                 autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
                 theme: "dark",
             });
         } catch (error) {
@@ -124,11 +151,6 @@ const ManagePromotions = () => {
             toast.error('Failed to create discount', {
                 position: "top-right",
                 autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
                 theme: "dark",
             });
         }
@@ -538,6 +560,9 @@ const ManagePromotions = () => {
                             fullWidth
                             required
                             InputLabelProps={{ shrink: true }}
+                            inputProps={{
+                                min: new Date().toISOString().split('T')[0]
+                            }}
                             sx={{
                                 '& .MuiOutlinedInput-root': {
                                     color: 'white',
@@ -559,6 +584,9 @@ const ManagePromotions = () => {
                             fullWidth
                             required
                             InputLabelProps={{ shrink: true }}
+                            inputProps={{
+                                min: formData.startDate || new Date().toISOString().split('T')[0]
+                            }}
                             sx={{
                                 '& .MuiOutlinedInput-root': {
                                     color: 'white',
