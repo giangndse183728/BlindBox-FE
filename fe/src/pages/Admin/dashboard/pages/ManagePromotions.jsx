@@ -3,7 +3,7 @@ import {
     Box, Typography, Paper, Table, TableBody, TableCell, TableContainer,
     TableHead, TableRow, CircularProgress, IconButton, TextField,
     InputAdornment, Button, Dialog, DialogActions, DialogContent,
-    DialogTitle, Grid, Chip, FormControlLabel, Switch
+    DialogTitle, Grid, Chip, FormControlLabel, Switch, TablePagination
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import EditIcon from '@mui/icons-material/Edit';
@@ -67,17 +67,13 @@ const ManagePromotions = () => {
     const [confirmDialog, setConfirmDialog] = useState({ open: false, id: null });
     const [formData, setFormData] = useState({
         name: '',
-        discountRate: 0,
-        discountAmount: '',
-        maxDiscountAmount: '',
+        discountRate: 10,
         startDate: '',
-        endDate: '',
-        sellerId: '',
-        isActive: true,
-        singleUse: false,
-        used: false
+        endDate: ''
     });
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+    const [page, setPage] = useState(0);
+    const [rowsPerPage] = useState(5);
 
     const fetchPromotions = async () => {
         try {
@@ -101,20 +97,14 @@ const ManagePromotions = () => {
         setSnackbar({ open: true, message, severity });
     };
 
-    const handleSubmit = async () => {
+    const handleCreate = async () => {
         try {
-            if (editingId) {
-                await updatePromotions(editingId, formData);
-            } else {
-                await createPromotions(formData);
-            }
-            showSnackbar('Promotion saved successfully');
+            await createPromotions(formData);
             setOpenModal(false);
             resetForm();
             fetchPromotions();
         } catch (error) {
-            showSnackbar('Failed to save promotion', 'error');
-            console.error('Error saving promotion:', error);
+            console.error('Error creating promotion:', error);
         }
     };
 
@@ -138,17 +128,10 @@ const ManagePromotions = () => {
     const resetForm = () => {
         setFormData({
             name: '',
-            discountRate: 0,
-            discountAmount: '',
-            maxDiscountAmount: '',
+            discountRate: 10,
             startDate: '',
-            endDate: '',
-            sellerId: '',
-            isActive: true,
-            singleUse: false,
-            used: false
+            endDate: ''
         });
-        setEditingId(null);
     };
 
     const filteredPromotions = promotions.filter(promo =>
@@ -167,6 +150,16 @@ const ManagePromotions = () => {
             console.error('Error updating promotion status:', error);
         }
     };
+
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+    };
+
+    // Calculate paginated data
+    const paginatedPromotions = filteredPromotions.slice(
+        page * rowsPerPage,
+        page * rowsPerPage + rowsPerPage
+    );
 
     return (
         <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', p: 3 }}>
@@ -209,6 +202,19 @@ const ManagePromotions = () => {
                         }
                     }}
                 />
+
+                <Button
+                    variant="contained"
+                    onClick={() => setOpenModal(true)}
+                    sx={{
+                        backgroundColor: '#FFD700',
+                        color: 'black',
+                        '&:hover': { backgroundColor: '#E6C200' },
+                        minWidth: '200px'
+                    }}
+                >
+                    Create Promotion
+                </Button>
             </Box>
 
             {loading ? (
@@ -216,80 +222,251 @@ const ManagePromotions = () => {
                     <CircularProgress sx={{ color: '#FFD700' }} />
                 </Box>
             ) : (
-                <TableContainer component={Paper} sx={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Name</TableCell>
-                                <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Discount Rate</TableCell>
-                                <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Discount Amount</TableCell>
-                                <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Max Discount</TableCell>
-                                <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Start Date</TableCell>
-                                <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>End Date</TableCell>
-                                <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Status</TableCell>
-                                <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif", textAlign: 'center' }}>Actions</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {filteredPromotions.map((promotion) => (
-                                <TableRow key={promotion._id}>
-                                    <TableCell sx={{ color: 'white' }}>{promotion.name}</TableCell>
-                                    <TableCell sx={{ color: 'white' }}>{`${promotion.discountRate}%`}</TableCell>
-                                    <TableCell sx={{ color: 'white' }}>
-                                        {promotion.discountAmount ? `$${promotion.discountAmount}` : '-'}
-                                    </TableCell>
-                                    <TableCell sx={{ color: 'white' }}>
-                                        {promotion.maxDiscountAmount ? `$${promotion.maxDiscountAmount}` : '-'}
-                                    </TableCell>
-                                    <TableCell sx={{ color: 'white' }}>{new Date(promotion.startDate).toLocaleDateString()}</TableCell>
-                                    <TableCell sx={{ color: 'white' }}>{new Date(promotion.endDate).toLocaleDateString()}</TableCell>
-                                    <TableCell>
-                                        <Chip
-                                            label={promotion.isActive ? 'Active' : 'Inactive'}
-                                            sx={{
-                                                bgcolor: promotion.isActive ? 'rgba(76, 175, 80, 0.2)' : 'rgba(244, 67, 54, 0.2)',
-                                                color: promotion.isActive ? '#4CAF50' : '#F44336',
-                                                border: `1px solid ${promotion.isActive ? '#4CAF50' : '#F44336'}`,
-                                                fontWeight: 'bold',
-                                            }}
-                                        />
-                                    </TableCell>
-                                    <TableCell>
-                                        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, alignItems: 'center' }}>
-                                            <Switch
-                                                checked={promotion.isActive}
-                                                onChange={(e) => handleStatusUpdate(promotion._id, e.target.checked)}
+                <Paper sx={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+                    <TableContainer>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Name</TableCell>
+                                    <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Discount Rate</TableCell>
+                                    <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Discount Amount</TableCell>
+                                    <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Max Discount</TableCell>
+                                    <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Start Date</TableCell>
+                                    <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>End Date</TableCell>
+                                    <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Status</TableCell>
+                                    <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif", textAlign: 'center' }}>Actions</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {paginatedPromotions.map((promotion) => (
+                                    <TableRow key={promotion._id}>
+                                        <TableCell sx={{ color: 'white' }}>{promotion.name}</TableCell>
+                                        <TableCell sx={{ color: 'white' }}>{`${promotion.discountRate}%`}</TableCell>
+                                        <TableCell sx={{ color: 'white' }}>
+                                            {promotion.discountAmount ? `$${promotion.discountAmount}` : '-'}
+                                        </TableCell>
+                                        <TableCell sx={{ color: 'white' }}>
+                                            {promotion.maxDiscountAmount ? `$${promotion.maxDiscountAmount}` : '-'}
+                                        </TableCell>
+                                        <TableCell sx={{ color: 'white' }}>{new Date(promotion.startDate).toLocaleDateString()}</TableCell>
+                                        <TableCell sx={{ color: 'white' }}>{new Date(promotion.endDate).toLocaleDateString()}</TableCell>
+                                        <TableCell>
+                                            <Chip
+                                                label={promotion.isActive ? 'Active' : 'Inactive'}
                                                 sx={{
-                                                    '& .MuiSwitch-switchBase.Mui-checked': {
-                                                        color: '#FFD700',
-                                                        '&:hover': {
-                                                            backgroundColor: 'rgba(255, 215, 0, 0.08)',
-                                                        },
-                                                    },
-                                                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                                        backgroundColor: '#FFD700',
-                                                    },
+                                                    bgcolor: promotion.isActive ? 'rgba(76, 175, 80, 0.2)' : 'rgba(244, 67, 54, 0.2)',
+                                                    color: promotion.isActive ? '#4CAF50' : '#F44336',
+                                                    border: `1px solid ${promotion.isActive ? '#4CAF50' : '#F44336'}`,
+                                                    fontWeight: 'bold',
                                                 }}
                                             />
-                                            <IconButton
-                                                onClick={() => handleDelete(promotion._id)}
-                                                sx={{
-                                                    color: '#F44336',
-                                                    '&:hover': {
-                                                        backgroundColor: 'rgba(244, 67, 54, 0.08)',
-                                                    }
-                                                }}
-                                            >
-                                                <DeleteIcon />
-                                            </IconButton>
-                                        </Box>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, alignItems: 'center' }}>
+                                                <Switch
+                                                    checked={promotion.isActive}
+                                                    onChange={(e) => handleStatusUpdate(promotion._id, e.target.checked)}
+                                                    sx={{
+                                                        '& .MuiSwitch-switchBase.Mui-checked': {
+                                                            color: '#FFD700',
+                                                            '&:hover': {
+                                                                backgroundColor: 'rgba(255, 215, 0, 0.08)',
+                                                            },
+                                                        },
+                                                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                                            backgroundColor: '#FFD700',
+                                                        },
+                                                    }}
+                                                />
+                                                <IconButton
+                                                    onClick={() => handleDelete(promotion._id)}
+                                                    sx={{
+                                                        color: '#F44336',
+                                                        '&:hover': {
+                                                            backgroundColor: 'rgba(244, 67, 54, 0.08)',
+                                                        }
+                                                    }}
+                                                >
+                                                    <DeleteIcon />
+                                                </IconButton>
+                                            </Box>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                                {paginatedPromotions.length === 0 && (
+                                    <TableRow>
+                                        <TableCell colSpan={6} align="center" sx={{ color: 'white' }}>
+                                            No promotions found
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                    <TablePagination
+                        component="div"
+                        count={filteredPromotions.length}
+                        page={page}
+                        onPageChange={handleChangePage}
+                        rowsPerPage={rowsPerPage}
+                        rowsPerPageOptions={[5]} // Lock to 5 rows per page
+                        sx={{
+                            color: 'white',
+                            '.MuiTablePagination-toolbar': {
+                                color: 'white',
+                            },
+                            '.MuiTablePagination-selectIcon': {
+                                color: 'white',
+                            },
+                            '.MuiTablePagination-displayedRows': {
+                                color: 'white',
+                            },
+                            '.MuiTablePagination-actions': {
+                                color: 'white',
+                                '& .MuiIconButton-root': {
+                                    color: 'white',
+                                    '&.Mui-disabled': {
+                                        color: 'rgba(255, 255, 255, 0.3)',
+                                    },
+                                },
+                            },
+                        }}
+                    />
+                </Paper>
             )}
+
+            <Dialog
+                open={openModal}
+                onClose={() => {
+                    setOpenModal(false);
+                    resetForm();
+                }}
+                PaperProps={{
+                    sx: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        color: 'white',
+                        border: '1px solid rgba(255, 215, 0, 0.3)',
+                        borderRadius: 2,
+                    }
+                }}
+            >
+                <DialogTitle sx={{ fontFamily: "'Jersey 15', sans-serif", color: '#FFD700' }}>
+                    Create New Promotion
+                </DialogTitle>
+                <DialogContent>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 2, minWidth: '400px' }}>
+                        <TextField
+                            label="Promotion Name"
+                            value={formData.name}
+                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            fullWidth
+                            required
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    color: 'white',
+                                    '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.3)' },
+                                    '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.5)' },
+                                    '&.Mui-focused fieldset': { borderColor: '#FFD700' },
+                                },
+                                '& .MuiInputLabel-root': {
+                                    color: 'rgba(255, 255, 255, 0.7)',
+                                    '&.Mui-focused': { color: '#FFD700' },
+                                },
+                            }}
+                        />
+                        <TextField
+                            label="Discount Rate (%)"
+                            type="number"
+                            value={formData.discountRate}
+                            onChange={(e) => setFormData({ ...formData, discountRate: Number(e.target.value) })}
+                            fullWidth
+                            required
+                            InputProps={{ inputProps: { min: 0, max: 100 } }}
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    color: 'white',
+                                    '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.3)' },
+                                    '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.5)' },
+                                    '&.Mui-focused fieldset': { borderColor: '#FFD700' },
+                                },
+                                '& .MuiInputLabel-root': {
+                                    color: 'rgba(255, 255, 255, 0.7)',
+                                    '&.Mui-focused': { color: '#FFD700' },
+                                },
+                            }}
+                        />
+                        <TextField
+                            label="Start Date"
+                            type="date"
+                            value={formData.startDate}
+                            onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                            fullWidth
+                            required
+                            InputLabelProps={{ shrink: true }}
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    color: 'white',
+                                    '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.3)' },
+                                    '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.5)' },
+                                    '&.Mui-focused fieldset': { borderColor: '#FFD700' },
+                                },
+                                '& .MuiInputLabel-root': {
+                                    color: 'rgba(255, 255, 255, 0.7)',
+                                    '&.Mui-focused': { color: '#FFD700' },
+                                },
+                            }}
+                        />
+                        <TextField
+                            label="End Date"
+                            type="date"
+                            value={formData.endDate}
+                            onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                            fullWidth
+                            required
+                            InputLabelProps={{ shrink: true }}
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    color: 'white',
+                                    '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.3)' },
+                                    '&:hover fieldset': { borderColor: 'rgba(255, 255, 255, 0.5)' },
+                                    '&.Mui-focused fieldset': { borderColor: '#FFD700' },
+                                },
+                                '& .MuiInputLabel-root': {
+                                    color: 'rgba(255, 255, 255, 0.7)',
+                                    '&.Mui-focused': { color: '#FFD700' },
+                                },
+                            }}
+                        />
+                    </Box>
+                </DialogContent>
+                <DialogActions sx={{ p: 2 }}>
+                    <Button
+                        onClick={() => {
+                            setOpenModal(false);
+                            resetForm();
+                        }}
+                        sx={{
+                            color: 'white',
+                            borderColor: 'rgba(255, 255, 255, 0.3)',
+                            '&:hover': { borderColor: 'white', backgroundColor: 'rgba(255, 255, 255, 0.1)' }
+                        }}
+                        variant="outlined"
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleCreate}
+                        sx={{
+                            backgroundColor: '#FFD700',
+                            color: 'black',
+                            '&:hover': { backgroundColor: '#E6C200' }
+                        }}
+                        variant="contained"
+                    >
+                        Create
+                    </Button>
+                </DialogActions>
+            </Dialog>
 
             <ConfirmationDialog
                 open={confirmDialog.open}
