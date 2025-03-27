@@ -9,6 +9,8 @@ import SearchIcon from '@mui/icons-material/Search';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { getPromotions, createPromotions, updatePromotions, deletePromotions } from '../../../../services/promoApi';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function ConfirmationDialog({ open, onClose, onConfirm, title, message }) {
     return (
@@ -103,25 +105,57 @@ const ManagePromotions = () => {
             setOpenModal(false);
             resetForm();
             fetchPromotions();
+            toast.success('Promotion created successfully', {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            });
         } catch (error) {
             console.error('Error creating promotion:', error);
+            toast.error('Failed to create promotion', {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            });
         }
     };
 
     const handleDelete = async (id) => {
-        setConfirmDialog({ open: true, id });
-    };
-
-    const confirmDelete = async () => {
         try {
-            await deletePromotions(confirmDialog.id);
-            showSnackbar('Promotion deleted successfully');
-            fetchPromotions();
+            await deletePromotions(id);
+            setPromotions(prevPromotions => prevPromotions.filter(promo => promo._id !== id));
+            toast.success('Promotion deleted successfully', {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            });
         } catch (error) {
-            showSnackbar('Failed to delete promotion', 'error');
             console.error('Error deleting promotion:', error);
-        } finally {
-            setConfirmDialog({ open: false, id: null });
+            toast.error('Failed to delete promotion', {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            });
         }
     };
 
@@ -146,8 +180,28 @@ const ManagePromotions = () => {
                     promo._id === promotionId ? { ...promo, isActive: newStatus } : promo
                 )
             );
+            toast.success(`Promotion ${newStatus ? 'activated' : 'deactivated'} successfully`, {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            });
         } catch (error) {
             console.error('Error updating promotion status:', error);
+            toast.error('Failed to update promotion status', {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            });
         }
     };
 
@@ -548,9 +602,23 @@ const ManagePromotions = () => {
             <ConfirmationDialog
                 open={confirmDialog.open}
                 onClose={() => setConfirmDialog({ open: false, id: null })}
-                onConfirm={confirmDelete}
+                onConfirm={() => handleDelete(confirmDialog.id)}
                 title="Delete Promotion"
                 message="Are you sure you want to delete this promotion?"
+            />
+
+            <ToastContainer
+                position="top-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="dark"
+                style={{ zIndex: 9999 }}
             />
         </Box>
     );
