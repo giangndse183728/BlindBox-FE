@@ -402,7 +402,7 @@ const ThreeCustom = () => {
         const imageFile = new File([blob], "custom_accessory.png", { type: "image/png" });
         
         const uploadResponse = await uploadImage(imageFile);
-        imageUrl = uploadResponse.result
+        imageUrl = uploadResponse
       }
 
       const requestData = {
