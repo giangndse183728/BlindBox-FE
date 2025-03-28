@@ -159,15 +159,19 @@ const CreateBlindboxDialog = ({ open, onClose, onSuccess, isEditing, productData
   };
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
-    // No e.preventDefault() needed here as Formik handles that
     try {
       setSubmitting(true);
       
-      // Upload image if there's a new selected file
+      // Upload image if there's a selected file and we're creating a new product
+      // Or if we're editing and have changed the image
       let imageUrl = values.image;
-      if (selectedFile && selectedFile !== originalImage) {
-        const uploadResponse = await uploadImage(selectedFile);
-        imageUrl = uploadResponse.result;
+      if (selectedFile) {
+        if (!isEditing || (isEditing && selectedFile !== originalImage)) {
+          setUploading(true);
+          const uploadResponse = await uploadImage(selectedFile);
+          imageUrl = uploadResponse;
+          setUploading(false);
+        }
       }
       
       // Prepare the data with the image URL
