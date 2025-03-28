@@ -26,7 +26,13 @@ const ORDER_STATUS = {
   1: { label: 'Confirmed', color: '#2196F3', bgColor: 'rgba(33, 150, 243, 0.2)', icon: <ReceiptIcon /> },
   2: { label: 'Processing', color: '#9C27B0', bgColor: 'rgba(156, 39, 176, 0.2)', icon: <LocalShippingIcon /> },
   3: { label: 'Completed', color: '#4CAF50', bgColor: 'rgba(76, 175, 80, 0.2)', icon: <CheckCircleIcon /> },
-  4: { label: 'Cancelled', color: '#F44336', bgColor: 'rgba(244, 67, 54, 0.2)', icon: <CancelIcon /> }
+  4: { label: 'Cancelled', color: '#F44336', bgColor: 'rgba(244, 67, 54, 0.2)', icon: <CancelIcon /> },
+  5: { label: 'PartiallyCancelled', color: '#F44336', bgColor: 'rgba(244, 67, 54, 0.2)', icon: <CancelIcon /> },
+  6: { label: 'PartiallyConfirmed', color: '#2196F3', bgColor: 'rgba(33, 150, 243, 0.2)', icon: <ReceiptIcon /> },
+  7: { label: 'PartiallyProcessing', color: '#9C27B0', bgColor: 'rgba(156, 39, 176, 0.2)', icon: <LocalShippingIcon /> },
+  8: { label: 'PartiallyCompleted', color: '#4CAF50', bgColor: 'rgba(76, 175, 80, 0.2)', icon: <CheckCircleIcon /> },
+
+  default: { label: 'Unknown', color: '#757575', bgColor: 'rgba(117, 117, 117, 0.2)', icon: <PendingIcon /> }
 };
 
 const PAYMENT_METHOD = {
@@ -314,6 +320,62 @@ function OrderRow({ order, refreshOrders, updateOrderLocally }) {
     }
   };
 
+  const getItemStatus = (item) => {
+    // Check if this is a partially confirmed order
+    if (order.status >= 5 && order.status <= 8) {
+      // Look for the item in the status history's confirmed items
+      if (order.statusHistory && order.statusHistory.length > 0) {
+        // Find the most recent status history entry with confirmedItems
+        const statusEntry = order.statusHistory
+          .filter(entry => entry.confirmedItems)
+          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+        
+        if (statusEntry && statusEntry.confirmedItems) {
+          // Check if this item is in the confirmed items list
+          const isConfirmed = statusEntry.confirmedItems.some(
+            confirmedItem => confirmedItem.productName === item.productName && 
+                           confirmedItem.sellerId === item.sellerId
+          );
+          
+          return isConfirmed ? 'Confirmed' : 'Pending';
+        }
+      }
+      
+      // If we can't determine status from history, check item's direct status
+      return item.status !== undefined ? ORDER_STATUS[item.status]?.label || 'Unknown' : 'Unknown';
+    }
+    
+    // For regular orders, all items have the same status as the order
+    return ORDER_STATUS[order.status]?.label || 'Unknown';
+  };
+
+  const getItemStatusColor = (item) => {
+    const status = getItemStatus(item);
+    switch(status) {
+      case 'Confirmed': return '#2196F3';
+      case 'Processing': return '#9C27B0';
+      case 'Completed': return '#4CAF50';
+      case 'Cancelled': return '#F44336';
+      case 'Pending': return '#FF9800';
+      default: return '#757575';
+    }
+  };
+
+  // Helper function to map order status to stepper steps
+  const getStepperStatus = (status) => {
+    // Map partially confirmed to confirmed step
+    if (status === 6) return 1; // PartiallyConfirmed -> map to Confirmed (1)
+    
+    // Map partially processing to processing step
+    if (status === 7) return 2; // PartiallyProcessing -> map to Processing (2)
+    
+    // Map partially completed to completed step
+    if (status === 8) return 3; // PartiallyCompleted -> map to Completed (3)
+    
+    // Otherwise use the original status
+    return status;
+  };
+
   return (
     <React.Fragment>
       <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
@@ -382,8 +444,8 @@ function OrderRow({ order, refreshOrders, updateOrderLocally }) {
                 Order Details
               </Typography>
               
-              {/* Order Status Stepper */}
-              <OrderStatusStepper status={order.status} />
+              {/* Order Status Stepper - modified to map partial statuses to main steps */}
+              <OrderStatusStepper status={getStepperStatus(order.status)} />
 
               {/* Status History Log Section */}
               {order.statusHistory && order.statusHistory.length > 0 && (
@@ -476,7 +538,8 @@ function OrderRow({ order, refreshOrders, updateOrderLocally }) {
               {/* Status Update Buttons */}
               {order.status !== 4 && order.status !== 3 && (
                 <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', mb: 4, mt: 2 }}>
-                  {order.status === 0 && (
+                  {/* Show confirm buttons for pending or partially confirmed with remaining pending items */}
+                  {(order.status === 0 || order.status === 6) && (
                     <>
                       <ButtonCus
                         variant="button-pixel-green"
@@ -502,7 +565,8 @@ function OrderRow({ order, refreshOrders, updateOrderLocally }) {
                       </ButtonCus>
                     </>
                   )}
-                  {order.status === 1 && (
+                  {/* Show process buttons for confirmed or partially processing orders */}
+                  {(order.status === 1 || order.status === 7) && (
                     <>
                       <ButtonCus
                         variant="button-pixel-blue"
@@ -527,6 +591,20 @@ function OrderRow({ order, refreshOrders, updateOrderLocally }) {
                         </Typography>
                       </ButtonCus>
                     </>
+                  )}
+                  {/* Show complete button for processing orders */}
+                  {order.status === 2 && (
+                    <ButtonCus
+                      variant="button-pixel-green"
+                      width="180px"
+                      height="40px"
+                      onClick={() => handleStatusClick(3)}
+                      disabled={loading}
+                    >
+                      <Typography variant="body1" fontFamily="'Jersey 15', sans-serif" sx={{ color: "white" }}>
+                        Complete Order
+                      </Typography>
+                    </ButtonCus>
                   )}
                   {loading && <CircularProgress size={24} sx={{ color: '#FFD700' }} />}
                 </Box>
@@ -568,6 +646,7 @@ function OrderRow({ order, refreshOrders, updateOrderLocally }) {
                       <TableCell sx={{ color: 'white' }}>Product</TableCell>
                       <TableCell sx={{ color: 'white', textAlign: 'center' }}>Price</TableCell>
                       <TableCell sx={{ color: 'white', textAlign: 'center' }}>Quantity</TableCell>
+                      <TableCell sx={{ color: 'white', textAlign: 'center' }}>Status</TableCell>
                       <TableCell sx={{ color: 'white', textAlign: 'right' }}>Subtotal</TableCell>
                     </TableRow>
                   </TableHead>
@@ -591,13 +670,26 @@ function OrderRow({ order, refreshOrders, updateOrderLocally }) {
                           ${((item.price ? parseFloat(item.price) : 0).toFixed(2))}
                         </TableCell>
                         <TableCell sx={{ color: 'white', textAlign: 'center' }}>{item.quantity}</TableCell>
+                        <TableCell sx={{ textAlign: 'center' }}>
+                          {order.status >= 5 && order.status <= 8 ? (
+                            <Chip 
+                              label={getItemStatus(item)}
+                              sx={{
+                                bgcolor: 'rgba(0, 0, 0, 0.3)',
+                                color: getItemStatusColor(item),
+                                border: `1px solid ${getItemStatusColor(item)}`,
+                                fontWeight: 'bold',
+                              }}
+                            />
+                          ) : null}
+                        </TableCell>
                         <TableCell sx={{ color: 'white', textAlign: 'right' }}>
                           ${(item.price ? parseFloat(item.price) : 0) * (item.quantity || 1).toFixed(2)}
                         </TableCell>
                       </TableRow>
                     ))}
                     <TableRow>
-                      <TableCell colSpan={3} sx={{ color: '#FFD700', textAlign: 'right', fontWeight: 'bold' }}>
+                      <TableCell colSpan={4} sx={{ color: '#FFD700', textAlign: 'right', fontWeight: 'bold' }}>
                         Total
                       </TableCell>
                       <TableCell sx={{ color: '#FFD700', textAlign: 'right', fontWeight: 'bold' }}>
@@ -816,10 +908,14 @@ export default function ManageSellerOrders() {
           >
             <MenuItem value="all">All Status</MenuItem>
             <MenuItem value="0">Pending</MenuItem>
-            <MenuItem value="1">Confirm</MenuItem>
+            <MenuItem value="1">Confirmed</MenuItem>
+            <MenuItem value="6">Partially Confirmed</MenuItem>
             <MenuItem value="2">Processing</MenuItem>
+            <MenuItem value="7">Partially Processing</MenuItem>
             <MenuItem value="3">Completed</MenuItem>
+            <MenuItem value="8">Partially Completed</MenuItem>
             <MenuItem value="4">Cancelled</MenuItem>
+            <MenuItem value="5">Partially Cancelled</MenuItem>
           </Select>
         </FormControl>
       </Box>

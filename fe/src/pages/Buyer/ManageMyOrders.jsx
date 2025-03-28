@@ -34,13 +34,24 @@ const ORDER_STATUS = {
     1: { label: 'Confirmed', color: '#2196F3', bgColor: 'rgba(33, 150, 243, 0.2)', icon: <ReceiptIcon /> },
     2: { label: 'Processing', color: '#9C27B0', bgColor: 'rgba(156, 39, 176, 0.2)', icon: <LocalShippingIcon /> },
     3: { label: 'Completed', color: '#4CAF50', bgColor: 'rgba(76, 175, 80, 0.2)', icon: <CheckCircleIcon /> },
-    4: { label: 'Cancelled', color: '#F44336', bgColor: 'rgba(244, 67, 54, 0.2)', icon: <CancelIcon /> }
+    4: { label: 'Cancelled', color: '#F44336', bgColor: 'rgba(244, 67, 54, 0.2)', icon: <CancelIcon /> },
+    5: { label: 'PartiallyCancelled', color: '#F44336', bgColor: 'rgba(244, 67, 54, 0.2)', icon: <CancelIcon /> },
+    6: { label: 'PartiallyConfirmed', color: '#2196F3', bgColor: 'rgba(33, 150, 243, 0.2)', icon: <ReceiptIcon /> },
+    7: { label: 'PartiallyProcessing', color: '#9C27B0', bgColor: 'rgba(156, 39, 176, 0.2)', icon: <LocalShippingIcon /> },
+    8: { label: 'PartiallyCompleted', color: '#4CAF50', bgColor: 'rgba(76, 175, 80, 0.2)', icon: <CheckCircleIcon /> },
+    // Add a fallback for any unexpected status values
+    default: { label: 'Unknown', color: '#757575', bgColor: 'rgba(117, 117, 117, 0.2)', icon: <PendingIcon /> }
 };
 
 const ITEMS_PER_PAGE = 5;
 
 const accNumber = process.env.REACT_APP_ACC;
 const bankName = process.env.REACT_APP_BANK_NAME;
+
+// Helper function to safely get status info
+const getStatusInfo = (status) => {
+    return ORDER_STATUS[status] || ORDER_STATUS.default;
+};
 
 function OrderRow({ order, onOrderUpdate }) {
     const [open, setOpen] = useState(false);
@@ -206,6 +217,63 @@ function OrderRow({ order, onOrderUpdate }) {
         setShowQRCode(false);
     };
 
+    // Get individual item status for partially confirmed/processed orders
+    const getItemStatus = (item) => {
+        // For partially confirmed/processed/completed/cancelled orders (status 5-8)
+        if (order.status >= 5 && order.status <= 8) {
+            // Look in the status history for confirmed items
+            if (order.statusHistory && order.statusHistory.length > 0) {
+                // Find the most recent status history entry with confirmedItems
+                const statusEntry = order.statusHistory
+                    .filter(entry => entry.confirmedItems)
+                    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+                
+                if (statusEntry && statusEntry.confirmedItems) {
+                    // Check if this item is in the confirmed items list
+                    const isConfirmed = statusEntry.confirmedItems.some(
+                        confirmedItem => confirmedItem.productName === item.productName && 
+                                     confirmedItem.sellerId === item.sellerId
+                    );
+                    
+                    return isConfirmed ? 'Confirmed' : 'Pending';
+                }
+            }
+            
+            // If we can't determine from history, check item's direct status if available
+            return item.status !== undefined ? ORDER_STATUS[item.status]?.label || 'Unknown' : 'Unknown';
+        }
+        
+        // For regular orders, all items have the same status
+        return ORDER_STATUS[order.status]?.label || 'Unknown';
+    };
+
+    const getItemStatusColor = (item) => {
+        const status = getItemStatus(item);
+        switch(status) {
+            case 'Confirmed': return '#2196F3';
+            case 'Processing': return '#9C27B0';
+            case 'Completed': return '#4CAF50';
+            case 'Cancelled': return '#F44336';
+            case 'Pending': return '#FF9800';
+            default: return '#757575';
+        }
+    };
+
+    // Helper function to map order status to stepper steps for the visual display
+    const getStepperStatus = (status) => {
+        // Map partially confirmed to confirmed step
+        if (status === 6) return 1; // PartiallyConfirmed -> map to Confirmed (1)
+        
+        // Map partially processing to processing step
+        if (status === 7) return 2; // PartiallyProcessing -> map to Processing (2)
+        
+        // Map partially completed to completed step
+        if (status === 8) return 3; // PartiallyCompleted -> map to Completed (3)
+        
+        // Otherwise use the original status
+        return status;
+    };
+
     return (
         <React.Fragment>
             <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
@@ -217,14 +285,14 @@ function OrderRow({ order, onOrderUpdate }) {
                             </Typography>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                 <Chip
-                                    label={ORDER_STATUS[order.status].label}
+                                    label={getStatusInfo(order.status).label}
                                     sx={{
-                                        bgcolor: ORDER_STATUS[order.status].bgColor,
-                                        color: ORDER_STATUS[order.status].color,
-                                        border: `1px solid ${ORDER_STATUS[order.status].color}`,
+                                        bgcolor: getStatusInfo(order.status).bgColor,
+                                        color: getStatusInfo(order.status).color,
+                                        border: `1px solid ${getStatusInfo(order.status).color}`,
                                         fontWeight: 'bold',
                                     }}
-                                    icon={<Box sx={{ '& svg': { color: ORDER_STATUS[order.status].color, fontSize: '1rem', mr: -0.5 } }}>{ORDER_STATUS[order.status].icon}</Box>}
+                                    icon={<Box sx={{ '& svg': { color: getStatusInfo(order.status).color, fontSize: '1rem', mr: -0.5 } }}>{getStatusInfo(order.status).icon}</Box>}
                                 />
 
                                 {/* Show payment method chip */}
@@ -281,7 +349,7 @@ function OrderRow({ order, onOrderUpdate }) {
                             </Typography>
                             
                             <Box sx={{ mb: 2 }}>
-                        {order.items.map((item) => (
+                                {order.items.map((item) => (
                                     <Box 
                                         key={item._id} 
                                         sx={{ 
@@ -347,11 +415,26 @@ function OrderRow({ order, onOrderUpdate }) {
                                                 <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.9rem' }}>
                                                     ${parseFloat(item.price).toFixed(2)} 
                                                 </Typography>
-                                                  <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.9rem' }}>
-                                                     {formatDate(order.createdAt)}
+                                                <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.9rem' }}>
+                                                    {formatDate(order.createdAt)}
                                                 </Typography>
 
-                                                {/* Add feedback section for completed orders */}
+                                                {/* Display individual item status for partially confirmed orders */}
+                                                {order.status >= 5 && order.status <= 8 && (
+                                                    <Chip 
+                                                        label={getItemStatus(item)}
+                                                        size="small"
+                                                        sx={{
+                                                            mt: 1,
+                                                            bgcolor: 'rgba(0, 0, 0, 0.3)',
+                                                            color: getItemStatusColor(item),
+                                                            border: `1px solid ${getItemStatusColor(item)}`,
+                                                            fontWeight: 'bold',
+                                                        }}
+                                                    />
+                                                )}
+
+                                                {/* Existing feedback section */}
                                                 {order.status === 3 && (
                                                     <Box sx={{ mt: 1 }}>
                                                         {hasProductFeedback(item.productId) ? (
@@ -406,9 +489,9 @@ function OrderRow({ order, onOrderUpdate }) {
                                                     ${(parseFloat(item.price) * item.quantity).toFixed(2)}
                                                 </Typography>
                                             </Box>
-                                </Box>
-                            </Box>
-                        ))}
+                                        </Box>
+                                    </Box>
+                                ))}
                             </Box>
                             
                             {/* Summary row */}
@@ -448,7 +531,9 @@ function OrderRow({ order, onOrderUpdate }) {
                         <Box sx={{ margin: 2 }}>
                         
                             <Typography variant="h6" sx={{ fontFamily: "'Jersey 15', sans-serif", color: '#FFD700', mt: 2, mb: 2 }}>Order Details</Typography>
-                            <OrderStatusStepper status={order.status} />
+                            
+                            {/* Use the mapping function for the stepper to display partial statuses at their main step */}
+                            <OrderStatusStepper status={getStepperStatus(order.status)} />
 
                             {/* Simplified Status History Timeline */}
                             {order.statusHistory && order.statusHistory.length > 0 && (
@@ -471,7 +556,7 @@ function OrderRow({ order, onOrderUpdate }) {
                                     {[...order.statusHistory]
                                         .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
                                         .map((entry, index) => {
-                                            const statusInfo = ORDER_STATUS[entry.status];
+                                            const statusInfo = getStatusInfo(entry.status);
                                             return (
                                                 <Box 
                                                     key={index}
@@ -851,9 +936,30 @@ export default function ManageMyOrders() {
     useEffect(() => {
         let result = [...orders];
 
-        // Apply tab filter
+        // Apply tab filter with support for partial statuses
         if (tabValue !== 'all') {
-            result = result.filter(order => order.status === parseInt(tabValue));
+            const statusValue = parseInt(tabValue);
+            
+            // For confirmed tab, include both confirmed and partially confirmed
+            if (statusValue === 1) {
+                result = result.filter(order => order.status === 1 || order.status === 6);
+            }
+            // For processing tab, include both processing and partially processing
+            else if (statusValue === 2) {
+                result = result.filter(order => order.status === 2 || order.status === 7);
+            }
+            // For completed tab, include both completed and partially completed
+            else if (statusValue === 3) {
+                result = result.filter(order => order.status === 3 || order.status === 8);
+            }
+            // For cancelled tab, include both cancelled and partially cancelled
+            else if (statusValue === 4) {
+                result = result.filter(order => order.status === 4 || order.status === 5);
+            }
+            // For pending, just use the regular status
+            else {
+                result = result.filter(order => order.status === statusValue);
+            }
         }
 
         // Apply search filter
@@ -939,14 +1045,46 @@ export default function ManageMyOrders() {
 
                     <Box sx={{ width: '100%', mb: 2, borderBottom: 1, borderColor: 'rgba(255, 255, 255, 0.2)' }}>
                         <Tabs value={tabValue} onChange={handleTabChange} sx={{ '& .MuiTabs-indicator': { backgroundColor: '#FFD700' } }}>
-                            {['all', 'Pending', 'Confirmed', 'Processing', 'Completed', 'Cancelled'].map((label, index) => (
-                                <Tab
-                                    key={label}
-                                    label={label}
-                                    value={index === 0 ? 'all' : (index - 1).toString()}
-                                    sx={{ color: 'white', '&.Mui-selected': { color: '#FFD700' }, fontFamily: "'Jersey 15', sans-serif", fontSize: '1.3rem' }}
-                                />
-                            ))}
+                            <Tab
+                                key="all"
+                                label="All"
+                                value="all"
+                                sx={{ color: 'white', '&.Mui-selected': { color: '#FFD700' }, fontFamily: "'Jersey 15', sans-serif", fontSize: '1.3rem' }}
+                            />
+                            <Tab
+                                key="0"
+                                label="Pending"
+                                value="0"
+                                sx={{ color: 'white', '&.Mui-selected': { color: '#FFD700' }, fontFamily: "'Jersey 15', sans-serif", fontSize: '1.3rem' }}
+                            />
+                            {/* Group Confirmed and PartiallyConfirmed */}
+                            <Tab
+                                key="1"
+                                label="Confirmed"
+                                value="1"
+                                sx={{ color: 'white', '&.Mui-selected': { color: '#FFD700' }, fontFamily: "'Jersey 15', sans-serif", fontSize: '1.3rem' }}
+                            />
+                            {/* Group Processing and PartiallyProcessing */}
+                            <Tab
+                                key="2"
+                                label="Processing"
+                                value="2"
+                                sx={{ color: 'white', '&.Mui-selected': { color: '#FFD700' }, fontFamily: "'Jersey 15', sans-serif", fontSize: '1.3rem' }}
+                            />
+                            {/* Group Completed and PartiallyCompleted */}
+                            <Tab
+                                key="3"
+                                label="Completed"
+                                value="3"
+                                sx={{ color: 'white', '&.Mui-selected': { color: '#FFD700' }, fontFamily: "'Jersey 15', sans-serif", fontSize: '1.3rem' }}
+                            />
+                            {/* Group Cancelled and PartiallyCancelled */}
+                            <Tab
+                                key="4"
+                                label="Cancelled"
+                                value="4"
+                                sx={{ color: 'white', '&.Mui-selected': { color: '#FFD700' }, fontFamily: "'Jersey 15', sans-serif", fontSize: '1.3rem' }}
+                            />
                         </Tabs>
                     </Box>
 

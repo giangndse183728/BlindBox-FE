@@ -8,6 +8,7 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import useSocket, { SOCKET_EVENTS } from '../../utils/useSocket';
 import { toast } from 'react-toastify';
+import { fetchProfile } from '../../services/userApi';
 
 const accNumber = process.env.REACT_APP_ACC;
 const bankName = process.env.REACT_APP_BANK_NAME;
@@ -21,12 +22,48 @@ const OrderSuccessScreen = () => {
   const responseData = location.state?.orderData;
   const paymentMethod = location.state?.paymentMethod;
   
-  // Get token and user info for socket connection
-  const token = localStorage.getItem('token');
-  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+  // States for user data and loading
+  const [token, setToken] = useState(null);
+  const [userInfo, setUserInfo] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [socketError, setSocketError] = useState(null);
   
-  // Initialize socket connection
-  const { socket, isConnected } = useSocket(token, userInfo);
+  // Fetch user data from API
+  useEffect(() => {
+    const getUserData = async () => {
+      try {
+        setIsLoading(true);
+        // Get token from localStorage
+        const storedToken = localStorage.getItem('token');
+        setToken(storedToken);
+        
+        if (storedToken) {
+          // Fetch user data from API
+          const userData = await fetchProfile();
+          console.log("User data from API:", userData);
+          
+          // Update user info state with necessary fields
+          setUserInfo({
+            _id: userData._id,
+            userName: userData.userName,
+            email: userData.email,
+            isSeller: userData.isRegisterSelling,
+            verify: userData.verify
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        toast.error("Could not load user information");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    getUserData();
+  }, []);
+  
+  // Initialize socket connection with error handling
+  const { socket, isConnected, error } = useSocket(token, userInfo);
   
   // Handle different API response structures
   let orders = [];
@@ -56,38 +93,113 @@ const OrderSuccessScreen = () => {
   const description = `orderId ${orderGroupId}`; 
   const qrUrl = `https://qr.sepay.vn/img?acc=${accNumber}&bank=${bankName}&amount=${amount}&des=${encodeURIComponent(description)}&lock=true`;
 
-  // Set up socket listener for payment confirmation
+  // Track socket errors
   useEffect(() => {
-    if (socket && paymentMethod === 'banking' && orderGroupId) {
-      // Listen for the ORDER_SUCCESS event which will also be triggered when payment is confirmed
-      socket.on(SOCKET_EVENTS.ORDER_SUCCESS, (data) => {
-        console.log("Order success/payment confirmation received:", data);
+    if (error) {
+      console.error("Socket error:", error);
+      setSocketError(error);
+    }
+  }, [error]);
+  
+  // Improved socket connection logging
+  useEffect(() => {
+    console.log("Socket connection check:", {
+      socketExists: !!socket,
+      isConnected: isConnected,
+      error: error
+    });
+    
+    if (socket) {
+      // Log socket details safely with null checks
+      console.log("Socket details:", {
+        id: socket?.id || 'undefined',
+        connected: socket?.connected || false,
+        namespace: socket?.nsp || 'unknown'
+      });
+    }
+    
+    // If socket exists but not connected, try reconnecting
+    if (socket && !isConnected && token && userInfo) {
+      console.log("Attempting manual socket reconnection");
+      
+      // Try forcing a reconnection
+      try {
+        socket.connect();
         
-          setPaymentStatus('confirmed');   
-          // Show a toast notification about the payment confirmation
-          toast.success("Payment received! Your order is now being processed.", {
-            icon: "💰",
-            position: "bottom-right",
-            autoClose: 5000,
-            closeOnClick: true
+        // Add a delay and check connection again
+        setTimeout(() => {
+          console.log("Reconnection check:", {
+            id: socket?.id || 'still undefined',
+            connected: socket?.connected || false
           });
+        }, 1000);
+      } catch (err) {
+        console.error("Socket reconnection error:", err);
+      }
+    }
+  }, [socket, isConnected, token, userInfo, error]);
+  
+  // Update the socket event listeners to handle possible undefined socket
+  useEffect(() => {
+    if (!socket) {
+      console.error("Socket is not initialized");
+      return;
+    }
+    
+    if (!isConnected) {
+      console.error("Socket is not connected");
+      return;
+    }
+    
+    console.log("Setting up socket event listeners");
+    console.log("Current socket state:", {
+      id: socket?.id || 'undefined',
+      connected: socket?.connected || false
+    });
+    
+    // First, remove any existing listeners to avoid duplicates
+    socket.off(SOCKET_EVENTS.ORDER_SUCCESS);
+     
+    // Set up the ORDER_SUCCESS listener
+    if (paymentMethod === 'banking' && orderGroupId) {
+      console.log("Setting up ORDER_SUCCESS listener for payment confirmation");
+      
+      socket.on(SOCKET_EVENTS.ORDER_SUCCESS, (data) => {
+        console.log("ORDER_SUCCESS event received:", data);
         
+        setPaymentStatus('confirmed');   
+        toast.success("Payment received! Your order is now being processed.", {
+          icon: "💰",
+          position: "bottom-right",
+          autoClose: 5000,
+          closeOnClick: true
+        });
       });
       
-      return () => {
-        socket.off(SOCKET_EVENTS.ORDER_SUCCESS);
-      };
+      // Test if toast is working
+      setTimeout(() => {
+        toast.info("Socket connection established", {
+          position: "bottom-right",
+          autoClose: 3000
+        });
+      }, 1000);
     }
-  }, [socket, orderGroupId, paymentMethod]);
+    
+    // Return cleanup function
+    return () => {
+      console.log("Cleaning up socket event listeners");
+      socket.off(SOCKET_EVENTS.ORDER_SUCCESS);
+    };
+  }, [socket, orderGroupId, paymentMethod, isConnected]);
 
-  // If no order data is found, redirect to home
+  // Redirect if no order data
   useEffect(() => {
     if (!responseData || orders.length === 0) {
       navigate('/');
     }
   }, [responseData, orders, navigate]);
 
-  if (!responseData || orders.length === 0) {
+  if (!responseData || orders.length === 0 || isLoading) {
     return (
       <Box sx={{
         minHeight: '100vh',
@@ -103,7 +215,7 @@ const OrderSuccessScreen = () => {
           fontFamily="'Jersey 15', sans-serif"
           sx={{ color: "white" }}
         >
-          Redirecting...
+          {isLoading ? "Loading..." : "Redirecting..."}
         </Typography>
       </Box>
     );
@@ -136,6 +248,8 @@ const OrderSuccessScreen = () => {
     };
     return statusMap[status] || 'Unknown';
   };
+
+ 
 
   return (
     <Box sx={{
@@ -174,7 +288,7 @@ const OrderSuccessScreen = () => {
                 Thank you for your purchase. Your order has been received.
               </Typography>
               
-              {/* Show payment status message if banking payment method */}
+              {/* Payment status */}
               {paymentMethod === 'banking' && (
                 <Typography 
                   variant="body1" 
@@ -187,6 +301,36 @@ const OrderSuccessScreen = () => {
                   {paymentStatus === 'confirmed' 
                     ? "✓ Payment Confirmed" 
                     : "Awaiting Payment Confirmation"}
+                </Typography>
+              )}
+              
+              {/* Socket connection status */}
+              {paymentMethod === 'banking' && (
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    color: isConnected ? 'rgba(255, 255, 255, 0.7)' : '#FF6B6B',
+                    mt: 1,
+                    fontSize: '0.85rem'
+                  }}
+                >
+                  {isConnected 
+                    ? "✓ Connected to payment notification system" 
+                    : "⚠️ Notifications system disconnected - please check in my orders"}
+                </Typography>
+              )}
+              
+              {/* Socket error */}
+              {socketError && paymentMethod === 'banking' && (
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    color: '#FF6B6B',
+                    mt: 0.5,
+                    fontSize: '0.8rem'
+                  }}
+                >
+                  Error: {socketError}
                 </Typography>
               )}
             </Box>
@@ -410,6 +554,7 @@ const OrderSuccessScreen = () => {
                 </Typography>
               </Box>
             </Box>
+
 
             {/* Action Buttons */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
