@@ -4,9 +4,14 @@ import { ToastContainer, Bounce } from "react-toastify";
 import LoadingScreen from "./components/Loading/LoadingScreen";
 import "react-toastify/dist/ReactToastify.css";
 import './App.css'
-
+import useSocket from "./utils/useSocket";
 
 function App() {
+ 
+  const token = localStorage.getItem('token');
+  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+  
+  useSocket(token, userInfo);
 
   return (
     <>

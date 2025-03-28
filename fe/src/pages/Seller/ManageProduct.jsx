@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Box, Typography,
-  Paper, Table, TableBody, TableCell, TableContainer, 
-  TableHead, TableRow, IconButton, CircularProgress, Slider,
+  Paper, CircularProgress, 
   TextField, InputAdornment, Select, MenuItem, FormControl, InputLabel,
-  Pagination, Stack, Tabs, Tab, Dialog, DialogTitle, DialogContent, 
-  DialogActions, Button, DialogContentText
+  Pagination, Tabs, Tab, Dialog, DialogTitle, DialogContent, 
+  DialogActions, Button, DialogContentText, Grid, Card, CardMedia, 
+  CardContent, Chip
 } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { toast } from 'react-toastify';
@@ -32,7 +30,7 @@ export default function ManageProduct() {
   
   // Pagination states
   const [page, setPage] = useState(1);
-  const [itemsPerPage] = useState(5);
+  const [itemsPerPage] = useState(8); // Increased for card layout
   const [totalPages, setTotalPages] = useState(1);
 
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -170,6 +168,13 @@ export default function ManageProduct() {
     } finally {
       setLoading(false);
     }
+  };
+
+
+
+  // Function to get status color
+  const getStatusColor = (status) => {
+    return status === 1 ? '#4CAF50' : '#FF9800';
   };
 
   return (
@@ -338,70 +343,81 @@ export default function ManageProduct() {
               </Typography>
             ) : (
               <>
-                <TableContainer component={Paper} sx={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif" }}>Product</TableCell>
-                        <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif", textAlign: 'center' }}>Brand</TableCell>
-                        <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif", textAlign: 'center' }}>Price</TableCell>
-                        <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif", textAlign: 'center' }}>Quantity</TableCell>
-                        <TableCell sx={{ color: 'white', fontFamily: "'Jersey 15', sans-serif", textAlign: 'center' }}>Status</TableCell>
-                        <TableCell sx={{ color: '#FFD700', fontFamily: "'Jersey 15', sans-serif", textAlign: 'center' }}>Actions</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {displayedProducts.map((product) => (
-                        <TableRow key={product._id}>
-                          <TableCell>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                              <Box 
-                                component="img" 
-                                src={product.image} 
-                                alt={product.name}
-                                sx={{ width: 50, height: 50, objectFit: 'cover', borderRadius: 1 }}
-                              />
-                              <Typography sx={{ color: 'white', fontWeight: 'medium' }}>
-                                {product.name}
+                {/* Card Grid Layout */}
+                <Grid container spacing={3}>
+                  {displayedProducts.map((product) => (
+                    <Grid item xs={12} sm={6} md={4} lg={3} key={product._id}>
+                      <Card sx={{ 
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                        border: '1px solid rgba(255, 215, 0, 0.3)',
+                        transition: 'transform 0.3s, box-shadow 0.3s',
+                        '&:hover': {
+                          transform: 'translateY(-5px)',
+                          boxShadow: '0 10px 20px rgba(0, 0, 0, 0.5), 0 0 15px rgba(255, 215, 0, 0.3)'
+                        }
+                      }}>
+                        <Box sx={{ position: 'relative' }}>
+                          <CardMedia
+                            component="img"
+                            height="200"
+                            image={product.image}
+                            alt={product.name}
+                            sx={{ objectFit: 'contain'}}
+                          />
+                          <Chip
+                            label={product.status === 1 ? 'Approved' : 'Pending'}
+                            sx={{
+                              position: 'absolute',
+                              top: 10,
+                              right: 10,
+                              backgroundColor: getStatusColor(product.status),
+                              color: 'white',
+                              fontWeight: 'bold'
+                            }}
+                          />
+                        </Box>
+                        <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                          <Typography variant="h6" sx={{ color: 'white', mb: 1, fontWeight: 'bold' }}>
+                            {product.name}
+                          </Typography>
+                          <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 2, flexGrow: 1 }}>
+                            {product.description.length > 100 
+                              ? `${product.description.substring(0, 100)}...` 
+                              : product.description}
+                          </Typography>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 'auto' }}>
+                            <Box>
+                              <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.5)' }}>
+                                Brand: {product.brand}
                               </Typography>
-                            </Box>
-                          </TableCell>
-                          <TableCell sx={{ color: 'white', textAlign: 'center' }}>{product.brand}</TableCell>
-                          <TableCell sx={{ color: 'white', textAlign: 'center' }}>${product.price}</TableCell>
-                          <TableCell sx={{ color: 'white', textAlign: 'center' }}>{product.quantity}</TableCell>
-                          <TableCell sx={{ textAlign: 'center' }}>
-                            <Box
-                              sx={{
-                                display: 'inline-block',
-                                px: 1.5,
-                                py: 0.5,
-                                borderRadius: 1,
-                                bgcolor: product.status === 1 ? 'rgba(76, 175, 80, 0.2)' : 'rgba(255, 152, 0, 0.2)',
-                                border: `1px solid ${product.status === 1 ? '#4CAF50' : '#FF9800'}`,
-                              }}
-                            >
-                              <Typography 
-                                sx={{ 
-                                  color: product.status === 1 ? '#4CAF50' : '#FF9800',
-                                  fontWeight: 'bold',
-                                  fontSize: '0.875rem',
-                                }}
-                              >
-                                {product.status === 1 ? 'Approved' : 'Pending'}
+                              <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.5)' }}>
+                                Qty: {product.quantity}
                               </Typography>
+                              {product.size && (
+                                <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.5)' }}>
+                                  Size: {product.size}cm
+                                </Typography>
+                              )}
                             </Box>
-                          </TableCell>
-                          <TableCell sx={{ textAlign: 'center' }}>
+                            <Typography variant="h6" sx={{ color: '#FFD700', fontWeight: 'bold' }}>
+                              ${parseFloat(product.price).toFixed(2)}
+                            </Typography>
+                          </Box>
+                          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
                             <ActionMenu 
                               onEdit={() => handleEditProduct(product)}
                               onDelete={() => handleDeleteProduct(product)}
+                              direction="horizontal"
                             />
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
+                          </Box>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  ))}
+                </Grid>
                 
                 {/* Pagination Controls */}
                 <Box sx={{ 

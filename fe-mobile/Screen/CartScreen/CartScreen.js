@@ -10,14 +10,12 @@ import {
   ImageBackground,
   Image,
   TextInput,
-  ScrollView
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import useCartStore from "./CartStore";
 import OrderInfoDialog from "./OrderInfoDialog";
 import { fetchUserData } from "../../service/userApi";
 import { createOrder } from '../../service/ordersApi';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const truncateString = (str, maxLength = 15) => {
   if (str.length <= maxLength) return str;
@@ -33,7 +31,7 @@ const CartScreen = () => {
     fullName: '',
     phoneNumber: '',
     address: '',
-    paymentMethod: 1, // 0 for COD, 1 for Banking
+    paymentMethod: 0,
     isGift: false,
     notes: '',
     giftRecipient: {
@@ -45,7 +43,6 @@ const CartScreen = () => {
 
   const [openOrderDialog, setOpenOrderDialog] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
-  const [checkoutError, setCheckoutError] = useState(null);
   const [profileLoading, setProfileLoading] = useState(false);
 
   useEffect(() => {
@@ -74,8 +71,8 @@ const CartScreen = () => {
   const handleRemove = (productId) => {
     Alert.alert("Remove Item", "Are you sure you want to remove this item?", [
       { text: "Cancel" },
-      { 
-        text: "OK", 
+      {
+        text: "OK",
         onPress: async () => {
           try {
             await removeFromCart(productId);
@@ -83,7 +80,7 @@ const CartScreen = () => {
           } catch (error) {
             Alert.alert("Error", error.message);
           }
-        } 
+        }
       },
     ]);
   };
@@ -108,10 +105,12 @@ const CartScreen = () => {
   const handleClearCart = () => {
     Alert.alert("Clear Cart", "Are you sure you want to clear the cart?", [
       { text: "Cancel" },
-      { text: "OK", onPress: async () => {
-        await clearCart();
-        Alert.alert("Success", "Cart cleared.");
-      }},
+      {
+        text: "OK", onPress: async () => {
+          await clearCart();
+          Alert.alert("Success", "Cart cleared.");
+        }
+      },
     ]);
   };
 
@@ -119,47 +118,34 @@ const CartScreen = () => {
     try {
       setCheckoutLoading(true);
 
-      // Validate required fields
       const recipientInfo = orderInfo.isGift ? orderInfo.giftRecipient : orderInfo;
       if (!recipientInfo.fullName || !recipientInfo.phoneNumber || !recipientInfo.address) {
         throw new Error('Please fill in all required shipping information');
       }
 
-      // Check if cart exists and has items
       if (!cart?.items || cart.items.length === 0) {
         throw new Error('Your cart is empty');
       }
 
-      // Format items for the order - using the correct item ID format
       const items = cart.items.map(item => ({
         itemId: item._id,
         quantity: item.cartQuantity
       }));
 
-      console.log('Cart items being sent:', items); // Debug log
-
-      // Create order data
       const orderData = {
         receiverInfo: {
           fullName: recipientInfo.fullName,
           phoneNumber: recipientInfo.phoneNumber,
           address: recipientInfo.address
         },
-        orderType: 1,
-        promotionId: "",
+        orderType: orderInfo.isGift ? 0 : 1,
         notes: orderInfo.notes || (orderInfo.isGift ? "This is a gift order" : ""),
-        paymentMethod: orderInfo.paymentMethod === 'cod' ? 0 : 1,
+        paymentMethod: orderInfo.paymentMethod,
         items: items
       };
 
-      console.log('Sending order data:', orderData); // Debug log
-
       const response = await createOrder(orderData);
-      
-      // Clear cart after successful order
       await clearCart();
-
-      // Navigate to success screen
       navigation.navigate('OrderSuccess', {
         orderData: response.result,
         paymentMethod: orderInfo.paymentMethod
@@ -177,8 +163,9 @@ const CartScreen = () => {
   };
 
   const handleQuantityChange = (productId, newQuantity) => {
-    if (newQuantity > 0) {
-      handleUpdateQuantity(productId, newQuantity, cart.items.find((item) => item.product._id === productId).product.quantity);
+    const item = cart.items.find((item) => item.product._id === productId);
+    if (item && newQuantity > 0) {
+      handleUpdateQuantity(productId, newQuantity, item.product.quantity);
     }
   };
 
@@ -242,9 +229,20 @@ const CartScreen = () => {
                       >
                         <Text style={styles.quantityButtonText}>-</Text>
                       </TouchableOpacity>
-                      
-                      <Text style={styles.quantityText}>{item.cartQuantity}</Text>
-                      
+
+                      <TextInput
+                        style={styles.quantityInput}
+                        keyboardType="numeric"
+                        value={String(item.cartQuantity)}
+                        onChangeText={(text) => {
+                          const newQuantity = parseInt(text, 10);
+                          if (!isNaN(newQuantity) && newQuantity > 0) {
+                            handleQuantityChange(item.product._id, newQuantity);
+                          }
+                        }}
+                        onSubmitEditing={() => handleQuantityChange(item.product._id, item.cartQuantity)}
+                      />
+
                       <TouchableOpacity 
                         style={styles.quantityButton}
                         onPress={() => handleQuantityChange(item.product._id, item.cartQuantity + 1)}
@@ -288,10 +286,10 @@ const CartScreen = () => {
         visible={openOrderDialog}
         onClose={() => setOpenOrderDialog(false)}
         orderInfo={orderInfo}
+        setOrderInfo={setOrderInfo}
         cart={cart}
         onSubmit={handleCheckout}
         isLoading={checkoutLoading}
-        error={checkoutError}
       />
     </ImageBackground>
   );
@@ -352,28 +350,29 @@ const styles = StyleSheet.create({
   quantityContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'transparent',
-    borderRadius: 5,
-    padding: 5,
   },
   quantityButton: {
     padding: 8,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     borderRadius: 4,
-    marginHorizontal: 10,
+    marginHorizontal: 5,
   },
   quantityButtonText: {
     fontSize: 18,
     fontWeight: 'bold',
     color: 'white',
-    width: 20,
+    width: 30,
     textAlign: 'center',
   },
-  quantityText: {
-    marginHorizontal: 15,
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: 'white'
+  quantityInput: {
+    width: 50,
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    borderRadius: 5,
+    textAlign: 'center',
+    color: 'white',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
   },
   removeButton: {
     padding: 8,

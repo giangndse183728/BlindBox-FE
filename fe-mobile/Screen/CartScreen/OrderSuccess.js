@@ -7,8 +7,6 @@ import {
   TouchableOpacity,
   Image,
   ImageBackground,
-  Linking,
-  ActivityIndicator
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -69,15 +67,14 @@ const OrderSuccess = () => {
   };
 
   const getPaymentMethodIcon = () => {
-    return paymentMethod === 1 ? 'account-balance' : 'account-balance';
+    return paymentMethod === 0 ? 'local-shipping' : 'account-balance';
   };
 
   const getPaymentMethodName = () => {
-    return paymentMethod === 1 ? 'Bank Transfer' : 'Bank Transfer';
+    return paymentMethod === 0 ? 'Cash on Delivery' : 'QR (Bank Transfer)';
   };
 
   // QR Code URL for bank transfer
-  console.log('Order Data:', process.env.EXPO_PUBLIC_ACCOUNT , process.env.EXPO_PUBLIC_BANK_NAME);
   const qrUrl = paymentMethod === 1 
     ? `https://qr.sepay.vn/img?acc=${process.env.EXPO_PUBLIC_ACCOUNT}&bank=${process.env.EXPO_PUBLIC_BANK_NAME}&amount=${Math.round(orderData.totalPrice * 1000)}&des=${encodeURIComponent(`orderId ${orderData._id}`)}&lock=true`
     : null;
@@ -98,8 +95,8 @@ const OrderSuccess = () => {
             </Text>
           </View>
 
-          {/* Payment QR Code for Bank Transfer */}
-          {paymentMethod === 1 && (
+          {/* Payment Information */}
+          {paymentMethod === 1 ? (
             <View style={styles.qrSection}>
               <Text style={styles.sectionTitle}>Scan QR Code to Pay</Text>
               <Image
@@ -107,6 +104,16 @@ const OrderSuccess = () => {
                 style={styles.qrCode}
                 resizeMode="contain"
               />
+              <Text style={styles.paymentInstruction}>
+                Please scan the QR code above to complete your payment via Bank Transfer.
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.qrSection}>
+              <Text style={styles.sectionTitle}>Payment Information</Text>
+              <Text style={styles.paymentInstruction}>
+                You have chosen Cash on Delivery. Please prepare ${orderData.totalPrice ? orderData.totalPrice.toFixed(2) : 'N/A'} to pay upon delivery.
+              </Text>
             </View>
           )}
 
@@ -141,40 +148,44 @@ const OrderSuccess = () => {
 
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Total Amount:</Text>
-              <Text style={styles.totalAmount}>${orderData.totalPrice.toFixed(2)}</Text>
+              <Text style={styles.totalAmount}>${orderData.totalPrice ? orderData.totalPrice.toFixed(2) : 'N/A'}</Text>
             </View>
           </View>
 
           {/* Shipping Information */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Shipping Information</Text>
-            <Text style={styles.shippingName}>{orderData.receiverInfo.fullName}</Text>
-            <Text style={styles.shippingDetail}>{orderData.receiverInfo.phoneNumber}</Text>
-            <Text style={styles.shippingDetail}>{orderData.receiverInfo.address}</Text>
+            <Text style={styles.shippingName}>{orderData.receiverInfo?.fullName || 'N/A'}</Text>
+            <Text style={styles.shippingDetail}>{orderData.receiverInfo?.phoneNumber || 'N/A'}</Text>
+            <Text style={styles.shippingDetail}>{orderData.receiverInfo?.address || 'N/A'}</Text>
           </View>
 
           {/* Order Items */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Order Items</Text>
-            {orderData.items.map((item, index) => (
-              <View key={index} style={styles.itemCard}>
-                <Image
-                  source={{ uri: item.image || 'https://via.placeholder.com/80' }}
-                  style={styles.itemImage}
-                />
-                <View style={styles.itemDetails}>
-                  <Text style={styles.itemName}>{item.productName}</Text>
-                  <View style={styles.itemInfo}>
-                    <Text style={styles.itemQuantity}>Qty: {item.quantity}</Text>
-                    <Text style={styles.itemPrice}>${item.price.toFixed(2)}</Text>
+            {orderData.items && orderData.items.length > 0 ? (
+              orderData.items.map((item, index) => (
+                <View key={index} style={styles.itemCard}>
+                  <Image
+                    source={{ uri: item.image || 'https://via.placeholder.com/80' }}
+                    style={styles.itemImage}
+                  />
+                  <View style={styles.itemDetails}>
+                    <Text style={styles.itemName}>{item.productName}</Text>
+                    <View style={styles.itemInfo}>
+                      <Text style={styles.itemQuantity}>Qty: {item.quantity}</Text>
+                      <Text style={styles.itemPrice}>${item.price ? item.price.toFixed(2) : 'N/A'}</Text>
+                    </View>
                   </View>
                 </View>
-              </View>
-            ))}
+              ))
+            ) : (
+              <Text style={styles.noItemsText}>No items in this order.</Text>
+            )}
 
             <View style={styles.totalRow}>
               <Text style={styles.totalLabel}>Total:</Text>
-              <Text style={styles.totalValue}>${orderData.totalPrice.toFixed(2)}</Text>
+              <Text style={styles.totalValue}>${orderData.totalPrice ? orderData.totalPrice.toFixed(2) : 'N/A'}</Text>
             </View>
           </View>
 
@@ -259,6 +270,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 2,
     borderColor: 'rgba(255, 215, 0, 0.3)',
+  },
+  paymentInstruction: {
+    color: 'white',
+    fontSize: 14,
+    textAlign: 'center',
+    marginTop: 10,
   },
   section: {
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -401,6 +418,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: 'bold',
   },
+  noItemsText: {
+    color: 'white',
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 20,
+  },
 });
 
-export default OrderSuccess; 
+export default OrderSuccess;

@@ -56,7 +56,7 @@ export const uploadImage = async (file) => {
           "Content-Type": "multipart/form-data",
         },
       });
-  
+      console.log("uploadImage response:", response);
       return response.data;
     } catch (error) {
       console.error("Error uploading image:", error.response?.data || error.message);
@@ -83,4 +83,26 @@ export const deleteBlindbox = async (productId) => {
     throw new Error(error.response?.data?.message || "Failed to delete blindbox");
   }
 };
-  
+
+export const createOpenItem = async (openItemData) => {
+  console.log("createOpenItem called with data:", openItemData);
+  try {
+    const response = await api.post("/products/opened-items", openItemData);
+    console.log("createOpenItem response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating open item:", error.response ? error.response.data : error.message);
+    throw new Error(error.response?.data?.message || "Failed to create open item");
+  }
+};
+
+
+export const fetchOpenItemData = async () => {
+  try {
+      const blindboxResponse = await api.get('/products/opened-items');
+      return blindboxResponse.data;
+  } catch (error) {
+      console.error('Error fetching open item data:', error);
+      throw new Error('Failed to fetch data');
+  }
+};
