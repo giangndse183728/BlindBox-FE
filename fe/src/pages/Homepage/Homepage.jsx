@@ -200,10 +200,23 @@ export default function Home() {
             </Typography>
             <Grid container sx={{ mt: 4 }}>
               <Grid item xs={4}>
-                <ButtonCus variant="button-22" width="150px"> Shop Now </ButtonCus>
+                <ButtonCus
+                  variant="button-22"
+                  width="150px"
+                  onClick={() => navigate('/Collection-page')}
+                >
+                  SHOP NOW
+                </ButtonCus>
               </Grid>
               <Grid item xs={4}>
-                <ButtonCus variant="button-22" width="150px"> Shop Now </ButtonCus>
+                <ButtonCus
+                  fontFamily="'Jersey 15', sans-serif"
+                  variant="button-22"
+                  width="150px"
+                  onClick={() => navigate('/subscription')}
+                >
+                  TRADE NOW
+                </ButtonCus>
               </Grid>
               <Grid item xs={4}>
                 <Typography color="white" sx={{ ...yellowGlowAnimation }} variant="h4" fontFamily="'Jersey 15', sans-serif">
@@ -283,7 +296,7 @@ export default function Home() {
                 <SwiperSlide key={index}>
                   <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                     <GlassCard
-                      sx={{ height:350,width: 250, textAlign: 'center', cursor: 'pointer' }}
+                      sx={{ height: 350, width: 250, textAlign: 'center', cursor: 'pointer' }}
                       onClick={() => handleProductClick(product)}
                     >
                       <img src={product.image || '/assets/blindbox1.png'} alt={product.name} height="200" />
@@ -330,7 +343,7 @@ export default function Home() {
                 <SwiperSlide key={index}>
                   <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                     <GlassCard
-                      sx={{ height:350, width: 250, textAlign: 'center', cursor: 'pointer' }}
+                      sx={{ height: 350, width: 250, textAlign: 'center', cursor: 'pointer' }}
                       onClick={() => handleProductClick(product)}
                     >
                       <img src={product.image || '/assets/blindbox1.png'} alt={product.name} height="200" />
@@ -372,7 +385,13 @@ export default function Home() {
                 auctions, and direct swaps. Sellers can list sealed or opened items with detailed descriptions, while buyers can pay via credit cards, PayPal,
                 crypto, or platform credits.
               </Typography>
-              <ButtonCus variant="button-22" width="300px"> Trade Now </ButtonCus>
+              <ButtonCus
+                variant="button-22"
+                width="300px"
+                onClick={() => navigate('/trading')}
+              >
+                WANNA TRADE?
+              </ButtonCus>
             </GlassCard>
           </Box>
         </Grid>
